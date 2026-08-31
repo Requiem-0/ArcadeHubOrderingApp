@@ -41,4 +41,17 @@ class AppColors {
   static const Color shadow = Color(0x66000000);
   static const Color overlay = Color(0xB8000000);
   static const Color transparent = Colors.transparent;
+
+  // ── Theme Aliases for New Layouts ──────────────────────────────
+  static const Color neonPurple = primaryRedDark;
+  static const Color neonCyan = primaryRedDark;
+  static const Color neonPink = primaryRed;
+  static const Color neonGreen = Color(0xFF4CAF50);
+  static const Color neonOrange = Color(0xFFFF9800);
+  static const Color neonYellow = Color(0xFFFFD700);
+  static const Color bgDark = scaffoldDark;
+  static const Color bgDark2 = surfaceDark;
+  static const Color cardBg = cardLight;
+  static const Color cardBg2 = surfaceLight;
+  static const Color strokeBorder = borderLight;
 }

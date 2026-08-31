@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
-import '../../core/brandkit/app_theme.dart';
 import '../../features/cart/cart_provider.dart';
 
 class AppBottomNavBar extends ConsumerWidget {
@@ -17,10 +16,10 @@ class AppBottomNavBar extends ConsumerWidget {
   });
 
   static const _tabs = [
-    _TabItem(icon: Icons.home_rounded, label: 'Home'),
-    _TabItem(icon: Icons.shopping_bag_outlined, label: 'Cart', activeIcon: Icons.shopping_bag_rounded, showBadge: true),
-    _TabItem(icon: Icons.receipt_long_outlined, label: 'Orders', activeIcon: Icons.receipt_long_rounded),
-    _TabItem(icon: Icons.person_outline_rounded, label: 'Profile', activeIcon: Icons.person_rounded),
+    _TabItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
+    _TabItem(icon: Icons.shopping_bag_outlined, activeIcon: Icons.shopping_bag_rounded, label: 'Cart', showBadge: true),
+    _TabItem(icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long_rounded, label: 'Orders'),
+    _TabItem(icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Profile'),
   ];
 
   @override
@@ -117,7 +116,7 @@ class _NavButtonState extends State<_NavButton>
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.active ? AppColors.primaryRed : AppColors.textMutedLight;
+    final color = widget.active ? AppColors.primaryRedDark : AppColors.textMutedLight;
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -130,9 +129,12 @@ class _NavButtonState extends State<_NavButton>
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: widget.active
-                ? AppColors.primaryRed.withOpacity(0.12)
+                ? AppColors.primaryRed.withOpacity(0.14)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+            borderRadius: BorderRadius.circular(14),
+            border: widget.active
+                ? Border.all(color: AppColors.primaryRedDark.withOpacity(0.35), width: 1)
+                : null,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -145,7 +147,7 @@ class _NavButtonState extends State<_NavButton>
                         ? (widget.tab.activeIcon ?? widget.tab.icon)
                         : widget.tab.icon,
                     color: color,
-                    size: 24,
+                    size: 22,
                   ),
                   if (widget.badge > 0)
                     Positioned(
@@ -154,9 +156,15 @@ class _NavButtonState extends State<_NavButton>
                       child: Container(
                         width: 18,
                         height: 18,
-                        decoration: const BoxDecoration(
-                          color: AppColors.error,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryRed,
                           shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryRed.withOpacity(0.6),
+                              blurRadius: 8,
+                            ),
+                          ],
                         ),
                         child: Center(
                           child: Text(
@@ -164,7 +172,7 @@ class _NavButtonState extends State<_NavButton>
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -176,7 +184,8 @@ class _NavButtonState extends State<_NavButton>
               Text(
                 widget.tab.label,
                 style: AppTextStyles.bodyXS(color).copyWith(
-                  fontWeight: widget.active ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: widget.active ? FontWeight.bold : FontWeight.w500,
+                  fontSize: 11,
                 ),
               ),
             ],

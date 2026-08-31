@@ -124,25 +124,83 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                 color: AppColors.textLight,
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              exp.description,
-                              style: GoogleFonts.dmSans(
-                                fontSize: 14,
-                                color: AppColors.textMutedLight,
-                                height: 1.5,
+                            const SizedBox(height: 14),
+
+                            // 1. Quoted Section FIRST
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: (exp.color == const Color(0xFFF8FAFC)
+                                        ? AppColors.primaryRedDark
+                                        : exp.color)
+                                    .withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border(
+                                  left: BorderSide(
+                                    color: exp.color == const Color(0xFFF8FAFC)
+                                        ? AppColors.primaryRedDark
+                                        : exp.color,
+                                    width: 4,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                '"${exp.tagline}"',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  fontStyle: FontStyle.italic,
+                                  color: exp.color == const Color(0xFFF8FAFC)
+                                      ? AppColors.textLight
+                                      : exp.color,
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 12),
-                            Text(
-                              '"${exp.tagline}"',
-                              style: GoogleFonts.dmSans(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                fontStyle: FontStyle.italic,
-                                color: exp.color == Colors.white ? AppColors.textLight : exp.color,
-                              ),
-                            ),
+                            const SizedBox(height: 16),
+
+                            // 2. Zone Description in Bullet Points BELOW IT
+                            ...[
+                              ...exp.description
+                                  .split(RegExp(r'\. |\n'))
+                                  .map((s) => s.trim())
+                                  .where((s) => s.isNotEmpty),
+                              ...exp.subtitle
+                                  .split('·')
+                                  .map((s) => s.trim())
+                                  .where((s) => s.isNotEmpty),
+                            ].toSet().map((bullet) {
+                              final text = bullet.endsWith('.') ? bullet : '$bullet.';
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(top: 7, right: 10),
+                                      width: 6,
+                                      height: 6,
+                                      decoration: BoxDecoration(
+                                        color: exp.color == const Color(0xFFF8FAFC)
+                                            ? AppColors.primaryRedDark
+                                            : exp.color,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        text,
+                                        style: GoogleFonts.dmSans(
+                                          fontSize: 13.5,
+                                          color: AppColors.textLight,
+                                          height: 1.45,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
                           ],
                         ),
                       ),
