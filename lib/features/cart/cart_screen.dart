@@ -12,6 +12,7 @@ import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/primary_button.dart';
 import '../../shared/widgets/price_text.dart';
 
+import '../../core/repositories/pos_repository.dart';
 import '../../core/repositories/auth_repository.dart';
 
 class CartScreen extends ConsumerWidget {
@@ -69,24 +70,25 @@ class CartScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cart = ref.watch(cartProvider);
+    final catalog = ref.watch(catalogProvider).asData?.value ?? [];
     final activeDiscount = AppConstants.isDiscountActiveNow();
 
     final entries = cart.entries
         .map((e) => (
-              product: kSampleProducts.firstWhere((p) => p.id == e.key,
-                  orElse: () => kSampleProducts.first),
+              product: catalog.firstWhere(
+                (p) => p.id == e.key,
+                orElse: () => kSampleProducts.firstWhere((p) => p.id == e.key, orElse: () => kSampleProducts.first),
+              ),
               qty: e.value
             ))
         .toList();
 
-    final subtotal = entries.fold<double>(
-        0, (sum, e) => sum + e.product.price * e.qty);
+    final subtotal = ref.watch(cartSubtotalProvider);
     final discountAmount = activeDiscount
         ? (subtotal * ((AppConstants.discountPercentage ?? 10) / 100)).roundToDouble()
         : 0.0;
-    final taxable = subtotal - discountAmount;
-    final tax = (taxable * AppConstants.vatRate).roundToDouble();
-    final total = taxable + tax;
+    final tax = ref.watch(cartVatProvider);
+    final total = ref.watch(cartGrandTotalProvider);
     final isEmpty = entries.isEmpty;
 
     return Scaffold(

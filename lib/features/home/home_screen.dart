@@ -411,23 +411,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   _SectionHeader(
                     title: 'Bundle Deals',
                     actionLabel: 'See all',
-                    onAction: () => context.push('/discounts'),
+                    onAction: () => context.push('/food-menu'),
                   ),
                   const SizedBox(height: 20),
 
-                  ref.watch(catalogProvider).when(
+                  ref.watch(bundleProductsProvider).when(
                         loading: () => const SizedBox(
                           height: 195,
                           child: Center(child: CircularProgressIndicator()),
                         ),
                         error: (_, __) => _buildNoBundlesPlaceholder(),
-                        data: (products) {
-                          final bundleProducts = products
-                              .where((p) =>
-                                  p.category.toLowerCase() == 'bundle' ||
-                                  p.category.toLowerCase() == 'bundles')
-                              .toList();
-
+                        data: (bundleProducts) {
                           if (bundleProducts.isEmpty) {
                             return _buildNoBundlesPlaceholder();
                           }

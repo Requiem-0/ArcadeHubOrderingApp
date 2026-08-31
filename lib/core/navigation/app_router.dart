@@ -9,7 +9,6 @@ import '../../features/auth/change_password_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/experiences/experience_detail_screen.dart';
 
-import '../../features/discounts/discounts_info_screen.dart';
 import '../../features/catalogue/product_detail_screen.dart';
 import '../../features/catalogue/data/product_model.dart';
 import '../../features/catalogue/data/sample_products.dart';
@@ -111,7 +110,6 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(path: '/service-booking', builder: (_, __) => const ServiceBookingScreen()),
-    GoRoute(path: '/discounts', builder: (_, __) => const DiscountsInfoScreen()),
     GoRoute(path: '/food-menu', builder: (_, __) => const FoodMenuScreen()),
     GoRoute(path: '/cart', builder: (_, __) => const CartScreen()),
     GoRoute(path: '/favourites', builder: (_, __) => const FavouritesScreen()),

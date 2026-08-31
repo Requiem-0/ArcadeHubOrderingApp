@@ -22,13 +22,11 @@ class PosRepository {
           ? response['products'] as List
           : (response is List ? response : []);
 
-      if (rawList.isEmpty) return kSampleProducts;
-
       return rawList
           .map((p) => ProductModel.fromJson(p as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      dev.log('API catalog fetch fallback to local sample data: $e', name: 'PosRepository');
+      dev.log('API catalog fetch error, fallback to local sample data: $e', name: 'PosRepository');
       return kSampleProducts;
     }
   }
@@ -182,4 +180,13 @@ final posRepositoryProvider = Provider<PosRepository>((ref) {
 
 final catalogProvider = FutureProvider<List<ProductModel>>((ref) async {
   return ref.read(posRepositoryProvider).getCatalog(businessId: AppConstants.activeBusinessId);
+});
+
+final bundleProductsProvider = Provider<AsyncValue<List<ProductModel>>>((ref) {
+  final catalogAsync = ref.watch(catalogProvider);
+  return catalogAsync.whenData((products) => products
+      .where((p) =>
+          p.category.toLowerCase() == 'bundle' ||
+          p.category.toLowerCase() == 'bundles')
+      .toList());
 });
