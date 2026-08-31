@@ -1,0 +1,44 @@
+name: arcadehuborderingapp
+description: "Arcade Hub — POS ordering app for Arcade Hub restaurants."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Routing
+  go_router: ^14.6.1
+
+  # Networking
+  http: ^1.2.2
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+
+  # UI & Fonts
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.10+1
+  cached_network_image: ^3.4.1
+
+  # Storage
+  shared_preferences: ^2.3.3
+
+  # Utilities
+  intl: ^0.20.2
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
