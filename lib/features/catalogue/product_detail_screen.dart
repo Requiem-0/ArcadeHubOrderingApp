@@ -8,13 +8,21 @@ import '../../core/brandkit/app_theme.dart';
 import '../../core/constants.dart';
 import '../../features/cart/cart_provider.dart';
 import '../../features/favourites/favourites_provider.dart';
+import '../../core/repositories/pos_repository.dart';
 import '../../features/catalogue/data/product_model.dart';
+import '../../features/catalogue/data/sample_products.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/price_text.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
-  final ProductModel product;
-  const ProductDetailScreen({super.key, required this.product});
+  final String productId;
+  final ProductModel? initialProduct;
+
+  const ProductDetailScreen({
+    super.key,
+    required this.productId,
+    this.initialProduct,
+  });
 
   @override
   ConsumerState<ProductDetailScreen> createState() =>
@@ -25,35 +33,50 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   String? _selectedVariant;
   final Set<String> _selectedAddons = {};
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.product.variants.isNotEmpty) {
-      _selectedVariant = widget.product.variants.first.id;
-    }
+  ProductModel _resolvedProduct(WidgetRef ref) {
+    final catalogAsync = ref.watch(catalogProvider);
+    return catalogAsync.maybeWhen(
+      data: (products) => products.firstWhere(
+        (p) => p.id == widget.productId,
+        orElse: () =>
+            widget.initialProduct ??
+            kSampleProducts.firstWhere(
+              (p) => p.id == widget.productId,
+              orElse: () => kSampleProducts.first,
+            ),
+      ),
+      orElse: () =>
+          widget.initialProduct ??
+          kSampleProducts.firstWhere(
+            (p) => p.id == widget.productId,
+            orElse: () => kSampleProducts.first,
+          ),
+    );
   }
 
-  double get _currentPrice {
-    if (_selectedVariant != null) {
-      final variant = widget.product.variants
+  double _currentPrice(ProductModel product) {
+    if (_selectedVariant != null && product.variants.isNotEmpty) {
+      final variant = product.variants
           .firstWhere((v) => v.id == _selectedVariant,
-              orElse: () => widget.product.variants.first);
+              orElse: () => product.variants.first);
       return variant.price;
     }
-    return widget.product.price;
+    return product.price;
   }
 
-  double get _addonsTotal => widget.product.addons
+  double _addonsTotal(ProductModel product) => product.addons
       .where((a) => _selectedAddons.contains(a.id))
       .fold(0, (sum, a) => sum + a.price);
 
-
   @override
   Widget build(BuildContext context) {
+    final product = _resolvedProduct(ref);
     final cart = ref.watch(cartProvider);
     final favs = ref.watch(favouritesProvider);
-    final qty = cart[widget.product.id] ?? 0;
-    final isFav = favs.contains(widget.product.id);
+    final qty = cart[product.id] ?? 0;
+    final isFav = favs.contains(product.id);
+    final priceToDisplay = _currentPrice(product);
+    final addonsPriceToDisplay = _addonsTotal(product);
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldLight,
@@ -89,7 +112,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     child: IconButton(
                       onPressed: () => ref
                           .read(favouritesProvider.notifier)
-                          .toggle(widget.product.id),
+                          .toggle(product.id),
                       icon: Icon(
                         isFav
                             ? Icons.favorite_rounded
@@ -112,10 +135,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         end: Alignment.bottomRight,
                       ),
                     ),
-                    child: Center(
-                      child: Text(widget.product.emoji,
-                          style: const TextStyle(fontSize: 90)),
-                    ),
+                    child: (product.imageUrl != null && product.imageUrl!.isNotEmpty)
+                        ? Image.network(
+                            product.imageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Center(
+                              child: Text(product.emoji,
+                                  style: const TextStyle(fontSize: 90)),
+                            ),
+                          )
+                        : Center(
+                            child: Text(product.emoji,
+                                style: const TextStyle(fontSize: 90)),
+                          ),
                   ),
                 ),
               ),
@@ -132,15 +164,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Name + price
-                      Text(widget.product.name,
+                      Text(product.name,
                           style: AppTextStyles.headingL(AppColors.textLight)),
                       const SizedBox(height: 4),
-                      if (widget.product.prepTime != null)
+                      if (product.prepTime != null)
                         Row(children: [
                           const Icon(Icons.access_time_rounded,
                               color: AppColors.textMutedLight, size: 14),
                           const SizedBox(width: 4),
-                          Text(widget.product.prepTime!,
+                          Text(product.prepTime!,
                               style: AppTextStyles.bodyS(AppColors.textMutedLight)),
                         ]),
                       const SizedBox(height: 14),
@@ -148,8 +180,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       Row(
                         children: [
                           PriceText(
-                              price: _currentPrice,
-                              originalPrice: widget.product.originalPrice),
+                              price: priceToDisplay,
+                              originalPrice: product.originalPrice),
                           const SizedBox(width: 12),
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -169,10 +201,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       const SizedBox(height: 16),
 
                       // Tags
-                      if (widget.product.tags.isNotEmpty) ...[
+                      if (product.tags.isNotEmpty) ...[
                         Wrap(
                           spacing: 8,
-                          children: widget.product.tags.map((tag) {
+                          children: product.tags.map((tag) {
                             final isGood = ['Organic', 'Vegan'].contains(tag);
                             return Container(
                               padding: const EdgeInsets.symmetric(
@@ -196,17 +228,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       ],
 
                       // Description
-                      if (widget.product.longDescription != null) ...[
-                        Text(widget.product.longDescription!,
-                            style: AppTextStyles.bodyM(AppColors.textMutedLight)),
+                      if (product.description.isNotEmpty || product.longDescription != null) ...[
+                        Text(
+                          product.longDescription ?? product.description,
+                          style: AppTextStyles.bodyM(AppColors.textMutedLight),
+                        ),
                         const SizedBox(height: 24),
                       ],
 
                       // Variants
-                      if (widget.product.variants.isNotEmpty) ...[
+                      if (product.variants.isNotEmpty) ...[
                         const SectionHeader(title: 'Choose Size'),
                         const SizedBox(height: 12),
-                        ...widget.product.variants.map((v) {
+                        ...product.variants.map((v) {
                           final selected = _selectedVariant == v.id;
                           return GestureDetector(
                             onTap: () =>
@@ -251,10 +285,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       ],
 
                       // Addons
-                      if (widget.product.addons.isNotEmpty) ...[
+                      if (product.addons.isNotEmpty) ...[
                         const SectionHeader(title: 'Add-ons'),
                         const SizedBox(height: 12),
-                        ...widget.product.addons.map((a) {
+                        ...product.addons.map((a) {
                           final selected = _selectedAddons.contains(a.id);
                           return GestureDetector(
                             onTap: () => setState(() {
@@ -327,7 +361,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       Text('Total',
                           style: AppTextStyles.bodyXS(AppColors.textMutedLight)),
                       Text(
-                        'Rs ${(_currentPrice + _addonsTotal) * (qty == 0 ? 1 : qty)}',
+                        'Rs ${(priceToDisplay + addonsPriceToDisplay) * (qty == 0 ? 1 : qty)}',
                         style: AppTextStyles.bold(AppColors.primaryRed, size: 22),
                       ),
                     ],
@@ -337,9 +371,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     _FloatingQtyControl(
                       qty: qty,
                       onDecrement: () =>
-                          ref.read(cartProvider.notifier).remove(widget.product.id),
+                          ref.read(cartProvider.notifier).remove(product.id),
                       onIncrement: () =>
-                          ref.read(cartProvider.notifier).add(widget.product.id),
+                          ref.read(cartProvider.notifier).add(product.id),
                     ),
                     const SizedBox(width: 12),
                   ],
@@ -347,7 +381,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     child: GestureDetector(
                       onTap: () {
                         if (qty == 0) {
-                          ref.read(cartProvider.notifier).add(widget.product.id);
+                          ref.read(cartProvider.notifier).add(product.id);
                         } else {
                           context.go('/cart');
                         }

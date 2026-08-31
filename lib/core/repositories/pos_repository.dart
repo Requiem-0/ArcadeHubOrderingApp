@@ -35,10 +35,9 @@ class PosRepository {
 
   /// Fetch product categories
   Future<List<CategoryModel>> getCategories({String? businessId}) async {
+    final targetBizId = businessId ?? AppConstants.activeBusinessId;
     try {
-      final endpoint = businessId != null
-          ? '/businesses/$businessId/products/categories'
-          : '/products/categories';
+      final endpoint = '/businesses/$targetBizId/products/categories';
       final response = await _client.get(endpoint);
 
       final rawList = (response is Map && response['categories'] is List)
@@ -56,10 +55,9 @@ class PosRepository {
 
   /// Fetch products by category ID
   Future<List<ProductModel>> getProductsByCategory(String categoryId, {String? businessId}) async {
+    final targetBizId = businessId ?? AppConstants.activeBusinessId;
     try {
-      final endpoint = businessId != null
-          ? '/businesses/$businessId/products/category/$categoryId'
-          : '/products/category/$categoryId';
+      final endpoint = '/businesses/$targetBizId/products/category/$categoryId';
       final response = await _client.get(endpoint);
 
       final rawList = (response is Map && response['products'] is List)
@@ -76,10 +74,9 @@ class PosRepository {
 
   /// Fetch popular products
   Future<List<ProductModel>> getPopularProducts({String? businessId}) async {
+    final targetBizId = businessId ?? AppConstants.activeBusinessId;
     try {
-      final endpoint = businessId != null
-          ? '/businesses/$businessId/products/popularity'
-          : '/products/popularity';
+      final endpoint = '/businesses/$targetBizId/products/popularity';
       final response = await _client.get(endpoint);
 
       final rawList = (response is Map && response['products'] is List)
@@ -96,10 +93,9 @@ class PosRepository {
 
   /// Fetch single product details
   Future<ProductModel> getProductById(String id, {String? businessId}) async {
+    final targetBizId = businessId ?? AppConstants.activeBusinessId;
     try {
-      final endpoint = businessId != null
-          ? '/businesses/$businessId/products/$id'
-          : '/products/$id';
+      final endpoint = '/businesses/$targetBizId/products/$id';
       final response = await _client.get(endpoint);
       final rawMap = (response is Map && response['product'] != null)
           ? response['product']
@@ -141,10 +137,9 @@ class PosRepository {
 
   /// Fetch customer recently ordered products
   Future<List<ProductModel>> getRecentPurchases({String? businessId}) async {
+    final targetBizId = businessId ?? AppConstants.activeBusinessId;
     try {
-      final endpoint = businessId != null
-          ? '/businesses/$businessId/products/recent-purchase'
-          : '/products/recent-purchase';
+      final endpoint = '/businesses/$targetBizId/products/recent-purchase';
       final response = await _client.get(endpoint);
       final rawList = (response is Map && response['products'] is List)
           ? response['products'] as List

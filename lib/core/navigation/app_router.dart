@@ -11,6 +11,7 @@ import '../../features/experiences/experience_detail_screen.dart';
 
 import '../../features/discounts/discounts_info_screen.dart';
 import '../../features/catalogue/product_detail_screen.dart';
+import '../../features/catalogue/data/product_model.dart';
 import '../../features/catalogue/data/sample_products.dart';
 import '../../features/checkout/checkout_screen.dart';
 import '../../features/checkout/order_success_screen.dart';
@@ -120,11 +121,8 @@ final appRouter = GoRouter(
       path: '/product/:id',
       builder: (context, state) {
         final id = state.pathParameters['id']!;
-        final product = kSampleProducts.firstWhere(
-          (p) => p.id == id,
-          orElse: () => kSampleProducts.first,
-        );
-        return ProductDetailScreen(product: product);
+        final extraProduct = state.extra is ProductModel ? state.extra as ProductModel : null;
+        return ProductDetailScreen(productId: id, initialProduct: extraProduct);
       },
     ),
 

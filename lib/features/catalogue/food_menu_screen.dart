@@ -178,7 +178,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                             crossAxisCount: 2,
                             crossAxisSpacing: 14,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 0.72,
+                            childAspectRatio: 0.84,
                           ),
                           itemCount: filtered.length,
                           itemBuilder: (context, i) {
@@ -189,7 +189,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                             return GestureDetector(
                               onTap: () => context.push('/product/${p.id}'),
                               child: Container(
-                                padding: const EdgeInsets.all(14),
+                                padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
                                   color: AppColors.surfaceLight,
                                   borderRadius: BorderRadius.circular(20),
@@ -205,18 +205,30 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Top Row (Emoji container + Favorite icon)
+                                    // Top Row (Image container + Favorite icon)
                                     Stack(
                                       children: [
-                                        Container(
-                                          height: 96,
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primaryRed.withOpacity(0.12),
-                                            borderRadius: BorderRadius.circular(14),
-                                          ),
-                                          child: Center(
-                                            child: Text(p.emoji, style: const TextStyle(fontSize: 44)),
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(14),
+                                          child: Container(
+                                            height: 115,
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primaryRed.withOpacity(0.12),
+                                            ),
+                                            child: (p.imageUrl != null && p.imageUrl!.isNotEmpty)
+                                                ? Image.network(
+                                                    p.imageUrl!,
+                                                    height: 115,
+                                                    width: double.infinity,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (_, __, ___) => Center(
+                                                      child: Text(p.emoji, style: const TextStyle(fontSize: 48)),
+                                                    ),
+                                                  )
+                                                : Center(
+                                                    child: Text(p.emoji, style: const TextStyle(fontSize: 48)),
+                                                  ),
                                           ),
                                         ),
                                         Positioned(
@@ -240,7 +252,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 12),
+                                    const SizedBox(height: 8),
                                     Text(
                                       p.name,
                                       maxLines: 1,

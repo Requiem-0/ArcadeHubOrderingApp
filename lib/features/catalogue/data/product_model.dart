@@ -1,4 +1,5 @@
 // lib/features/catalogue/data/product_model.dart
+import '../../../core/constants.dart';
 
 class CategoryModel {
   final String id;
@@ -13,12 +14,17 @@ class CategoryModel {
     this.image,
   });
 
+  String? get imageUrl => AppConstants.resolveImageUrl(image);
+
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
+    final rawImg = json['image']?.toString() ??
+        json['imageUrl']?.toString() ??
+        json['photo']?.toString();
     return CategoryModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? 'Category',
       description: json['description']?.toString(),
-      image: json['image']?.toString(),
+      image: AppConstants.resolveImageUrl(rawImg),
     );
   }
 
@@ -144,6 +150,14 @@ class ProductModel {
           .toList();
     }
 
+    final rawImg = json['image']?.toString() ??
+        json['imageUrl']?.toString() ??
+        json['photo']?.toString() ??
+        json['coverImage']?.toString() ??
+        (json['images'] is List && (json['images'] as List).isNotEmpty
+            ? (json['images'] as List).first.toString()
+            : null);
+
     return ProductModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? 'Unnamed Product',
@@ -155,11 +169,13 @@ class ProductModel {
       tags: parsedTags,
       description: json['description']?.toString() ?? '',
       longDescription: json['longDescription']?.toString(),
-      image: json['image']?.toString(),
+      image: AppConstants.resolveImageUrl(rawImg),
       variants: parsedVariants,
       addons: parsedAddons,
     );
   }
+
+  String? get imageUrl => AppConstants.resolveImageUrl(image);
 
   Map<String, dynamic> toJson() => {
         'id': id,
