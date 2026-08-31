@@ -7,7 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_spacing.dart';
 import '../../core/brandkit/experiences.dart';
+import '../../core/repositories/pos_repository.dart';
 import '../../features/cart/cart_provider.dart';
+import '../../features/catalogue/data/product_model.dart';
 import '../../shared/widgets/app_drawer.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -405,7 +407,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                   AppSpacing.gapV32,
 
-                  // 4. Bundle Deals Section (Well-spaced section)
+                  // 4. Bundle Deals Section (Filtered by Category 'Bundle')
                   _SectionHeader(
                     title: 'Bundle Deals',
                     actionLabel: 'See all',
@@ -413,59 +415,88 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  SizedBox(
-                    height: 195,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: AppSpacing.pagePadding,
-                      children: const [
-                        _BundleCard(
-                          emoji: '🎮🍔',
-                          tag: 'Combo',
-                          name: 'Play + Bite Combo',
-                          inclusions: '1 hr Play Room pass + Hub burger + soft drink',
-                          price: '999',
-                          oldPrice: '1,265',
-                          savePercentage: '21%',
-                          color: Color(0xFFFFD700),
+                  ref.watch(catalogProvider).when(
+                        loading: () => const SizedBox(
+                          height: 195,
+                          child: Center(child: CircularProgressIndicator()),
                         ),
-                        SizedBox(width: AppSpacing.sm),
-                        _BundleCard(
-                          emoji: '🔫🌮',
-                          tag: 'Squad Pack',
-                          name: 'Area 51 Squad Pack',
-                          inclusions: 'TT + beer pong for 4 + nacho mountain + 4 mocktails',
-                          price: '2,999',
-                          oldPrice: '3,860',
-                          savePercentage: '22%',
-                          color: Color(0xFFA855F7),
-                        ),
-                        SizedBox(width: AppSpacing.sm),
-                        _BundleCard(
-                          emoji: '🎉🍕',
-                          tag: 'Party',
-                          name: 'Party Blast Bundle',
-                          inclusions: 'Party Room 2 hrs + 2 large pizzas + karaoke',
-                          price: '4,999',
-                          oldPrice: '6,400',
-                          savePercentage: '22%',
-                          color: AppColors.primaryRedDark,
-                        ),
-                        SizedBox(width: AppSpacing.sm),
-                        _BundleCard(
-                          emoji: '🏆🍺',
-                          tag: 'Match Day',
-                          name: 'Match Day Bundle',
-                          inclusions: 'Sports bar table + beer tower (3L) + peri fries',
-                          price: '2,499',
-                          oldPrice: '3,020',
-                          savePercentage: '17%',
-                          color: Color(0xFF4CAF50),
-                        ),
-                      ],
-                    ),
-                  ),
+                        error: (_, __) => _buildNoBundlesPlaceholder(),
+                        data: (products) {
+                          final bundleProducts = products
+                              .where((p) =>
+                                  p.category.toLowerCase() == 'bundle' ||
+                                  p.category.toLowerCase() == 'bundles')
+                              .toList();
+
+                          if (bundleProducts.isEmpty) {
+                            return _buildNoBundlesPlaceholder();
+                          }
+
+                          return SizedBox(
+                            height: 195,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              padding: AppSpacing.pagePadding,
+                              itemCount: bundleProducts.length,
+                              separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+                              itemBuilder: (context, index) {
+                                return _BundleCard(product: bundleProducts[index]);
+                              },
+                            ),
+                          );
+                        },
+                      ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoBundlesPlaceholder() {
+    return Padding(
+      padding: AppSpacing.pagePadding,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        decoration: BoxDecoration(
+          color: AppColors.cardLight,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.borderLight),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.primaryRed.withOpacity(0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.card_giftcard_rounded,
+                color: AppColors.primaryRedDark,
+                size: 30,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'No Bundles Available',
+              style: GoogleFonts.outfit(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textLight,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'There are currently no active bundle deals. Check back soon for new combo offers!',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.dmSans(
+                fontSize: 12,
+                color: AppColors.textMutedLight,
               ),
             ),
           ],
@@ -716,35 +747,28 @@ class _SlideCard extends StatelessWidget {
 
 /// Bundle Deal Card
 class _BundleCard extends ConsumerWidget {
-  final String emoji;
-  final String tag;
-  final String name;
-  final String inclusions;
-  final String price;
-  final String oldPrice;
-  final String savePercentage;
-  final Color color;
+  final ProductModel product;
 
-  const _BundleCard({
-    required this.emoji,
-    required this.tag,
-    required this.name,
-    required this.inclusions,
-    required this.price,
-    required this.oldPrice,
-    required this.savePercentage,
-    required this.color,
-  });
+  const _BundleCard({required this.product});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tag = product.tags.isNotEmpty ? product.tags.first : 'Combo';
+    final savePillText = product.tags.firstWhere(
+      (t) => t.toUpperCase().contains('SAVE') || t.contains('%'),
+      orElse: () => product.originalPrice != null
+          ? 'SAVE ${(((product.originalPrice! - product.price) / product.originalPrice!) * 100).round()}%'
+          : 'SPECIAL',
+    );
+    const cardAccentColor = AppColors.primaryRedDark;
+
     return Container(
       width: 270,
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.cardLight,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.4)),
+        border: Border.all(color: cardAccentColor.withOpacity(0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -759,7 +783,7 @@ class _BundleCard extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: color.withOpacity(0.6)),
+                  border: Border.all(color: cardAccentColor.withOpacity(0.6)),
                 ),
                 child: Text(
                   '● $tag',
@@ -767,7 +791,7 @@ class _BundleCard extends ConsumerWidget {
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.5,
-                    color: color,
+                    color: cardAccentColor,
                   ),
                 ),
               ),
@@ -780,7 +804,7 @@ class _BundleCard extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
-                  'SAVE $savePercentage',
+                  savePillText.toUpperCase(),
                   style: GoogleFonts.dmSans(
                     fontSize: 9,
                     fontWeight: FontWeight.w900,
@@ -794,11 +818,11 @@ class _BundleCard extends ConsumerWidget {
           // Emoji & Title
           Row(
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 24)),
+              Text(product.emoji.isNotEmpty ? product.emoji : '🍱', style: const TextStyle(fontSize: 24)),
               AppSpacing.gapH8,
               Expanded(
                 child: Text(
-                  name,
+                  product.name,
                   style: GoogleFonts.outfit(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -811,9 +835,9 @@ class _BundleCard extends ConsumerWidget {
             ],
           ),
 
-          // Inclusions
+          // Inclusions / Description
           Text(
-            inclusions,
+            product.description,
             style: GoogleFonts.dmSans(
               fontSize: 11,
               color: AppColors.textMutedLight,
@@ -835,25 +859,26 @@ class _BundleCard extends ConsumerWidget {
                     color: AppColors.primaryRedDark,
                   ),
                   children: [
-                    TextSpan(text: 'Rs. $price '),
-                    TextSpan(
-                      text: 'Rs. $oldPrice',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.normal,
-                        color: AppColors.textMutedLight,
-                        decoration: TextDecoration.lineThrough,
+                    TextSpan(text: 'Rs. ${product.price.toInt()} '),
+                    if (product.originalPrice != null)
+                      TextSpan(
+                        text: 'Rs. ${product.originalPrice!.toInt()}',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.normal,
+                          color: AppColors.textMutedLight,
+                          decoration: TextDecoration.lineThrough,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
               ElevatedButton(
                 onPressed: () {
-                  ref.read(cartProvider.notifier).add('pos-1');
+                  ref.read(cartProvider.notifier).add(product.id);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Added "$name" to cart'),
+                      content: Text('Added "${product.name}" to cart'),
                       duration: const Duration(seconds: 2),
                     ),
                   );

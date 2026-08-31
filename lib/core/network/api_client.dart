@@ -4,6 +4,7 @@ import 'dart:developer' as dev;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../constants.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -17,7 +18,7 @@ class ApiException implements Exception {
 }
 
 class ApiClient {
-  static const String _defaultBaseUrl = 'http://localhost:5000/api';
+  static String get _defaultBaseUrl => AppConstants.apiBaseUrl;
   static const String _tokenKey = 'auth_token';
 
   final String baseUrl;

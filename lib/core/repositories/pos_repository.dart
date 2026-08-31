@@ -2,6 +2,7 @@
 import 'dart:developer' as dev;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../network/api_client.dart';
+import '../constants.dart';
 import '../../features/catalogue/data/product_model.dart';
 import '../../features/catalogue/data/sample_products.dart';
 
@@ -12,10 +13,9 @@ class PosRepository {
 
   /// Fetch full catalog (with graceful fallback to local sample data if offline)
   Future<List<ProductModel>> getCatalog({String? businessId}) async {
+    final targetBizId = businessId ?? AppConstants.activeBusinessId;
     try {
-      final endpoint = businessId != null
-          ? '/businesses/$businessId/products'
-          : '/products';
+      final endpoint = '/businesses/$targetBizId/products';
       final response = await _client.get(endpoint);
 
       final rawList = (response is Map && response['products'] is List)
@@ -186,5 +186,5 @@ final posRepositoryProvider = Provider<PosRepository>((ref) {
 });
 
 final catalogProvider = FutureProvider<List<ProductModel>>((ref) async {
-  return ref.read(posRepositoryProvider).getCatalog();
+  return ref.read(posRepositoryProvider).getCatalog(businessId: AppConstants.activeBusinessId);
 });

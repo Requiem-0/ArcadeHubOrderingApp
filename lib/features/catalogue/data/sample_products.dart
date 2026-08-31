@@ -120,4 +120,31 @@ const List<ProductModel> kSampleProducts = [
     longDescription:
         'The ultimate crowd-pleaser for private celebrations! Includes 4 mini beef sliders, 8 spicy wings, golden onion rings, season wedges, and house dips.',
   ),
+  ProductModel(
+    id: 'pos-9',
+    name: 'Play + Bite Combo',
+    emoji: '🎮🍔',
+    price: 999,
+    originalPrice: 1265,
+    prepTime: '20 min',
+    category: 'Bundle',
+    tags: ['Combo', 'SAVE 21%'],
+    description: '1 hr Play Room pass + Hub burger + soft drink',
+    longDescription:
+        'Enjoy 1 hour of unlimited PS5/gaming room access combined with our signature Cyberpunk Burger and cold refreshing beverage.',
+  ),
+  ProductModel(
+    id: 'pos-10',
+    name: 'Area 51 Squad Pack',
+    emoji: '🔫🌮',
+    price: 2999,
+    originalPrice: 3860,
+    prepTime: '25 min',
+    category: 'Bundle',
+    tags: ['Squad Pack', 'SAVE 22%'],
+    description: 'TT + beer pong for 4 + nacho mountain + 4 mocktails',
+    longDescription:
+        'Outdoor garden party setup for 4 people with table tennis, beer pong equipment, jumbo nachos, and 4 Fewa Sunset mocktails.',
+  ),
 ];
+
