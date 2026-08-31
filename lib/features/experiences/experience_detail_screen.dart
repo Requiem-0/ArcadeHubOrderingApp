@@ -1,9 +1,10 @@
+// lib/features/experiences/experience_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
-import '../../core/models/experience.dart';
+import '../../core/brandkit/app_theme.dart';
 import '../../core/repositories/experience_repository.dart';
 import '../../core/repositories/service_repository.dart';
 
@@ -19,362 +20,476 @@ class ExperienceDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldLight,
-      body: SafeArea(
-        child: expAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, _) => Center(child: Text('Error: $err')),
-          data: (experiences) {
-            final exp = experiences.firstWhere(
-              (e) => e.id == experienceId,
-              orElse: () => experiences.first,
-            );
+      body: expAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppColors.primaryRed),
+        ),
+        error: (err, _) => Center(child: Text('Error: $err')),
+        data: (experiences) {
+          final exp = experiences.firstWhere(
+            (e) => e.id == experienceId,
+            orElse: () => experiences.first,
+          );
 
-            return Column(
-              children: [
-                // ── Banner Header ──────────────────────────────────────
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: exp.color.withOpacity(0.18),
-                    border: Border(bottom: BorderSide(color: exp.color.withOpacity(0.4), width: 1.5)),
+          // Single, unified accent color for the zone screen
+          final accentColor = (exp.color == const Color(0xFFF8FAFC))
+              ? AppColors.primaryRed
+              : exp.color;
+
+          return CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              // ── 1. Hero App Bar / Header ─────────────────────────────
+              SliverAppBar(
+                expandedHeight: 220,
+                pinned: true,
+                backgroundColor: AppColors.scaffoldLight,
+                elevation: 0,
+                leading: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                        color: AppColors.textLight, size: 20),
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.surfaceLight,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+                      ),
+                    ),
+                    onPressed: () => context.pop(),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    fit: StackFit.expand,
                     children: [
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back, color: AppColors.textLight),
-                            onPressed: () => context.pop(),
+                      // Gradient backdrop with zone accent glow
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              accentColor.withOpacity(0.22),
+                              AppColors.scaffoldLight,
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
                           ),
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        ),
+                      ),
+                      // Hero Content Area
+                      SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 48, 24, 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Row(
+                                children: [
+                                  // Zone Icon container with unified accent color
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: accentColor.withOpacity(0.18),
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: accentColor.withOpacity(0.4),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      exp.iconData,
+                                      color: accentColor,
+                                      size: 32,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: accentColor.withOpacity(0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            '${exp.featureTag.toUpperCase()} • ZONE ${exp.indexNumber}',
+                                            style: GoogleFonts.dmSans(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              color: accentColor,
+                                              letterSpacing: 0.8,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          exp.name,
+                                          style: GoogleFonts.outfit(
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.textLight,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ── 2. Content Body ─────────────────────────────────────
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    // Pull-quote Tagline (Clean typographic accent line, no bulky card)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 3.5,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: accentColor,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            exp.tagline,
+                            style: GoogleFonts.outfit(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textLight,
+                              height: 1.35,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Section: About
+                    Text(
+                      'About ${exp.name}',
+                      style: GoogleFonts.outfit(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textLight,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      exp.description,
+                      style: GoogleFonts.dmSans(
+                        fontSize: 14,
+                        color: AppColors.textMutedLight,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Horizontal Highlights Tags
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: exp.subtitle
+                          .split('·')
+                          .map((s) => s.trim())
+                          .where((s) => s.isNotEmpty)
+                          .map((tag) => Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: accentColor.withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                      color: accentColor.withOpacity(0.25)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 6,
+                                      height: 6,
+                                      decoration: BoxDecoration(
+                                        color: accentColor,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      tag,
+                                      style: GoogleFonts.dmSans(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textLight,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Section: Bookable Services / Stations
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Available Stations & Services',
+                          style: GoogleFonts.outfit(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textLight,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: accentColor.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'Bookable',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: accentColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+
+                    servicesAsync.when(
+                      loading: () => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                      error: (err, _) => Text(
+                        'Failed to load services: $err',
+                        style: GoogleFonts.dmSans(color: AppColors.error),
+                      ),
+                      data: (services) {
+                        if (services.isEmpty) {
+                          return Container(
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: exp.color.withOpacity(0.25),
-                              borderRadius: BorderRadius.circular(20),
+                              color: AppColors.surfaceLight,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: AppColors.borderLight),
                             ),
                             child: Text(
-                              'ARCADE HUB POKHARA',
+                              'No specific bookable services listed right now. Walk-in seating available!',
                               style: GoogleFonts.dmSans(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: exp.color,
-                                letterSpacing: 1.0,
-                              ),
+                                  color: AppColors.textMutedLight,
+                                  fontSize: 13),
                             ),
-                          ),
-                        ],
+                          );
+                        }
+
+                        return Column(
+                          children: services.map((srv) {
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceLight,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: accentColor.withOpacity(0.3),
+                                  width: 1.2,
+                                ),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                srv.name,
+                                                style: GoogleFonts.outfit(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppColors.textLight,
+                                                ),
+                                              ),
+                                            ),
+                                            if (srv.price != null) ...[
+                                              Text(
+                                                'Rs ${srv.price?.toInt()}',
+                                                style: GoogleFonts.outfit(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: accentColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          srv.description,
+                                          style: GoogleFonts.dmSans(
+                                            fontSize: 12.5,
+                                            color: AppColors.textMutedLight,
+                                            height: 1.35,
+                                          ),
+                                        ),
+                                        if (srv.durationText != null) ...[
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              Icon(Icons.schedule_rounded,
+                                                  size: 14, color: accentColor),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                srv.durationText!,
+                                                style: GoogleFonts.dmSans(
+                                                  fontSize: 11.5,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: accentColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                  if (srv.isBookable) ...[
+                                    const SizedBox(width: 12),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        context.push(
+                                            '/service-booking?serviceId=${srv.id}');
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: accentColor,
+                                        foregroundColor: Colors.black,
+                                        elevation: 0,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 14, vertical: 8),
+                                        minimumSize: const Size(0, 34),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Book',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    // Order Food & Drinks Card
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            accentColor.withOpacity(0.15),
+                            AppColors.surfaceLight,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: accentColor.withOpacity(0.3)),
                       ),
-                      const SizedBox(height: 12),
-                      Row(
+                      child: Row(
                         children: [
-                          Text(exp.icon, style: const TextStyle(fontSize: 44)),
-                          const SizedBox(width: 14),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceLight,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 8,
+                                ),
+                              ],
+                            ),
+                            child: const Text('🍽️',
+                                style: TextStyle(fontSize: 28)),
+                          ),
+                          const SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  exp.name,
+                                  'Order to ${exp.name}',
                                   style: GoogleFonts.outfit(
-                                    fontSize: 26,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     color: AppColors.textLight,
                                   ),
                                 ),
                                 Text(
-                                  exp.subtitle,
+                                  'Get food & drinks delivered directly to your gaming spot.',
                                   style: GoogleFonts.dmSans(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: exp.color,
+                                    fontSize: 12,
+                                    color: AppColors.textMutedLight,
                                   ),
                                 ),
                               ],
                             ),
                           ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            onPressed: () => context.push('/food-menu'),
+                            icon: const Icon(Icons.arrow_forward_rounded),
+                            style: IconButton.styleFrom(
+                              backgroundColor: accentColor,
+                              foregroundColor: Colors.black,
+                            ),
+                          ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ]),
                 ),
-
-                // ── Body ─────────────────────────────────────────────
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.all(20),
-                    children: [
-                      // Core Description
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.borderLight),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'About this Experience',
-                              style: GoogleFonts.outfit(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textLight,
-                              ),
-                            ),
-                            const SizedBox(height: 14),
-
-                            // 1. Quoted Section FIRST
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: (exp.color == const Color(0xFFF8FAFC)
-                                        ? AppColors.primaryRedDark
-                                        : exp.color)
-                                    .withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border(
-                                  left: BorderSide(
-                                    color: exp.color == const Color(0xFFF8FAFC)
-                                        ? AppColors.primaryRedDark
-                                        : exp.color,
-                                    width: 4,
-                                  ),
-                                ),
-                              ),
-                              child: Text(
-                                '"${exp.tagline}"',
-                                style: GoogleFonts.dmSans(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  fontStyle: FontStyle.italic,
-                                  color: exp.color == const Color(0xFFF8FAFC)
-                                      ? AppColors.textLight
-                                      : exp.color,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-
-                            // 2. Zone Description in Bullet Points BELOW IT
-                            ...[
-                              ...exp.description
-                                  .split(RegExp(r'\. |\n'))
-                                  .map((s) => s.trim())
-                                  .where((s) => s.isNotEmpty),
-                              ...exp.subtitle
-                                  .split('·')
-                                  .map((s) => s.trim())
-                                  .where((s) => s.isNotEmpty),
-                            ].toSet().map((bullet) {
-                              final text = bullet.endsWith('.') ? bullet : '$bullet.';
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      margin: const EdgeInsets.only(top: 7, right: 10),
-                                      width: 6,
-                                      height: 6,
-                                      decoration: BoxDecoration(
-                                        color: exp.color == const Color(0xFFF8FAFC)
-                                            ? AppColors.primaryRedDark
-                                            : exp.color,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        text,
-                                        style: GoogleFonts.dmSans(
-                                          fontSize: 13.5,
-                                          color: AppColors.textLight,
-                                          height: 1.45,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // ── Dynamic Services ─────────────────────────────────
-                      Text(
-                        'Available Services',
-                        style: GoogleFonts.outfit(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textLight,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      servicesAsync.when(
-                        loading: () => const Center(child: CircularProgressIndicator()),
-                        error: (err, _) => Center(child: Text('Failed to load services: $err')),
-                        data: (services) {
-                          if (services.isEmpty) {
-                            return Text(
-                              'No specific bookable services listed right now. You can still order food to this area.',
-                              style: GoogleFonts.dmSans(color: AppColors.textMutedLight),
-                            );
-                          }
-                          return Column(
-                            children: services.map((srv) {
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryRed.withOpacity(0.05),
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: AppColors.primaryRedDark.withOpacity(0.5)),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          srv.name,
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.textLight,
-                                          ),
-                                        ),
-                                        if (srv.price != null)
-                                          Text(
-                                            'NPR ${srv.price?.toInt()}',
-                                            style: GoogleFonts.dmSans(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.primaryRedDark,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      srv.description,
-                                      style: GoogleFonts.dmSans(
-                                        fontSize: 13,
-                                        color: AppColors.textMutedLight,
-                                      ),
-                                    ),
-                                    if (srv.durationText != null) ...[
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.schedule, size: 14, color: AppColors.textMutedLight),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            srv.durationText!,
-                                            style: GoogleFonts.dmSans(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.textLight,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                    if (srv.isBookable) ...[
-                                      const SizedBox(height: 12),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            context.push('/service-booking?serviceId=${srv.id}');
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.primaryRedDark,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            'Book Now',
-                                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Food Menu CTA (Global for all areas)
-                      if (exp.type == ExperienceType.dining)
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.borderLight),
-                        ),
-                        child: Column(
-                          children: [
-                            const Text('🍽️', style: TextStyle(fontSize: 40)),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Hungry or Thirsty?',
-                              style: GoogleFonts.outfit(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textLight,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'You can order food & drinks directly to your spot in the ${exp.name}.',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.dmSans(
-                                fontSize: 14,
-                                color: AppColors.textMutedLight,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            OutlinedButton(
-                              onPressed: () => context.push('/food-menu'),
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: AppColors.primaryRedDark),
-                                minimumSize: const Size(double.infinity, 48),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: Text(
-                                'Browse Food & Drinks',
-                                style: GoogleFonts.dmSans(
-                                  color: AppColors.textLight,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
