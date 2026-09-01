@@ -2,19 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/experiences.dart';
 
 class ArcadeAppDrawer extends StatelessWidget {
   const ArcadeAppDrawer({super.key});
-
-  Future<void> _launchWhatsApp() async {
-    final uri = Uri.parse('https://wa.me/9779805855494?text=Hi%20Arcade%20Hub!%20I%20have%20an%20inquiry.');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +180,7 @@ class ArcadeAppDrawer extends StatelessWidget {
                       label: 'Contact Us',
                       onTap: () {
                         Navigator.of(context).pop();
-                        _launchWhatsApp();
+                        context.push('/contact');
                       },
                     ),
                   ],
@@ -318,14 +310,14 @@ class _DrawerSmallLink extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           child: Row(
             children: [
-              Icon(iconData, color: AppColors.textMutedLight, size: 18),
-              const SizedBox(width: 12),
+              Icon(iconData, color: AppColors.primaryRed, size: 19),
+              const SizedBox(width: 14),
               Text(
                 label,
                 style: GoogleFonts.dmSans(
-                  fontSize: 13,
+                  fontSize: 13.5,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textMutedLight,
+                  color: AppColors.textLight,
                 ),
               ),
             ],

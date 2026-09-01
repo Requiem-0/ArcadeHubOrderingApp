@@ -23,6 +23,7 @@ import '../../features/cart/cart_screen.dart';
 import '../../features/services/service_booking_screen.dart';
 import '../../features/address/saved_addresses_screen.dart';
 import '../../features/address/add_address_screen.dart';
+import '../../features/profile/contact_us_screen.dart';
 import '../../shared/widgets/bottom_nav_bar.dart';
 
 class AppShell extends StatelessWidget {
@@ -100,6 +101,7 @@ final appRouter = GoRouter(
     GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
     GoRoute(path: '/addresses', builder: (_, __) => const SavedAddressesScreen()),
     GoRoute(path: '/add-address', builder: (_, __) => const AddAddressScreen()),
+    GoRoute(path: '/contact', builder: (_, __) => const ContactUsScreen()),
 
     // ── Experience & Services Routes ──────────────────────────────
     GoRoute(
