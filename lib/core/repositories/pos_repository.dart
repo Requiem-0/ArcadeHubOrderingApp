@@ -178,6 +178,10 @@ final posRepositoryProvider = Provider<PosRepository>((ref) {
   return PosRepository(client);
 });
 
+final zoneProductsProvider = FutureProvider.family<List<ProductModel>, String>((ref, zoneId) async {
+  return ref.read(posRepositoryProvider).getProductsForZone(zoneId);
+});
+
 final catalogProvider = FutureProvider<List<ProductModel>>((ref) async {
   return ref.read(posRepositoryProvider).getCatalog(businessId: AppConstants.activeBusinessId);
 });

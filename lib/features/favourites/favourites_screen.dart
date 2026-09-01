@@ -96,7 +96,7 @@ class FavouritesScreen extends ConsumerWidget {
                                             height: 110,
                                             width: double.infinity,
                                             decoration: BoxDecoration(
-                                              color: AppColors.primaryRed.withOpacity(0.12),
+                                              color: AppColors.primaryRed.withValues(alpha: 0.12),
                                             ),
                                             child: (p.imageUrl != null && p.imageUrl!.isNotEmpty)
                                                 ? Image.network(
@@ -125,7 +125,7 @@ class FavouritesScreen extends ConsumerWidget {
                                               height: 30,
                                               decoration: BoxDecoration(
                                                 color: AppColors.surfaceLight
-                                                    .withOpacity(0.9),
+                                                    .withValues(alpha: 0.9),
                                                 borderRadius:
                                                     BorderRadius.circular(
                                                         AppTheme.radiusXS),

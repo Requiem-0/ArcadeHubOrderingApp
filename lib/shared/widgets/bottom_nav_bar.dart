@@ -1,8 +1,8 @@
 // lib/shared/widgets/bottom_nav_bar.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/brandkit/app_colors.dart';
-import '../../core/brandkit/app_text_styles.dart';
 import '../../features/cart/cart_provider.dart';
 
 class AppBottomNavBar extends ConsumerWidget {
@@ -26,38 +26,43 @@ class AppBottomNavBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cartCount = ref.watch(cartCountProvider);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        border: const Border(
-          top: BorderSide(color: AppColors.borderLight, width: 1),
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(32),
+          color: AppColors.surfaceLight.withValues(alpha: 0.75),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.5),
+              blurRadius: 24,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(_tabs.length, (i) {
-              final tab = _tabs[i];
-              final active = currentIndex == i;
-              final badge = tab.showBadge && cartCount > 0 ? cartCount : 0;
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(32),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(_tabs.length, (i) {
+                  final tab = _tabs[i];
+                  final active = currentIndex == i;
+                  final badge = tab.showBadge && cartCount > 0 ? cartCount : 0;
 
-              return _NavButton(
-                tab: tab,
-                active: active,
-                badge: badge,
-                onTap: () => onTap(i),
-              );
-            }),
+                  return _NavButton(
+                    tab: tab,
+                    active: active,
+                    badge: badge,
+                    onTap: () => onTap(i),
+                  );
+                }),
+              ),
+            ),
           ),
         ),
       ),
@@ -65,7 +70,7 @@ class AppBottomNavBar extends ConsumerWidget {
   }
 }
 
-class _NavButton extends StatefulWidget {
+class _NavButton extends StatelessWidget {
   final _TabItem tab;
   final bool active;
   final int badge;
@@ -79,117 +84,66 @@ class _NavButton extends StatefulWidget {
   });
 
   @override
-  State<_NavButton> createState() => _NavButtonState();
-}
-
-class _NavButtonState extends State<_NavButton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-  late final Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-      lowerBound: 0.9,
-      upperBound: 1.0,
-      value: 1.0,
-    );
-    _scale = _ctrl;
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(_NavButton old) {
-    super.didUpdateWidget(old);
-    if (widget.active && !old.active) {
-      _ctrl.forward(from: 0.9);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final color = widget.active ? AppColors.primaryRedDark : AppColors.textMutedLight;
-
+    final color = active ? Colors.white : AppColors.textMutedLight;
+    
     return GestureDetector(
-      onTap: widget.onTap,
-      onTapDown: (_) => _ctrl.reverse(),
-      onTapUp: (_) => _ctrl.forward(),
-      onTapCancel: () => _ctrl.forward(),
-      child: ScaleTransition(
-        scale: _scale,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: widget.active
-                ? AppColors.primaryRed.withOpacity(0.14)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(14),
-            border: widget.active
-                ? Border.all(color: AppColors.primaryRedDark.withOpacity(0.35), width: 1)
-                : null,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Icon(
-                    widget.active
-                        ? (widget.tab.activeIcon ?? widget.tab.icon)
-                        : widget.tab.icon,
-                    color: color,
-                    size: 22,
-                  ),
-                  if (widget.badge > 0)
-                    Positioned(
-                      top: -6,
-                      right: -10,
-                      child: Container(
-                        width: 18,
-                        height: 18,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryRed,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primaryRed.withOpacity(0.6),
-                              blurRadius: 8,
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${widget.badge}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        padding: EdgeInsets.symmetric(horizontal: active ? 20 : 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: active ? AppColors.primaryRedDark : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  active ? (tab.activeIcon ?? tab.icon) : tab.icon,
+                  color: color,
+                  size: 24,
+                ),
+                if (badge > 0)
+                  Positioned(
+                    top: -4,
+                    right: -6,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppColors.primaryRed,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '$badge',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          height: 1,
                         ),
                       ),
                     ),
-                ],
-              ),
-              const SizedBox(height: 4),
+                  ),
+              ],
+            ),
+            if (active) ...[
+              const SizedBox(width: 8),
               Text(
-                widget.tab.label,
-                style: AppTextStyles.bodyXS(color).copyWith(
-                  fontWeight: widget.active ? FontWeight.bold : FontWeight.w500,
-                  fontSize: 11,
+                tab.label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ],
-          ),
+            ]
+          ],
         ),
       ),
     );

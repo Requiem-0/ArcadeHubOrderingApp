@@ -96,7 +96,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: AppColors.success.withOpacity(0.15),
+                              color: AppColors.success.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(AppTheme.radiusML),
                             ),
                             child: const Icon(Icons.my_location_rounded,

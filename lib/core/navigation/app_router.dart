@@ -1,6 +1,7 @@
 // lib/core/navigation/app_router.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/brandkit/app_colors.dart';
 import '../../features/auth/splash_screen.dart';
 import '../../features/auth/login_screen.dart';
 import '../../features/auth/register_screen.dart';
@@ -37,10 +38,22 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: child,
+      extendBody: true,
+      backgroundColor: AppColors.scaffoldDark,
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        child: SizedBox(
+          key: ValueKey(currentIndex),
+          child: child,
+        ),
+      ),
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: currentIndex,
-        onTap: (i) => context.go(_routes[i]),
+        onTap: (i) {
+          if (i != currentIndex) context.go(_routes[i]);
+        },
       ),
     );
   }
@@ -97,7 +110,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(path: '/change-password', builder: (_, __) => const ChangePasswordScreen()),
     GoRoute(path: '/order-success', builder: (_, __) => const OrderSuccessScreen()),
-    GoRoute(path: '/orders', builder: (_, __) => const RecentOrdersScreen()),
+
     GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
     GoRoute(path: '/addresses', builder: (_, __) => const SavedAddressesScreen()),
     GoRoute(path: '/add-address', builder: (_, __) => const AddAddressScreen()),
@@ -113,7 +126,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(path: '/service-booking', builder: (_, __) => const ServiceBookingScreen()),
     GoRoute(path: '/food-menu', builder: (_, __) => const FoodMenuScreen()),
-    GoRoute(path: '/cart', builder: (_, __) => const CartScreen()),
+
     GoRoute(path: '/favourites', builder: (_, __) => const FavouritesScreen()),
 
     // ── Product Detail ────────────────────────────────────────────

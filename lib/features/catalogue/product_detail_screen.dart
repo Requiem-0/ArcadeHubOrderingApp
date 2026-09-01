@@ -93,7 +93,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 leading: Container(
                   margin: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceLight.withOpacity(0.9),
+                    color: AppColors.surfaceLight.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(AppTheme.radiusSM),
                   ),
                   child: IconButton(
@@ -106,7 +106,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   Container(
                     margin: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceLight.withOpacity(0.9),
+                      color: AppColors.surfaceLight.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(AppTheme.radiusSM),
                     ),
                     child: IconButton(
@@ -129,7 +129,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       gradient: LinearGradient(
                         colors: [
                           AppColors.borderLight,
-                          AppColors.primaryRed.withOpacity(0.2),
+                          AppColors.primaryRed.withValues(alpha: 0.2),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -187,7 +187,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppColors.primaryRed.withOpacity(0.12),
+                              color: AppColors.primaryRed.withValues(alpha: 0.12),
                               borderRadius:
                                   BorderRadius.circular(AppTheme.radiusPill),
                             ),
@@ -211,8 +211,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                   horizontal: 12, vertical: 4),
                               decoration: BoxDecoration(
                                 color: isGood
-                                    ? AppColors.success.withOpacity(0.15)
-                                    : AppColors.error.withOpacity(0.15),
+                                    ? AppColors.success.withValues(alpha: 0.15)
+                                    : AppColors.error.withValues(alpha: 0.15),
                                 borderRadius:
                                     BorderRadius.circular(AppTheme.radiusPill),
                               ),
@@ -252,7 +252,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                   horizontal: 16, vertical: 14),
                               decoration: BoxDecoration(
                                 color: selected
-                                    ? AppColors.primaryRed.withOpacity(0.1)
+                                    ? AppColors.primaryRed.withValues(alpha: 0.1)
                                     : AppColors.surfaceLight,
                                 borderRadius:
                                     BorderRadius.circular(AppTheme.radiusSM),
@@ -303,7 +303,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                   horizontal: 16, vertical: 14),
                               decoration: BoxDecoration(
                                 color: selected
-                                    ? AppColors.primaryRed.withOpacity(0.1)
+                                    ? AppColors.primaryRed.withValues(alpha: 0.1)
                                     : AppColors.surfaceLight,
                                 borderRadius:
                                     BorderRadius.circular(AppTheme.radiusSM),
@@ -348,7 +348,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             child: Container(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
               decoration: BoxDecoration(
-                color: AppColors.scaffoldLight.withOpacity(0.95),
+                color: AppColors.scaffoldLight.withValues(alpha: 0.95),
                 border: const Border(
                     top: BorderSide(color: AppColors.borderLight)),
               ),
@@ -397,7 +397,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           borderRadius: BorderRadius.circular(AppTheme.radiusL),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primaryRed.withOpacity(0.35),
+                              color: AppColors.primaryRed.withValues(alpha: 0.35),
                               blurRadius: 16,
                               offset: const Offset(0, 6),
                             )

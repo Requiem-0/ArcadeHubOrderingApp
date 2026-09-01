@@ -148,7 +148,7 @@ class CartScreen extends ConsumerWidget {
                             padding: const EdgeInsets.all(12),
                             margin: const EdgeInsets.only(bottom: 16),
                             decoration: BoxDecoration(
-                              color: AppColors.success.withOpacity(0.15),
+                              color: AppColors.success.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: AppColors.success),
                             ),
@@ -240,7 +240,7 @@ class _CartItemCard extends StatelessWidget {
             height: 64,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: AppColors.primaryRed.withOpacity(0.15),
+              color: AppColors.primaryRed.withValues(alpha: 0.15),
             ),
             child: Center(
               child: Text(product.emoji, style: const TextStyle(fontSize: 30)),

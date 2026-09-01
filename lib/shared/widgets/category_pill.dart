@@ -33,7 +33,7 @@ class CategoryPill extends StatelessWidget {
           boxShadow: active
               ? [
                   BoxShadow(
-                    color: AppColors.primaryRed.withOpacity(0.3),
+                    color: AppColors.primaryRed.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   )

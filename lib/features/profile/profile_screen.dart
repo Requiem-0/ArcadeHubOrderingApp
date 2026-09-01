@@ -80,9 +80,9 @@ class ProfileScreen extends ConsumerWidget {
                   ? Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: AppColors.error.withOpacity(0.1),
+                        color: AppColors.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(AppTheme.radiusL),
-                        border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                        border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
                       ),
                       child: TextButton(
                         onPressed: () async {
@@ -122,7 +122,7 @@ class ProfileScreen extends ConsumerWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryRed.withOpacity(0.15),
+                  color: AppColors.primaryRed.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Center(
@@ -166,7 +166,7 @@ class ProfileScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(AppTheme.radiusXXL),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryRed.withOpacity(0.3),
+            color: AppColors.primaryRed.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -178,7 +178,7 @@ class ProfileScreen extends ConsumerWidget {
             width: 68,
             height: 68,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(22),
             ),
             child: Center(
@@ -196,7 +196,7 @@ class ProfileScreen extends ConsumerWidget {
                   style: AppTextStyles.headingS(Colors.white)),
               Text('Signed In Account',
                   style: AppTextStyles.bodyS(
-                      Colors.white.withOpacity(0.8))),
+                      Colors.white.withValues(alpha: 0.8))),
             ],
           ),
         ],
@@ -255,7 +255,7 @@ class _ProfileItem extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppColors.primaryRed.withOpacity(0.1),
+                color: AppColors.primaryRed.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(AppTheme.radiusML),
               ),
               child: Icon(icon, color: AppColors.primaryRed, size: 20),

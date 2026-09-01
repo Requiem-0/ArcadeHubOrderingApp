@@ -160,7 +160,7 @@ class _ToggleTile extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: AppColors.primaryRed.withOpacity(0.1),
+              color: AppColors.primaryRed.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppTheme.radiusML),
             ),
             child: Icon(icon, color: AppColors.primaryRed, size: 20),

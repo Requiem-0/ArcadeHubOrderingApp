@@ -47,8 +47,8 @@ class _LoginScreenState extends State<LoginScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppColors.primaryRed.withOpacity(0.12),
-              AppColors.scaffoldLight.withOpacity(0.95),
+              AppColors.primaryRed.withValues(alpha: 0.12),
+              AppColors.scaffoldLight.withValues(alpha: 0.95),
               AppColors.scaffoldLight,
             ],
           ),
@@ -103,18 +103,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                     color: AppColors.surfaceLight,
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(
-                                      color: AppColors.primaryRed.withOpacity(0.5),
+                                      color: AppColors.primaryRed.withValues(alpha: 0.5),
                                       width: 1.5,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: AppColors.primaryRed.withOpacity(0.28),
+                                        color: AppColors.primaryRed.withValues(alpha: 0.28),
                                         blurRadius: 14,
                                         spreadRadius: 0,
                                         offset: const Offset(0, 4),
                                       ),
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.35),
+                                        color: Colors.black.withValues(alpha: 0.35),
                                         blurRadius: 8,
                                         offset: const Offset(0, 5),
                                       ),
@@ -210,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     gradient: LinearGradient(
                                       colors: [
                                         Colors.transparent,
-                                        AppColors.primaryRed.withOpacity(0.3),
+                                        AppColors.primaryRed.withValues(alpha: 0.3),
                                         Colors.transparent,
                                       ],
                                     ),
@@ -267,7 +267,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: GoogleFonts.dmSans(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.textMutedLight.withOpacity(0.5),
+                            color: AppColors.textMutedLight.withValues(alpha: 0.5),
                             letterSpacing: 0.5,
                           ),
                         ),

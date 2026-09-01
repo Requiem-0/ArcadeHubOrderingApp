@@ -30,7 +30,7 @@ class ArcadeAppDrawer extends StatelessWidget {
           ),
           border: Border(
             right: BorderSide(
-              color: AppColors.primaryRedDark.withOpacity(0.3),
+              color: AppColors.primaryRedDark.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -59,7 +59,7 @@ class ArcadeAppDrawer extends StatelessWidget {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primaryRedDark.withOpacity(0.4),
+                                color: AppColors.primaryRedDark.withValues(alpha: 0.4),
                                 blurRadius: 18,
                               ),
                             ],
@@ -99,7 +99,7 @@ class ArcadeAppDrawer extends StatelessWidget {
                           ),
                         ),
                         Material(
-                          color: Colors.white.withOpacity(0.06),
+                          color: Colors.white.withValues(alpha: 0.06),
                           borderRadius: BorderRadius.circular(12),
                           child: InkWell(
                             onTap: () => Navigator.of(context).pop(),
@@ -244,10 +244,10 @@ class _DrawerZoneLink extends StatelessWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: exp.color.withOpacity(0.15),
+                    color: exp.color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: exp.color.withOpacity(0.35),
+                      color: exp.color.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),

@@ -196,7 +196,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                   border: Border.all(color: AppColors.borderLight, width: 1.5),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.04),
+                                      color: Colors.black.withValues(alpha: 0.04),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
@@ -214,7 +214,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                             height: 115,
                                             width: double.infinity,
                                             decoration: BoxDecoration(
-                                              color: AppColors.primaryRed.withOpacity(0.12),
+                                              color: AppColors.primaryRed.withValues(alpha: 0.12),
                                             ),
                                             child: (p.imageUrl != null && p.imageUrl!.isNotEmpty)
                                                 ? Image.network(
@@ -239,7 +239,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                             child: Container(
                                               padding: const EdgeInsets.all(6),
                                               decoration: BoxDecoration(
-                                                color: Colors.white.withOpacity(0.9),
+                                                color: Colors.white.withValues(alpha: 0.9),
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Icon(

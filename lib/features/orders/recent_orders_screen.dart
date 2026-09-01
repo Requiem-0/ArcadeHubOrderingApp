@@ -26,27 +26,9 @@ class RecentOrdersScreen extends ConsumerWidget {
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 24, 0),
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
               child: Row(
                 children: [
-                  IconButton(
-                    onPressed: () {
-                      if (context.canPop()) {
-                        context.pop();
-                      } else {
-                        context.go('/home');
-                      }
-                    },
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: AppColors.textLight),
-                    style: IconButton.styleFrom(
-                      backgroundColor: AppColors.surfaceLight,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusSM),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
                   Text('Recent Orders',
                       style: AppTextStyles.headingM(AppColors.textLight)),
                 ],
@@ -99,7 +81,7 @@ class RecentOrdersScreen extends ConsumerWidget {
                               BorderRadius.circular(AppTheme.radiusXXL),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primaryRed.withOpacity(0.35),
+                              color: AppColors.primaryRed.withValues(alpha: 0.35),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
@@ -111,7 +93,7 @@ class RecentOrdersScreen extends ConsumerWidget {
                             Text(
                               'THIS MONTH',
                               style: AppTextStyles.label(
-                                  Colors.white.withOpacity(0.7)),
+                                  Colors.white.withValues(alpha: 0.7)),
                             ),
                             const SizedBox(height: 12),
                             Row(
@@ -160,7 +142,7 @@ class _StatItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(value, style: AppTextStyles.headingL(Colors.white)),
-        Text(label, style: AppTextStyles.bodyS(Colors.white.withOpacity(0.7))),
+        Text(label, style: AppTextStyles.bodyS(Colors.white.withValues(alpha: 0.7))),
       ],
     );
   }
@@ -205,7 +187,7 @@ class _OrderCard extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(
-                  color: _statusColor.withOpacity(0.15),
+                  color: _statusColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                 ),
                 child: Text(

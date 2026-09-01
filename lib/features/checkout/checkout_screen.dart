@@ -140,7 +140,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? AppColors.primaryRed.withOpacity(0.15)
+                                  ? AppColors.primaryRed.withValues(alpha: 0.15)
                                   : AppColors.surfaceLight,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(

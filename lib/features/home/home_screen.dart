@@ -34,6 +34,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateCountdown());
   }
 
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -102,8 +103,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primaryRedDark.withOpacity(0.4),
-                              blurRadius: 16,
+                              color: AppColors.primaryRedDark.withValues(alpha: 0.4),
+                              blurRadius: 12,
                             ),
                           ],
                         ),
@@ -143,53 +144,56 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
 
                   // Hamburger Drawer Button
-                  Material(
-                    color: AppColors.surfaceLight,
-                    borderRadius: BorderRadius.circular(12),
-                    child: InkWell(
-                      onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                  Tooltip(
+                    message: 'Open menu',
+                    child: Material(
+                      color: AppColors.surfaceLight,
                       borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.borderLight),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 18,
-                              height: 2,
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryRedDark,
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                            AppSpacing.gapV4,
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Container(
-                                width: 12,
+                      child: InkWell(
+                        onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.borderLight),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 18,
                                 height: 2,
-                                margin: const EdgeInsets.only(right: 11),
                                 decoration: BoxDecoration(
                                   color: AppColors.primaryRedDark,
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
-                            ),
-                            AppSpacing.gapV4,
-                            Container(
-                              width: 18,
-                              height: 2,
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryRedDark,
-                                borderRadius: BorderRadius.circular(2),
+                              AppSpacing.gapV4,
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Container(
+                                  width: 12,
+                                  height: 2,
+                                  margin: const EdgeInsets.only(right: 11),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryRedDark,
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                              AppSpacing.gapV4,
+                              Container(
+                                width: 18,
+                                height: 2,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryRedDark,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -213,7 +217,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppColors.primaryRed.withOpacity(0.22),
+                            AppColors.primaryRed.withValues(alpha: 0.18),
                             AppColors.surfaceLight,
                           ],
                           begin: Alignment.topLeft,
@@ -221,7 +225,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(
-                          color: AppColors.primaryRedDark.withOpacity(0.35),
+                          color: AppColors.primaryRedDark.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -363,35 +367,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                   AppSpacing.gapV32,
 
-                  // 3. Featured Slider (Well-spaced section)
+                  // 3. Featured Zones Slider
                   _SectionHeader(
                     title: 'Featured',
                     actionLabel: 'See all',
                     onAction: () => context.push('/food-menu'),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   SizedBox(
-                    height: 185,
+                    height: 200,
                     child: PageView.builder(
                       controller: _sliderCtrl,
-                      onPageChanged: (i) => setState(() => _activeSlideIndex = i),
+                      onPageChanged: (i) =>
+                          setState(() => _activeSlideIndex = i),
                       itemCount: kArcadeExperiences.length,
                       itemBuilder: (context, i) {
                         final exp = kArcadeExperiences[i];
-                        return _SlideCard(exp: exp);
+                        return _FeaturedZoneCard(exp: exp);
                       },
                     ),
                   ),
-                  AppSpacing.gapV12,
 
-                  // Slider Indicator Dots
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(kArcadeExperiences.length, (i) {
                       final active = i == _activeSlideIndex;
                       return AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
+                        duration: const Duration(milliseconds: 200),
                         margin: const EdgeInsets.symmetric(horizontal: 3),
                         width: active ? 20 : 6,
                         height: 6,
@@ -399,7 +403,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           borderRadius: BorderRadius.circular(999),
                           color: active
                               ? AppColors.primaryRedDark
-                              : Colors.white.withOpacity(0.2),
+                              : AppColors.borderLight,
                         ),
                       );
                     }),
@@ -416,10 +420,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   const SizedBox(height: 20),
 
                   ref.watch(bundleProductsProvider).when(
-                        loading: () => const SizedBox(
-                          height: 195,
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
+                        loading: () => _BundleSkeleton(),
                         error: (_, __) => _buildNoBundlesPlaceholder(),
                         data: (bundleProducts) {
                           if (bundleProducts.isEmpty) {
@@ -466,7 +467,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primaryRed.withOpacity(0.12),
+                color: AppColors.primaryRed.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -566,25 +567,28 @@ class _FeatureGridItem extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: const Color(0xFF161628),
+              color: AppColors.cardLight,
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
-                color: color.withOpacity(0.55),
+                color: color.withValues(alpha: 0.5),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.25),
-                  blurRadius: 14,
+                  color: color.withValues(alpha: 0.2),
+                  blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),
               ],
             ),
             child: Center(
-              child: Icon(
-                exp.iconData,
-                color: color,
-                size: 28,
+              child: Hero(
+                tag: 'zone_icon_${exp.id}',
+                child: Icon(
+                  exp.iconData,
+                  color: color,
+                  size: 28,
+                ),
               ),
             ),
           ),
@@ -617,11 +621,11 @@ class _FeatureGridItem extends StatelessWidget {
   }
 }
 
-/// Slide Card Component for Featured Carousel
-class _SlideCard extends StatelessWidget {
+/// Featured Zone Card — rich discovery card for the home slider
+class _FeaturedZoneCard extends StatelessWidget {
   final ArcadeExperience exp;
 
-  const _SlideCard({required this.exp});
+  const _FeaturedZoneCard({required this.exp});
 
   @override
   Widget build(BuildContext context) {
@@ -634,100 +638,123 @@ class _SlideCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(right: AppSpacing.sm),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.borderLight),
-          gradient: LinearGradient(
-            colors: [
-              color.withOpacity(0.25),
-              AppColors.surfaceLight,
-              AppColors.surfaceDark,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+          color: AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: color.withValues(alpha: 0.2),
+            width: 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
+        clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
-            // Background Icon Specular Glow
+            // Background huge watermark icon
             Positioned(
-              right: -10,
-              top: 10,
-              child: Icon(
-                exp.iconData,
-                color: color.withOpacity(0.12),
-                size: 130,
-              ),
-            ),
-            // Bottom Overlay
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    AppColors.surfaceDark.withOpacity(0.92),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+              right: -20,
+              bottom: -30,
+              child: Transform.rotate(
+                angle: -0.2,
+                child: Icon(
+                  exp.iconData,
+                  size: 160,
+                  color: color.withValues(alpha: 0.05),
                 ),
               ),
             ),
+            
+            // Subtle gradient overlay for depth
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      color.withValues(alpha: 0.15),
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.4),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+            
             // Content
             Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.xs,
-                      vertical: AppSpacing.xxs,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: color.withOpacity(0.5)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
+                  // Top Row: Icon & Pill
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Hero(
+                        tag: 'zone_icon_${exp.id}',
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
+                            color: color.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: color.withValues(alpha: 0.3)),
+                          ),
+                          child: Icon(
+                            exp.iconData,
                             color: color,
-                            shape: BoxShape.circle,
+                            size: 28,
                           ),
                         ),
-                        AppSpacing.gapH4,
-                        Text(
-                          exp.name.toUpperCase(),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: color.withValues(alpha: 0.3)),
+                        ),
+                        child: Text(
+                          exp.featureTag.toUpperCase(),
                           style: GoogleFonts.dmSans(
-                            fontSize: 9.5,
+                            fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            letterSpacing: 1.5,
+                            letterSpacing: 1.2,
                             color: color,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  AppSpacing.gapV4,
+                  
+                  const Spacer(),
+                  
+                  // Bottom Content
                   Text(
                     exp.name,
                     style: GoogleFonts.outfit(
-                      fontSize: 20,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.textLight,
+                      height: 1.1,
                     ),
                   ),
+                  const SizedBox(height: 6),
                   Text(
                     exp.tagline,
                     style: GoogleFonts.dmSans(
-                      fontSize: 11.5,
-                      color: Colors.white.withOpacity(0.75),
+                      fontSize: 12,
+                      color: AppColors.textMutedLight,
+                      height: 1.3,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -738,6 +765,61 @@ class _SlideCard extends StatelessWidget {
     );
   }
 }
+
+/// Bundle Deal Skeleton Loader (shown while POS data loads)
+class _BundleSkeleton extends StatefulWidget {
+  @override
+  State<_BundleSkeleton> createState() => _BundleSkeletonState();
+}
+
+class _BundleSkeletonState extends State<_BundleSkeleton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+    _anim = Tween<double>(begin: 0.3, end: 0.7).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, __) => SizedBox(
+        height: 195,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: AppSpacing.pagePadding,
+          itemCount: 3,
+          separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+          itemBuilder: (_, __) => Container(
+            width: 270,
+            decoration: BoxDecoration(
+              color: AppColors.cardLight.withValues(alpha: _anim.value),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.borderLight),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 
 /// Bundle Deal Card
 class _BundleCard extends ConsumerWidget {
@@ -762,7 +844,7 @@ class _BundleCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.cardLight,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cardAccentColor.withOpacity(0.4)),
+        border: Border.all(color: cardAccentColor.withValues(alpha: 0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -775,9 +857,9 @@ class _BundleCard extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
+                  color: AppColors.surfaceDark,
                   borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: cardAccentColor.withOpacity(0.6)),
+                  border: Border.all(color: cardAccentColor.withValues(alpha: 0.5)),
                 ),
                 child: Text(
                   '● $tag',

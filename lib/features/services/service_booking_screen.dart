@@ -76,9 +76,9 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryRed.withOpacity(0.05),
+                      color: AppColors.primaryRed.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.primaryRedDark.withOpacity(0.3)),
+                      border: Border.all(color: AppColors.primaryRedDark.withValues(alpha: 0.3)),
                     ),
                     child: Column(
                       children: [

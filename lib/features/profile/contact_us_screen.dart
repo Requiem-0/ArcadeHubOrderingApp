@@ -123,7 +123,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppColors.primaryRed.withOpacity(0.18),
+                      AppColors.primaryRed.withValues(alpha: 0.18),
                       AppColors.surfaceLight,
                     ],
                     begin: Alignment.topLeft,
@@ -131,7 +131,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                   ),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: AppColors.primaryRed.withOpacity(0.3),
+                    color: AppColors.primaryRed.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -141,7 +141,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                       width: 42,
                       height: 42,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryRed.withOpacity(0.15),
+                        color: AppColors.primaryRed.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
@@ -390,7 +390,7 @@ class _ContactCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 18),

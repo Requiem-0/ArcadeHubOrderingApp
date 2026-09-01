@@ -90,7 +90,7 @@ class SavedAddressesScreen extends ConsumerWidget {
                                     height: 44,
                                     decoration: BoxDecoration(
                                       color: AppColors.primaryRed
-                                          .withOpacity(0.1),
+                                          .withValues(alpha: 0.1),
                                       borderRadius:
                                           BorderRadius.circular(
                                               AppTheme.radiusML),
@@ -122,7 +122,7 @@ class SavedAddressesScreen extends ConsumerWidget {
                                                         vertical: 2),
                                                 decoration: BoxDecoration(
                                                   color: AppColors.primaryRed
-                                                      .withOpacity(0.12),
+                                                      .withValues(alpha: 0.12),
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                           AppTheme.radiusPill),
