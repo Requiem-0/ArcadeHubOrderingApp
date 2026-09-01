@@ -94,6 +94,7 @@ class CartScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.scaffoldLight,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             // Header
@@ -140,7 +141,7 @@ class CartScreen extends ConsumerWidget {
                       ),
                     )
                   : ListView(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
                       children: [
                         // Discount Banner
                         if (activeDiscount)

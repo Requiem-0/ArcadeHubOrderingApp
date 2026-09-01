@@ -76,6 +76,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       backgroundColor: AppColors.scaffoldDark,
       drawer: const ArcadeAppDrawer(),
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             // ── App Bar Header ─────────────────────────────────────────
@@ -205,7 +206,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             // ── Main Scroll View ───────────────────────────────────────
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+                padding: const EdgeInsets.only(bottom: 100),
                 children: [
                   AppSpacing.gapV8,
 
@@ -344,28 +345,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     actionLabel: 'See all',
                     onAction: () => context.push('/food-menu'),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   Padding(
                     padding: AppSpacing.pagePadding,
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: AppSpacing.sm,
-                        mainAxisSpacing: 2.0,
-                        childAspectRatio: 1.02,
-                      ),
-                      itemCount: kArcadeExperiences.length,
-                      itemBuilder: (context, idx) {
-                        final exp = kArcadeExperiences[idx];
-                        return _FeatureGridItem(exp: exp);
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        // 3 items per row, 2 gaps of 16px
+                        final itemWidth = (constraints.maxWidth - 32) / 3;
+                        return Wrap(
+                          spacing: 16,
+                          runSpacing: 24,
+                          children: kArcadeExperiences.map((exp) {
+                            return SizedBox(
+                              width: itemWidth,
+                              child: _FeatureGridItem(exp: exp),
+                            );
+                          }).toList(),
+                        );
                       },
                     ),
                   ),
 
-                  AppSpacing.gapV32,
+                  AppSpacing.gapV16,
 
                   // 3. Featured Zones Slider
                   _SectionHeader(

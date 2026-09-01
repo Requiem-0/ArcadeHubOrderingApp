@@ -27,40 +27,42 @@ class AppBottomNavBar extends ConsumerWidget {
     final cartCount = ref.watch(cartCountProvider);
 
     return SafeArea(
-      child: Container(
-        margin: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(32),
-          color: AppColors.surfaceLight.withValues(alpha: 0.75),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              blurRadius: 24,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(32),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(_tabs.length, (i) {
-                  final tab = _tabs[i];
-                  final active = currentIndex == i;
-                  final badge = tab.showBadge && cartCount > 0 ? cartCount : 0;
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.surfaceLight.withValues(alpha: 0.65),
+                borderRadius: BorderRadius.circular(32),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(_tabs.length, (i) {
+                    final tab = _tabs[i];
+                    final active = currentIndex == i;
+                    final badge = tab.showBadge && cartCount > 0 ? cartCount : 0;
 
-                  return _NavButton(
-                    tab: tab,
-                    active: active,
-                    badge: badge,
-                    onTap: () => onTap(i),
-                  );
-                }),
+                    return _NavButton(
+                      tab: tab,
+                      active: active,
+                      badge: badge,
+                      onTap: () => onTap(i),
+                    );
+                  }),
+                ),
               ),
             ),
           ),
@@ -85,7 +87,7 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? Colors.white : AppColors.textMutedLight;
+    final color = active ? AppColors.primaryRedDark : AppColors.textMutedLight;
     
     return GestureDetector(
       onTap: onTap,
@@ -93,11 +95,7 @@ class _NavButton extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
-        padding: EdgeInsets.symmetric(horizontal: active ? 20 : 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: active ? AppColors.primaryRedDark : Colors.transparent,
-          borderRadius: BorderRadius.circular(24),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -107,7 +105,7 @@ class _NavButton extends StatelessWidget {
                 Icon(
                   active ? (tab.activeIcon ?? tab.icon) : tab.icon,
                   color: color,
-                  size: 24,
+                  size: active ? 26 : 24,
                 ),
                 if (badge > 0)
                   Positioned(

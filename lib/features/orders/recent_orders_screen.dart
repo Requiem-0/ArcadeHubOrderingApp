@@ -21,6 +21,7 @@ class RecentOrdersScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.scaffoldLight,
       body: SafeArea(
+        bottom: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -63,7 +64,7 @@ class RecentOrdersScreen extends ConsumerWidget {
                   }
 
                   return ListView(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
                     children: [
                       // Summary card
                       Container(
