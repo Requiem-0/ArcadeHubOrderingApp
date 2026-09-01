@@ -15,6 +15,9 @@ class ExperienceModel {
   final String shortDesc;
   final String featureTag;
   final ExperienceType type;
+  final String capacity;
+  final String operatingHours;
+  final String setupDetail;
 
   const ExperienceModel({
     required this.id,
@@ -29,5 +32,8 @@ class ExperienceModel {
     required this.shortDesc,
     required this.featureTag,
     required this.type,
+    this.capacity = 'Up to 20 Guests',
+    this.operatingHours = '10:00 AM – 2:00 AM',
+    this.setupDetail = 'Arcade & Gaming Setup',
   });
 }

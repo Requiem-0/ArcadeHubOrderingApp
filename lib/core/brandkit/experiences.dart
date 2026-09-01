@@ -20,6 +20,9 @@ class ArcadeExperience {
   final String shortDesc;
   final String featureTag;
   final ExperienceType type;
+  final String capacity;
+  final String operatingHours;
+  final String setupDetail;
 
   const ArcadeExperience({
     required this.id,
@@ -34,6 +37,9 @@ class ArcadeExperience {
     required this.shortDesc,
     required this.featureTag,
     required this.type,
+    this.capacity = 'Up to 20 Guests',
+    this.operatingHours = '10:00 AM – 2:00 AM',
+    this.setupDetail = 'Arcade & Gaming Setup',
   });
 }
 
@@ -52,6 +58,9 @@ const List<ArcadeExperience> kArcadeExperiences = [
     shortDesc: 'PS5 · Racing · Foosball',
     featureTag: 'Gaming Zone',
     type: ExperienceType.gaming,
+    capacity: '25 Players',
+    operatingHours: '10:00 AM – 2:00 AM',
+    setupDetail: '4x PS5 Pro • 4K HDR • Darts',
   ),
   ArcadeExperience(
     id: 'partyroom',
@@ -67,6 +76,9 @@ const List<ArcadeExperience> kArcadeExperiences = [
     shortDesc: 'Parties · Karaoke · Movies',
     featureTag: 'Private VIP',
     type: ExperienceType.lounge,
+    capacity: '40 Guests',
+    operatingHours: '11:00 AM – 3:00 AM',
+    setupDetail: '4K Projector • Pro Sound System',
   ),
   ArcadeExperience(
     id: 'sportsbar',
@@ -82,6 +94,9 @@ const List<ArcadeExperience> kArcadeExperiences = [
     shortDesc: 'Live sports · Big screens',
     featureTag: 'Live HD',
     type: ExperienceType.dining,
+    capacity: '60 Seated',
+    operatingHours: '12:00 PM – 2:00 AM',
+    setupDetail: '10x 4K HD Displays • Full Bar',
   ),
   ArcadeExperience(
     id: 'rooftop',
@@ -97,6 +112,9 @@ const List<ArcadeExperience> kArcadeExperiences = [
     shortDesc: 'City views · Relaxed dining',
     featureTag: 'Sky Lounge',
     type: ExperienceType.dining,
+    capacity: '50 Seated',
+    operatingHours: '4:00 PM – 1:00 AM',
+    setupDetail: 'Open-Air Sky Deck & Lounge',
   ),
   ArcadeExperience(
     id: 'area51',
@@ -112,6 +130,9 @@ const List<ArcadeExperience> kArcadeExperiences = [
     shortDesc: 'Outdoor chill · TT · Beer pong',
     featureTag: 'Outdoor Chill',
     type: ExperienceType.gaming,
+    capacity: '20 Guests',
+    operatingHours: '5:00 PM – 2:00 AM',
+    setupDetail: 'Neon Outdoor Garden & TT',
   ),
   ArcadeExperience(
     id: 'easyroom',
@@ -127,5 +148,8 @@ const List<ArcadeExperience> kArcadeExperiences = [
     shortDesc: 'Cozy private · PS5 · Karaoke',
     featureTag: 'Private Lounge',
     type: ExperienceType.lounge,
+    capacity: '12 Guests',
+    operatingHours: '10:00 AM – 2:00 AM',
+    setupDetail: 'Luxury Sofa Lounge & PS5',
   ),
 ];

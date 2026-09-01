@@ -144,31 +144,39 @@ class ArcadeAppDrawer extends StatelessWidget {
 
                     // Secondary Nav Links
                     _DrawerSmallLink(
-                      icon: '🎁',
-                      label: 'Offers & Rewards',
+                      iconData: Icons.settings_outlined,
+                      label: 'Settings',
                       onTap: () {
                         Navigator.of(context).pop();
-                        context.push('/discounts');
+                        context.push('/settings');
                       },
                     ),
                     _DrawerSmallLink(
-                      icon: '📅',
-                      label: 'My Bookings',
+                      iconData: Icons.person_outline_rounded,
+                      label: 'My Profile',
                       onTap: () {
                         Navigator.of(context).pop();
-                        context.push('/service-booking');
+                        context.push('/profile');
                       },
                     ),
                     _DrawerSmallLink(
-                      icon: '🍔',
-                      label: 'Food & Drinks Menu',
+                      iconData: Icons.location_on_outlined,
+                      label: 'Saved Addresses',
                       onTap: () {
                         Navigator.of(context).pop();
-                        context.push('/food-menu');
+                        context.push('/addresses');
                       },
                     ),
                     _DrawerSmallLink(
-                      icon: '🧾',
+                      iconData: Icons.favorite_outline_rounded,
+                      label: 'Favourites',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push('/favourites');
+                      },
+                    ),
+                    _DrawerSmallLink(
+                      iconData: Icons.receipt_long_outlined,
                       label: 'Recent Orders',
                       onTap: () {
                         Navigator.of(context).pop();
@@ -176,7 +184,7 @@ class ArcadeAppDrawer extends StatelessWidget {
                       },
                     ),
                     _DrawerSmallLink(
-                      icon: '📞',
+                      iconData: Icons.chat_bubble_outline_rounded,
                       label: 'Contact Us',
                       onTap: () {
                         Navigator.of(context).pop();
@@ -314,12 +322,12 @@ class _DrawerZoneLink extends StatelessWidget {
 
 /// Drawer Small Action Link
 class _DrawerSmallLink extends StatelessWidget {
-  final String icon;
+  final IconData iconData;
   final String label;
   final VoidCallback onTap;
 
   const _DrawerSmallLink({
-    required this.icon,
+    required this.iconData,
     required this.label,
     required this.onTap,
   });
@@ -336,7 +344,7 @@ class _DrawerSmallLink extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           child: Row(
             children: [
-              Text(icon, style: const TextStyle(fontSize: 16)),
+              Icon(iconData, color: AppColors.textMutedLight, size: 18),
               const SizedBox(width: 12),
               Text(
                 label,

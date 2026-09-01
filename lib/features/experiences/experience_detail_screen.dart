@@ -39,17 +39,18 @@ class ExperienceDetailScreen extends ConsumerWidget {
           return CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // ── 1. Hero App Bar / Header ─────────────────────────────
+              // ── 1. Hero Header (Clean linear gradient, 0 scroll seam) ─
               SliverAppBar(
-                expandedHeight: 220,
+                expandedHeight: 160,
                 pinned: true,
                 backgroundColor: AppColors.scaffoldLight,
+                surfaceTintColor: Colors.transparent,
                 elevation: 0,
                 leading: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: AppColors.textLight, size: 20),
+                        color: AppColors.textLight, size: 18),
                     style: IconButton.styleFrom(
                       backgroundColor: AppColors.surfaceLight,
                       shape: RoundedRectangleBorder(
@@ -60,91 +61,90 @@ class ExperienceDetailScreen extends ConsumerWidget {
                   ),
                 ),
                 flexibleSpace: FlexibleSpaceBar(
-                  background: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Gradient backdrop with zone accent glow
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              accentColor.withOpacity(0.22),
-                              AppColors.scaffoldLight,
-                            ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                        ),
+                  background: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          accentColor.withOpacity(0.25),
+                          accentColor.withOpacity(0.05),
+                          AppColors.scaffoldLight,
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
-                      // Hero Content Area
-                      SafeArea(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(24, 48, 24, 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Row(
-                                children: [
-                                  // Zone Icon container with unified accent color
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: accentColor.withOpacity(0.18),
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(
-                                        color: accentColor.withOpacity(0.4),
-                                        width: 1.5,
+                    ),
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Row(
+                              children: [
+                                // Glassmorphic Dual-Shadow Icon Box
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surfaceLight,
+                                    borderRadius: BorderRadius.circular(18),
+                                    border: Border.all(
+                                      color: accentColor.withOpacity(0.6),
+                                      width: 1.5,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: accentColor.withOpacity(0.25),
+                                        blurRadius: 12,
+                                        spreadRadius: 0,
+                                        offset: const Offset(0, 3),
                                       ),
-                                    ),
-                                    child: Icon(
-                                      exp.iconData,
-                                      color: accentColor,
-                                      size: 32,
-                                    ),
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.35),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 3),
-                                          decoration: BoxDecoration(
-                                            color: accentColor.withOpacity(0.2),
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          child: Text(
-                                            '${exp.featureTag.toUpperCase()} • ZONE ${exp.indexNumber}',
-                                            style: GoogleFonts.dmSans(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: accentColor,
-                                              letterSpacing: 0.8,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          exp.name,
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.textLight,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                  child: Icon(
+                                    exp.iconData,
+                                    color: accentColor,
+                                    size: 28,
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${exp.featureTag.toUpperCase()} • ZONE ${exp.indexNumber}',
+                                        style: GoogleFonts.dmSans(
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.bold,
+                                          color: accentColor,
+                                          letterSpacing: 1.2,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        exp.name,
+                                        style: GoogleFonts.outfit(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.textLight,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -154,7 +154,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    // Pull-quote Tagline (Clean typographic accent line, no bulky card)
+                    // Typographic Pull-Quote Hook (Left accent bar)
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -171,7 +171,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
                           child: Text(
                             exp.tagline,
                             style: GoogleFonts.outfit(
-                              fontSize: 16,
+                              fontSize: 15.5,
                               fontWeight: FontWeight.w600,
                               color: AppColors.textLight,
                               height: 1.35,
@@ -180,103 +180,46 @@ class ExperienceDetailScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
                     // Section: About
                     Text(
                       'About ${exp.name}',
                       style: GoogleFonts.outfit(
-                        fontSize: 18,
+                        fontSize: 17,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textLight,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     Text(
                       exp.description,
                       style: GoogleFonts.dmSans(
-                        fontSize: 14,
+                        fontSize: 13.5,
                         color: AppColors.textMutedLight,
-                        height: 1.5,
+                        height: 1.45,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
-                    // Horizontal Highlights Tags
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: exp.subtitle
-                          .split('·')
-                          .map((s) => s.trim())
-                          .where((s) => s.isNotEmpty)
-                          .map((tag) => Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: accentColor.withOpacity(0.12),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                      color: accentColor.withOpacity(0.25)),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: 6,
-                                      height: 6,
-                                      decoration: BoxDecoration(
-                                        color: accentColor,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      tag,
-                                      style: GoogleFonts.dmSans(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.textLight,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ))
-                          .toList(),
+                    // Hardware & Venue Spec Tag (Single concrete spec)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: _SpecChip(
+                          label: exp.setupDetail, accentColor: accentColor),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 28),
 
-                    // Section: Bookable Services / Stations
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Available Stations & Services',
-                          style: GoogleFonts.outfit(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textLight,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: accentColor.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            'Bookable',
-                            style: GoogleFonts.dmSans(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: accentColor,
-                            ),
-                          ),
-                        ),
-                      ],
+                    // Section: Stations & Bookable Services
+                    Text(
+                      'Available Stations & Services',
+                      style: GoogleFonts.outfit(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textLight,
+                      ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
 
                     servicesAsync.when(
                       loading: () => const Center(
@@ -296,7 +239,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
                               border: Border.all(color: AppColors.borderLight),
                             ),
                             child: Text(
-                              'No specific bookable services listed right now. Walk-in seating available!',
+                              'No specific bookable stations listed right now. Walk-in seating is available!',
                               style: GoogleFonts.dmSans(
                                   color: AppColors.textMutedLight,
                                   fontSize: 13),
@@ -307,18 +250,18 @@ class ExperienceDetailScreen extends ConsumerWidget {
                         return Column(
                           children: services.map((srv) {
                             return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.all(16),
+                              margin: const EdgeInsets.only(bottom: 10),
+                              padding: const EdgeInsets.fromLTRB(16, 12, 14, 12),
                               decoration: BoxDecoration(
                                 color: AppColors.surfaceLight,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: accentColor.withOpacity(0.3),
+                                  color: accentColor.withOpacity(0.35),
                                   width: 1.2,
                                 ),
                               ),
                               child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Expanded(
                                     child: Column(
@@ -331,7 +274,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                               child: Text(
                                                 srv.name,
                                                 style: GoogleFonts.outfit(
-                                                  fontSize: 16,
+                                                  fontSize: 15.5,
                                                   fontWeight: FontWeight.bold,
                                                   color: AppColors.textLight,
                                                 ),
@@ -341,7 +284,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                               Text(
                                                 'Rs ${srv.price?.toInt()}',
                                                 style: GoogleFonts.outfit(
-                                                  fontSize: 16,
+                                                  fontSize: 15,
                                                   fontWeight: FontWeight.bold,
                                                   color: accentColor,
                                                 ),
@@ -349,21 +292,26 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                             ],
                                           ],
                                         ),
-                                        const SizedBox(height: 4),
+                                        const SizedBox(height: 2),
                                         Text(
                                           srv.description,
                                           style: GoogleFonts.dmSans(
-                                            fontSize: 12.5,
+                                            fontSize: 12,
                                             color: AppColors.textMutedLight,
-                                            height: 1.35,
+                                            height: 1.3,
                                           ),
                                         ),
                                         if (srv.durationText != null) ...[
-                                          const SizedBox(height: 8),
+                                          const SizedBox(height: 5),
                                           Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
                                             children: [
-                                              Icon(Icons.schedule_rounded,
-                                                  size: 14, color: accentColor),
+                                              Icon(
+                                                Icons.schedule_rounded,
+                                                size: 13,
+                                                color: accentColor,
+                                              ),
                                               const SizedBox(width: 4),
                                               Text(
                                                 srv.durationText!,
@@ -391,8 +339,8 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                         foregroundColor: Colors.black,
                                         elevation: 0,
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 14, vertical: 8),
-                                        minimumSize: const Size(0, 34),
+                                            horizontal: 16, vertical: 6),
+                                        minimumSize: const Size(0, 32),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(20),
@@ -414,82 +362,53 @@ class ExperienceDetailScreen extends ConsumerWidget {
                         );
                       },
                     ),
-
-                    const SizedBox(height: 28),
-
-                    // Order Food & Drinks Card
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            accentColor.withOpacity(0.15),
-                            AppColors.surfaceLight,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: accentColor.withOpacity(0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceLight,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 8,
-                                ),
-                              ],
-                            ),
-                            child: const Text('🍽️',
-                                style: TextStyle(fontSize: 28)),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Order to ${exp.name}',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textLight,
-                                  ),
-                                ),
-                                Text(
-                                  'Get food & drinks delivered directly to your gaming spot.',
-                                  style: GoogleFonts.dmSans(
-                                    fontSize: 12,
-                                    color: AppColors.textMutedLight,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          IconButton(
-                            onPressed: () => context.push('/food-menu'),
-                            icon: const Icon(Icons.arrow_forward_rounded),
-                            style: IconButton.styleFrom(
-                              backgroundColor: accentColor,
-                              foregroundColor: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ]),
                 ),
               ),
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _SpecChip extends StatelessWidget {
+  final String label;
+  final Color accentColor;
+
+  const _SpecChip({required this.label, required this.accentColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: accentColor.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: accentColor.withOpacity(0.25)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 5,
+            height: 5,
+            decoration: BoxDecoration(
+              color: accentColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: GoogleFonts.dmSans(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textLight,
+            ),
+          ),
+        ],
       ),
     );
   }
