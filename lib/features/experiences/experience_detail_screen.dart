@@ -59,7 +59,13 @@ class ExperienceDetailScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(AppTheme.radiusSM),
                       ),
                     ),
-                    onPressed: () => context.pop(),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/home');
+                      }
+                    },
                   ),
                 ),
                 flexibleSpace: FlexibleSpaceBar(

@@ -22,7 +22,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _sliderCtrl = PageController(viewportFraction: 0.88);
   int _activeSlideIndex = 0;
   Timer? _timer;
@@ -38,20 +37,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     
     // Auto-slide carousel every 4 seconds
     _carouselTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!mounted) return;
       if (_sliderCtrl.hasClients) {
-        int nextPage = _sliderCtrl.page!.round() + 1;
-        if (nextPage >= kArcadeExperiences.length) {
-          _sliderCtrl.animateToPage(
-            0,
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.fastOutSlowIn,
-          );
-        } else {
-          _sliderCtrl.nextPage(
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.fastOutSlowIn,
-          );
-        }
+        final next = (_activeSlideIndex + 1) % 3;
+        _sliderCtrl.animateToPage(
+          next,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.fastOutSlowIn,
+        );
       }
     });
   }
@@ -66,22 +59,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   void _updateCountdown() {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day, 10);
-    final end = DateTime(now.year, now.month, now.day, 16);
-    DateTime target;
-    if (now.isBefore(start)) {
-      target = start;
-      _countLabel = 'starts in';
-    } else if (now.isBefore(end)) {
-      target = end;
-      _countLabel = 'ends in';
+    final happyHourStart = DateTime(now.year, now.month, now.day, 16, 0);
+    final happyHourEnd = DateTime(now.year, now.month, now.day, 19, 0);
+
+    if (now.isBefore(happyHourStart)) {
+      _remainingTime = happyHourStart.difference(now);
+      _countLabel = 'STARTS IN';
+    } else if (now.isBefore(happyHourEnd)) {
+      _remainingTime = happyHourEnd.difference(now);
+      _countLabel = 'ENDS IN';
     } else {
-      target = start.add(const Duration(days: 1));
-      _countLabel = 'starts in';
+      final tomorrow = happyHourStart.add(const Duration(days: 1));
+      _remainingTime = tomorrow.difference(now);
+      _countLabel = 'NEXT IN';
     }
-    setState(() {
-      _remainingTime = target.difference(now);
-    });
+    if (mounted) setState(() {});
   }
 
   String _formatDuration(Duration d) {
@@ -94,140 +86,140 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: AppColors.scaffoldDark,
       drawer: const ArcadeAppDrawer(),
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            // ── App Bar Header ─────────────────────────────────────────
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.sm,
-              ),
-              color: AppColors.scaffoldDark,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Brand Logo & Title
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          gradient: const LinearGradient(
-                            colors: [AppColors.primaryRedDark, AppColors.deepRed],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primaryRedDark.withValues(alpha: 0.4),
-                              blurRadius: 12,
-                            ),
-                          ],
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.sports_esports_rounded,
-                            color: Colors.white,
-                            size: 22,
-                          ),
-                        ),
-                      ),
-                      AppSpacing.gapH12,
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'ARCADE HUB',
-                            style: GoogleFonts.outfit(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                              color: AppColors.textLight,
-                            ),
-                          ),
-                          Text(
-                            'GAME HOUSE · RESTRO',
-                            style: GoogleFonts.dmSans(
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.8,
-                              color: AppColors.textMutedLight,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // Hamburger Drawer Button
-                  Tooltip(
-                    message: 'Open menu',
-                    child: Material(
-                      color: AppColors.surfaceLight,
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        onTap: () => _scaffoldKey.currentState?.openDrawer(),
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
+      body: Builder(
+        builder: (innerContext) => SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              // ── App Bar Header ─────────────────────────────────────────
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.sm,
+                ),
+                color: AppColors.scaffoldDark,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Brand Logo & Title
+                    Row(
+                      children: [
+                        Container(
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.borderLight),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 18,
-                                height: 2,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryRedDark,
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
+                            gradient: const LinearGradient(
+                              colors: [AppColors.primaryRedDark, AppColors.deepRed],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primaryRedDark.withValues(alpha: 0.4),
+                                blurRadius: 12,
                               ),
-                              AppSpacing.gapV4,
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: Container(
-                                  width: 12,
+                            ],
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.sports_esports_rounded,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                          ),
+                        ),
+                        AppSpacing.gapH12,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'ARCADE HUB',
+                              style: GoogleFonts.outfit(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                                color: AppColors.textLight,
+                              ),
+                            ),
+                            Text(
+                              'GAME HOUSE · RESTRO',
+                              style: GoogleFonts.dmSans(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.8,
+                                color: AppColors.textMutedLight,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                    // Hamburger Drawer Button
+                    Tooltip(
+                      message: 'Open menu',
+                      child: Material(
+                        color: AppColors.surfaceLight,
+                        borderRadius: BorderRadius.circular(12),
+                        child: InkWell(
+                          onTap: () => Scaffold.of(innerContext).openDrawer(),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.borderLight),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 18,
                                   height: 2,
-                                  margin: const EdgeInsets.only(right: 11),
                                   decoration: BoxDecoration(
                                     color: AppColors.primaryRedDark,
                                     borderRadius: BorderRadius.circular(2),
                                   ),
                                 ),
-                              ),
-                              AppSpacing.gapV4,
-                              Container(
-                                width: 18,
-                                height: 2,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryRedDark,
-                                  borderRadius: BorderRadius.circular(2),
+                                AppSpacing.gapV4,
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Container(
+                                    width: 12,
+                                    height: 2,
+                                    margin: const EdgeInsets.only(right: 11),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryRedDark,
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
+                                AppSpacing.gapV4,
+                                Container(
+                                  width: 18,
+                                  height: 2,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryRedDark,
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            // ── Main Scroll View ───────────────────────────────────────
-            Expanded(
-              child: ListView(
+              // ── Main Scroll View ───────────────────────────────────────
+              Expanded(
+                child: ListView(
                 padding: const EdgeInsets.only(bottom: 100),
                 children: [
                   AppSpacing.gapV16,
@@ -335,8 +327,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildNoBundlesPlaceholder() {
     return Padding(
@@ -617,16 +610,13 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Hero(
-          tag: 'zone_icon_${exp.id}',
-          child: Container(
-            padding: const EdgeInsets.all(10), // Reduced from 12
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(exp.iconData, color: color, size: 36), // Reduced from 48
+        Container(
+          padding: const EdgeInsets.all(10), // Reduced from 12
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(16),
           ),
+          child: Icon(exp.iconData, color: color, size: 36), // Reduced from 48
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -660,10 +650,7 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Hero(
-          tag: 'zone_icon_${exp.id}',
-          child: Icon(exp.iconData, color: color, size: 22), // Reduced from 28
-        ),
+        Icon(exp.iconData, color: color, size: 22), // Reduced from 28
         AppSpacing.gapV4,
         Text(
           exp.name,
@@ -805,20 +792,17 @@ class _FeaturedZoneCard extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              Hero(
-                                tag: 'zone_icon_${exp.id}',
-                                child: Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.4),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: color.withValues(alpha: 0.4)),
-                                  ),
-                                  child: Icon(
-                                    exp.iconData,
-                                    color: color,
-                                    size: 20,
-                                  ),
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.4),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: color.withValues(alpha: 0.4)),
+                                ),
+                                child: Icon(
+                                  exp.iconData,
+                                  color: color,
+                                  size: 20,
                                 ),
                               ),
                             ],

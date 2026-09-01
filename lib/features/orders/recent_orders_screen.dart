@@ -2,13 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
 import '../../core/constants.dart';
+import '../../core/repositories/auth_repository.dart';
 import '../../core/repositories/order_repository.dart';
 import '../../features/orders/data/order_model.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/primary_button.dart';
 import '../../shared/widgets/secondary_button.dart';
 
 class RecentOrdersScreen extends ConsumerWidget {
@@ -16,10 +19,11 @@ class RecentOrdersScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loggedInAsync = ref.watch(isLoggedInStateProvider);
     final ordersAsync = ref.watch(myOrdersProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: AppColors.scaffoldDark,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -27,105 +31,161 @@ class RecentOrdersScreen extends ConsumerWidget {
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+              padding: const EdgeInsets.fromLTRB(28, 20, 28, 0),
               child: Row(
                 children: [
-                  Text('Recent Orders',
-                      style: AppTextStyles.headingM(AppColors.textLight)),
+                  Text(
+                    'Recent Orders',
+                    style: GoogleFonts.outfit(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                      color: AppColors.textLight,
+                    ),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
 
             Expanded(
-              child: ordersAsync.when(
+              child: loggedInAsync.when(
                 loading: () => const Center(
                   child: CircularProgressIndicator(color: AppColors.primaryRed),
                 ),
-                error: (err, stack) => Center(
-                  child: Text('Error loading orders: $err',
-                      style: AppTextStyles.bodyM(AppColors.error)),
-                ),
-                data: (orders) {
-                  final totalSpent =
-                      orders.fold<double>(0, (s, o) => s + o.total);
-
-                  if (orders.isEmpty) {
-                    return EmptyState(
-                      icon: '📦',
-                      title: 'No orders yet',
-                      subtitle: 'Your order history will appear here.',
-                      action: SecondaryButton(
-                        label: 'Browse Menu',
-                        onPressed: () => context.go('/home'),
-                        fullWidth: false,
-                      ),
-                    );
+                error: (_, __) => _buildGuestState(context),
+                data: (isLoggedIn) {
+                  if (!isLoggedIn) {
+                    return _buildGuestState(context);
                   }
 
-                  return ListView(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
-                    children: [
-                      // Summary card
-                      Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              AppColors.primaryRed,
-                              Color(0xFF660000),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius:
-                              BorderRadius.circular(AppTheme.radiusXXL),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primaryRed.withValues(alpha: 0.35),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
+                  return ordersAsync.when(
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(color: AppColors.primaryRed),
+                    ),
+                    error: (_, __) => EmptyState(
+                      iconData: Icons.wifi_off_rounded,
+                      iconColor: AppColors.error,
+                      title: 'Unable to Load Orders',
+                      subtitle: 'Please check your internet connection and try again.',
+                      action: SizedBox(
+                        width: 160,
+                        child: SecondaryButton(
+                          label: 'Retry',
+                          onPressed: () => ref.invalidate(myOrdersProvider),
+                          fullWidth: false,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'THIS MONTH',
-                              style: AppTextStyles.label(
-                                  Colors.white.withValues(alpha: 0.7)),
+                      ),
+                    ),
+                    data: (orders) {
+                      if (orders.isEmpty) {
+                        return EmptyState(
+                          iconData: Icons.receipt_long_rounded,
+                          iconColor: AppColors.primaryRed,
+                          title: 'No Orders Yet',
+                          subtitle: 'Your active kitchen orders and past receipts will appear here.',
+                          action: SizedBox(
+                            width: 180,
+                            child: PrimaryButton(
+                              label: 'Browse Menu',
+                              onPressed: () => context.go('/home'),
                             ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                _StatItem(
-                                  value: '${orders.length}',
-                                  label: 'orders placed',
-                                ),
-                                const SizedBox(width: 32),
-                                _StatItem(
-                                  value:
-                                      '${AppConstants.currencySymbol} ${totalSpent.toStringAsFixed(0)}',
-                                  label: 'total spent',
+                          ),
+                        );
+                      }
+
+                      final totalSpent =
+                          orders.fold<double>(0, (s, o) => s + o.total);
+
+                      return ListView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(28, 0, 28, 120),
+                        children: [
+                          // Summary card
+                          Container(
+                            padding: const EdgeInsets.all(22),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFF8B1111),
+                                  Color(0xFF3B0505),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(22),
+                              border: Border.all(
+                                color: AppColors.primaryRed.withValues(alpha: 0.35),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primaryRed.withValues(alpha: 0.25),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 6),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'THIS MONTH',
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1.5,
+                                    color: Colors.white.withValues(alpha: 0.75),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    _StatItem(
+                                      value: '${orders.length}',
+                                      label: 'orders placed',
+                                    ),
+                                    const SizedBox(width: 32),
+                                    _StatItem(
+                                      value:
+                                          '${AppConstants.currencySymbol} ${totalSpent.toStringAsFixed(0)}',
+                                      label: 'total spent',
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
 
-                      ...orders.map((order) => Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _OrderCard(order: order),
-                          )),
-                    ],
+                          ...orders.map((order) => Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: _OrderCard(order: order),
+                              )),
+                        ],
+                      );
+                    },
                   );
                 },
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuestState(BuildContext context) {
+    return EmptyState(
+      iconData: Icons.person_outline_rounded,
+      iconColor: AppColors.primaryRed,
+      title: 'Guest Account',
+      subtitle: 'Sign in to track real-time kitchen progress, receipts, and order history.',
+      action: SizedBox(
+        width: 200,
+        child: PrimaryButton(
+          label: 'Sign In / Register',
+          onPressed: () => context.push('/login'),
         ),
       ),
     );
@@ -142,8 +202,21 @@ class _StatItem extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(value, style: AppTextStyles.headingL(Colors.white)),
-        Text(label, style: AppTextStyles.bodyS(Colors.white.withValues(alpha: 0.7))),
+        Text(
+          value,
+          style: GoogleFonts.outfit(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+          ),
+        ),
+        Text(
+          label,
+          style: GoogleFonts.dmSans(
+            fontSize: 12,
+            color: Colors.white.withValues(alpha: 0.7),
+          ),
+        ),
       ],
     );
   }
@@ -167,79 +240,105 @@ class _OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(AppTheme.radiusL),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.borderLight),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(order.id,
-                  style: AppTextStyles.bodyS(AppColors.textMutedLight)),
-              const Spacer(),
-              Text(order.date,
-                  style: AppTextStyles.bodyS(AppColors.textMutedLight)),
-              const SizedBox(width: 8),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                decoration: BoxDecoration(
-                  color: _statusColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-                ),
-                child: Text(
-                  order.statusLabel,
-                  style: AppTextStyles.bodyXS(_statusColor).copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ...order.items.take(3).map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 2),
-                child: Row(
-                  children: [
-                    Text('${item.name} × ${item.qty}',
-                        style: AppTextStyles.bodyM(AppColors.textLight)),
-                    if (item.variant != null) ...[
-                      const SizedBox(width: 4),
-                      Text('(${item.variant})',
-                          style:
-                              AppTextStyles.bodyXS(AppColors.textMutedLight)),
-                    ],
-                  ],
-                ),
-              )),
-          if (order.items.length > 3)
-            Text('+${order.items.length - 3} more',
-                style: AppTextStyles.bodyXS(AppColors.textMutedLight)),
-          const SizedBox(height: 10),
-          const Divider(color: AppColors.borderLight, height: 1),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${AppConstants.currencySymbol} ${order.total.toStringAsFixed(0)}',
-                style: AppTextStyles.bold(AppColors.textLight, size: 18),
-              ),
-              GestureDetector(
-                onTap: () {},
-                child: Text(
-                  'Reorder',
-                  style: AppTextStyles.semibold(AppColors.primaryRed, size: 14)
-                      .copyWith(decoration: TextDecoration.underline),
-                ),
-              ),
-            ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(18),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: () {
+            context.push('/order/${order.id}', extra: order);
+          },
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(order.id,
+                        style: GoogleFonts.dmSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textLight,
+                        )),
+                    const Spacer(),
+                    Text(order.date,
+                        style: AppTextStyles.bodyS(AppColors.textMutedLight)),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: _statusColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                        border: Border.all(color: _statusColor.withValues(alpha: 0.3)),
+                      ),
+                      child: Text(
+                        order.statusLabel,
+                        style: AppTextStyles.bodyXS(_statusColor).copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                ...order.items.take(3).map((item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 2),
+                      child: Row(
+                        children: [
+                          Text('${item.name} × ${item.qty}',
+                              style: AppTextStyles.bodyM(AppColors.textLight)),
+                          if (item.variant != null) ...[
+                            const SizedBox(width: 4),
+                            Text('(${item.variant})',
+                                style:
+                                    AppTextStyles.bodyXS(AppColors.textMutedLight)),
+                          ],
+                        ],
+                      ),
+                    )),
+                if (order.items.length > 3)
+                  Text('+${order.items.length - 3} more',
+                      style: AppTextStyles.bodyXS(AppColors.textMutedLight)),
+                const SizedBox(height: 10),
+                const Divider(color: AppColors.borderLight, height: 1),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${AppConstants.currencySymbol} ${order.total.toStringAsFixed(0)}',
+                      style: AppTextStyles.bold(AppColors.textLight, size: 18),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'View Receipt',
+                          style: AppTextStyles.semibold(AppColors.textMutedLight, size: 13),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppColors.textMutedLight),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

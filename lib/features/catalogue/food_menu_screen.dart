@@ -53,7 +53,13 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.arrow_back, color: AppColors.textLight),
-                    onPressed: () => context.pop(),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/home');
+                      }
+                    },
                   ),
                   const SizedBox(width: 8),
                   Expanded(

@@ -65,7 +65,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () => context.pop(),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/cart');
+                      }
+                    },
                     icon: const Icon(Icons.arrow_back, color: AppColors.textLight),
                   ),
                   const SizedBox(width: 8),

@@ -132,12 +132,16 @@ class CartScreen extends ConsumerWidget {
             Expanded(
               child: isEmpty
                   ? EmptyState(
-                      icon: '🛒',
-                      title: 'Your cart is empty',
-                      subtitle: "Explore Arcade Hub experiences and add snacks or drinks!",
-                      action: PrimaryButton(
-                        label: 'Browse Menu',
-                        onPressed: () => context.go('/home'),
+                      iconData: Icons.shopping_bag_outlined,
+                      iconColor: AppColors.primaryRed,
+                      title: 'Your Cart is Empty',
+                      subtitle: "Explore Arcade Hub dishes, drinks, and combos to start an order.",
+                      action: SizedBox(
+                        width: 180,
+                        child: PrimaryButton(
+                          label: 'Browse Menu',
+                          onPressed: () => context.go('/food-menu'),
+                        ),
                       ),
                     )
                   : ListView(

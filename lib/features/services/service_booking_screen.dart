@@ -52,7 +52,13 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () => context.pop(),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/home');
+                      }
+                    },
                     icon: const Icon(Icons.arrow_back, color: AppColors.textLight),
                   ),
                   const SizedBox(width: 8),

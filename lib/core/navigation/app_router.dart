@@ -25,6 +25,9 @@ import '../../features/services/service_booking_screen.dart';
 import '../../features/address/saved_addresses_screen.dart';
 import '../../features/address/add_address_screen.dart';
 import '../../features/profile/contact_us_screen.dart';
+import '../../features/profile/edit_profile_screen.dart';
+import '../../features/orders/order_detail_screen.dart';
+import '../../features/orders/data/order_model.dart';
 import '../../shared/widgets/bottom_nav_bar.dart';
 
 class AppShell extends StatelessWidget {
@@ -40,15 +43,7 @@ class AppShell extends StatelessWidget {
     return Scaffold(
       extendBody: true,
       backgroundColor: AppColors.scaffoldDark,
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        switchInCurve: Curves.easeOut,
-        switchOutCurve: Curves.easeIn,
-        child: SizedBox(
-          key: ValueKey(currentIndex),
-          child: child,
-        ),
-      ),
+      body: child,
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: currentIndex,
         onTap: (i) {
@@ -128,6 +123,17 @@ final appRouter = GoRouter(
     GoRoute(path: '/food-menu', builder: (_, __) => const FoodMenuScreen()),
 
     GoRoute(path: '/favourites', builder: (_, __) => const FavouritesScreen()),
+
+    // ── Profile & Orders Detail Routes ────────────────────────────
+    GoRoute(path: '/edit-profile', builder: (_, __) => const EditProfileScreen()),
+    GoRoute(
+      path: '/order/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        final extraOrder = state.extra is OrderModel ? state.extra as OrderModel : null;
+        return OrderDetailScreen(orderId: id, initialOrder: extraOrder);
+      },
+    ),
 
     // ── Product Detail ────────────────────────────────────────────
     GoRoute(

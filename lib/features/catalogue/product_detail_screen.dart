@@ -97,7 +97,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     borderRadius: BorderRadius.circular(AppTheme.radiusSM),
                   ),
                   child: IconButton(
-                    onPressed: () => context.pop(),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/home');
+                      }
+                    },
                     icon: const Icon(Icons.arrow_back_ios_new_rounded,
                         color: AppColors.textLight, size: 18),
                   ),

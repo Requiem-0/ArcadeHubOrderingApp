@@ -58,7 +58,13 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () => context.pop(),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/addresses');
+                      }
+                    },
                     icon: const Icon(Icons.arrow_back_ios_new_rounded,
                         color: AppColors.textLight),
                     style: IconButton.styleFrom(
@@ -159,13 +165,26 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                                 note: _ctrls['landmark']?.text,
                               );
                           ref.invalidate(savedLocationsProvider);
-                          if (mounted) context.pop();
+                          if (mounted) {
+                            if (context.canPop()) {
+                              context.pop();
+                            } else {
+                              context.go('/addresses');
+                            }
+                          }
                         } catch (e) {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Saved locally ($e)')),
+                              const SnackBar(
+                                content: Text('Address saved locally.'),
+                                backgroundColor: AppColors.success,
+                              ),
                             );
-                            context.pop();
+                            if (context.canPop()) {
+                              context.pop();
+                            } else {
+                              context.go('/addresses');
+                            }
                           }
                         } finally {
                           if (mounted) setState(() => _loading = false);

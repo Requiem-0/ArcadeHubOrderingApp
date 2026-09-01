@@ -221,7 +221,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           IconButton(
-                            onPressed: () => context.go('/splash'),
+                            onPressed: () {
+                              if (context.canPop()) {
+                                context.pop();
+                              } else {
+                                context.go('/home');
+                              }
+                            },
                             icon: const Icon(Icons.arrow_back_ios_new_rounded,
                                 color: AppColors.textLight, size: 18),
                             style: IconButton.styleFrom(

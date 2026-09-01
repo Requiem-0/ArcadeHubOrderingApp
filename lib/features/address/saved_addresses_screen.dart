@@ -27,7 +27,13 @@ class SavedAddressesScreen extends ConsumerWidget {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () => context.pop(),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/profile');
+                      }
+                    },
                     icon: const Icon(Icons.arrow_back_ios_new_rounded,
                         color: AppColors.textLight),
                     style: IconButton.styleFrom(

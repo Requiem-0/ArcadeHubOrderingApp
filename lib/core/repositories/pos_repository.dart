@@ -215,7 +215,7 @@ final bundleProductsProvider = Provider<AsyncValue<List<ProductModel>>>((ref) {
   final catalogAsync = ref.watch(catalogProvider);
   return catalogAsync.whenData((products) => products
       .where((p) =>
-          p.category.toLowerCase() == 'bundle' ||
-          p.category.toLowerCase() == 'bundles')
+          p.category.trim().toLowerCase() == 'bundle' ||
+          p.category.trim().toLowerCase() == 'bundles')
       .toList());
 });
