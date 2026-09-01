@@ -91,7 +91,13 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 borderRadius: BorderRadius.circular(AppTheme.radiusSM),
               ),
             ),
-            onPressed: () => context.pop(),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/home');
+              }
+            },
           ),
         ),
         title: Text(
