@@ -8,6 +8,7 @@ import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
 import '../../core/network/api_client.dart';
 import '../../core/repositories/auth_repository.dart';
+import '../../core/utils/app_toast.dart';
 import '../../shared/widgets/app_logo.dart';
 import '../../shared/widgets/primary_button.dart';
 
@@ -43,22 +44,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final confirm = _confirm.text;
 
     if (name.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in all required fields'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'Please fill in all required fields');
       return;
     }
 
     if (password != confirm) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Passwords do not match'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'Passwords do not match');
       return;
     }
 
@@ -73,16 +64,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           );
 
       if (mounted) {
-        String successMsg = 'Registration successful! Please check your email.';
+        String successMsg = 'Registration successful! Please sign in.';
         if (res is Map && res['data']?['message'] != null) {
           successMsg = res['data']['message'].toString();
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(successMsg),
-            backgroundColor: AppColors.success,
-          ),
-        );
+        AppToast.showSuccess(context, successMsg);
         context.go('/login');
       }
     } catch (e) {
@@ -97,12 +83,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             msg = e.message;
           }
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(msg),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        AppToast.showError(context, msg);
       }
     } finally {
       if (mounted) {

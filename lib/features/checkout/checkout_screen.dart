@@ -7,8 +7,9 @@ import '../../core/brandkit/app_colors.dart';
 import '../../core/constants.dart';
 import '../../features/cart/cart_provider.dart';
 import '../../features/catalogue/data/sample_products.dart';
-import '../../shared/widgets/primary_button.dart';
 import '../../core/repositories/order_repository.dart';
+import '../../core/utils/app_toast.dart';
+import '../../shared/widgets/primary_button.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
@@ -312,11 +313,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 if (!mounted) return;
                 ref.read(cartProvider.notifier).clear();
                 context.go('/order-success');
-              } catch (e) {
+              } catch (_) {
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Order failed: $e')),
-                );
+                AppToast.showError(context, 'Unable to place order. Please check your connection.');
               } finally {
                 if (mounted) setState(() => _loading = false);
               }

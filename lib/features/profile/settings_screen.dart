@@ -10,6 +10,7 @@ import '../../core/constants.dart';
 import '../../core/network/api_client.dart';
 import '../../core/repositories/auth_repository.dart';
 import '../../core/repositories/order_repository.dart';
+import '../../core/utils/app_toast.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -51,23 +52,13 @@ class SettingsScreen extends ConsumerWidget {
                 ref.invalidate(currentUserProvider);
                 ref.invalidate(myOrdersProvider);
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('$title completed.'),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
+                  AppToast.showSuccess(context, '$title completed.');
                   context.go('/login');
                 }
               } catch (e) {
                 if (context.mounted) {
                   final msg = e is ApiException ? e.message : 'Action failed. Please try again.';
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(msg),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
+                  AppToast.showError(context, msg);
                 }
               }
             },

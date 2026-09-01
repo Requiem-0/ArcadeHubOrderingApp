@@ -9,6 +9,7 @@ import '../../core/brandkit/app_theme.dart';
 import '../../core/network/api_client.dart';
 import '../../core/repositories/auth_repository.dart';
 import '../../core/repositories/order_repository.dart';
+import '../../core/utils/app_toast.dart';
 import '../../shared/widgets/app_logo.dart';
 import '../../shared/widgets/primary_button.dart';
 
@@ -37,22 +38,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordCtrl.text;
 
     if (emailOrPhone.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your email or phone number'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'Please enter your email or phone number');
       return;
     }
 
     if (password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your password'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'Please enter your password');
       return;
     }
 
@@ -67,12 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ref.invalidate(currentUserProvider);
         ref.invalidate(myOrdersProvider);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login successful! Welcome to Arcade Hub.'),
-            backgroundColor: AppColors.success,
-          ),
-        );
+        AppToast.showSuccess(context, 'Welcome back to Arcade Hub!');
         if (context.canPop()) {
           context.pop();
         } else {
@@ -81,7 +67,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        String msg = 'Invalid credentials. Please check your email/phone and password.';
+        String msg = 'Invalid credentials. Please check email/phone and password.';
         if (e is ApiException) {
           if (e.body is Map && e.body['error'] != null) {
             msg = e.body['error'].toString();
@@ -96,12 +82,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             msg.toLowerCase().contains('reactivate')) {
           _showReactivateDialog(emailOrPhone, password);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(msg),
-              backgroundColor: AppColors.error,
-            ),
-          );
+          AppToast.showError(context, msg);
         }
       }
     } finally {
@@ -150,12 +131,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ref.invalidate(isLoggedInStateProvider);
                   ref.invalidate(currentUserProvider);
                   ref.invalidate(myOrdersProvider);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Account reactivated! Welcome back.'),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
+                  AppToast.showSuccess(context, 'Account reactivated! Welcome back.');
                   if (context.canPop()) {
                     context.pop();
                   } else {
@@ -167,12 +143,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   final errorMsg = err is ApiException
                       ? err.message
                       : 'Reactivation failed. Please try again.';
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(errorMsg),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
+                  AppToast.showError(context, errorMsg);
                 }
               } finally {
                 if (mounted) setState(() => _loading = false);

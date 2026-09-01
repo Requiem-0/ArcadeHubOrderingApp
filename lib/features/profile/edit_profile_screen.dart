@@ -1,12 +1,15 @@
 // lib/features/profile/edit_profile_screen.dart
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
 import '../../core/repositories/auth_repository.dart';
+import '../../core/utils/app_toast.dart';
 import '../../shared/widgets/primary_button.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -23,6 +26,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   bool _initialized = false;
   bool _saving = false;
 
+  Uint8List? _pickedImageBytes;
+  String? _pickedImageName;
+  String? _currentImageUrl;
+
   @override
   void dispose() {
     _nameCtrl.dispose();
@@ -36,7 +43,36 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _nameCtrl.text = user.name ?? '';
     _phoneCtrl.text = user.phone ?? '';
     _addressCtrl.text = user.address ?? '';
+    _currentImageUrl = user.image;
     _initialized = true;
+  }
+
+  Future<void> _pickImage() async {
+    HapticFeedback.lightImpact();
+    try {
+      final picker = ImagePicker();
+      final image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        final bytes = await image.readAsBytes();
+        setState(() {
+          _pickedImageBytes = bytes;
+          _pickedImageName = image.name;
+        });
+        if (mounted) {
+          AppToast.showSuccess(context, 'Avatar selected! Tap save to upload.');
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        AppToast.showError(context, 'Could not open image picker.');
+      }
+    }
   }
 
   Future<void> _handleSave() async {
@@ -45,12 +81,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final address = _addressCtrl.text.trim();
 
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your full name'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'Please enter your full name');
       return;
     }
 
@@ -62,19 +93,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             name: name,
             phone: phone,
             address: address,
+            imageBytes: _pickedImageBytes,
+            imageName: _pickedImageName,
           );
 
       if (mounted) {
         ref.invalidate(currentUserProvider);
         ref.invalidate(isLoggedInStateProvider);
-        HapticFeedback.mediumImpact();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully!'),
-            backgroundColor: AppColors.success,
-          ),
-        );
+        AppToast.showSuccess(context, 'Profile updated successfully!');
 
         if (context.canPop()) {
           context.pop();
@@ -84,12 +111,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Unable to update profile. Please check your connection and try again.'),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        AppToast.showError(context, 'Unable to update profile. Check connection.');
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -162,53 +184,88 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Avatar Preview Lockup ──────────────────────────────────
+          // ── Avatar Preview Lockup with Pick Action ─────────────────
           Center(
-            child: Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                Container(
-                  width: 90,
-                  height: 90,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primaryRed, AppColors.deepRed],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryRed.withValues(alpha: 0.35),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
+            child: GestureDetector(
+              onTap: _pickImage,
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.primaryRed, AppColors.deepRed],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      initials,
-                      style: AppTextStyles.headingL(Colors.white),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primaryRed.withValues(alpha: 0.35),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: _pickedImageBytes != null
+                          ? Image.memory(
+                              _pickedImageBytes!,
+                              fit: BoxFit.cover,
+                              width: 96,
+                              height: 96,
+                            )
+                          : (_currentImageUrl != null && _currentImageUrl!.isNotEmpty)
+                              ? Image.network(
+                                  _currentImageUrl!,
+                                  fit: BoxFit.cover,
+                                  width: 96,
+                                  height: 96,
+                                  errorBuilder: (_, __, ___) => Center(
+                                    child: Text(
+                                      initials,
+                                      style: AppTextStyles.headingL(Colors.white),
+                                    ),
+                                  ),
+                                )
+                              : Center(
+                                  child: Text(
+                                    initials,
+                                    style: AppTextStyles.headingL(Colors.white),
+                                  ),
+                                ),
                     ),
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(7),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.borderLight, width: 2),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E1E26),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.borderLight, width: 2),
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt_rounded,
+                      size: 16,
+                      color: AppColors.textLight,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.verified_user_rounded,
-                    size: 16,
-                    color: AppColors.primaryRed,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 10),
+          Center(
+            child: TextButton(
+              onPressed: _pickImage,
+              child: Text(
+                'Change Photo',
+                style: AppTextStyles.semibold(AppColors.primaryRed),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
 
           // ── Name Field ─────────────────────────────────────────────
           Text('FULL NAME', style: AppTextStyles.label(AppColors.textMutedLight)),

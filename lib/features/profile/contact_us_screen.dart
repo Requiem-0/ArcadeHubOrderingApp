@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/utils/app_toast.dart';
 import '../../shared/widgets/primary_button.dart';
 
 class ContactUsScreen extends StatefulWidget {
@@ -57,16 +58,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
     if (mounted) {
       setState(() => _sending = false);
       _msgCtrl.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Message sent successfully! We will contact you shortly.',
-            style: GoogleFonts.dmSans(color: Colors.white),
-          ),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      AppToast.showSuccess(context, 'Message sent! We will contact you shortly.');
     }
   }
 

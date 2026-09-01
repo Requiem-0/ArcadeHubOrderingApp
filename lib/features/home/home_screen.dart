@@ -10,6 +10,7 @@ import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_spacing.dart';
 import '../../core/brandkit/experiences.dart';
 import '../../core/repositories/pos_repository.dart';
+import '../../core/utils/app_toast.dart';
 import '../../features/cart/cart_provider.dart';
 import '../../features/catalogue/data/product_model.dart';
 import '../../shared/widgets/app_drawer.dart';
@@ -1358,12 +1359,7 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
                       ElevatedButton(
                         onPressed: () {
                           ref.read(cartProvider.notifier).add(product.id);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Added "${product.name}" to cart'),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
+                          AppToast.showSuccess(context, 'Added "${product.name}" to cart');
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(

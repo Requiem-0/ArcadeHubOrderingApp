@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../shared/widgets/primary_button.dart';
 import '../../core/repositories/auth_repository.dart';
+import '../../core/utils/app_toast.dart';
 
 class ServiceBookingScreen extends ConsumerStatefulWidget {
   const ServiceBookingScreen({super.key});
@@ -256,9 +257,7 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                     context.go('/order-success');
                   }
                 : () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please agree to the terms to proceed.')),
-                    );
+                    AppToast.showWarning(context, 'Please agree to the terms to proceed.');
                   },
           ),
         ),

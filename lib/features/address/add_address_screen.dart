@@ -6,6 +6,7 @@ import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
 import '../../core/repositories/location_repository.dart';
+import '../../core/utils/app_toast.dart';
 import '../../shared/widgets/primary_button.dart';
 
 class AddAddressScreen extends ConsumerStatefulWidget {
@@ -151,9 +152,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                         final fullAddr = '$street, $city'.trim();
 
                         if (label.isEmpty || street.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please fill label and street address')),
-                          );
+                          AppToast.showWarning(context, 'Please fill label and street address');
                           return;
                         }
 
@@ -166,6 +165,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                               );
                           ref.invalidate(savedLocationsProvider);
                           if (mounted) {
+                            AppToast.showSuccess(context, 'Delivery address added!');
                             if (context.canPop()) {
                               context.pop();
                             } else {
@@ -174,12 +174,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                           }
                         } catch (e) {
                           if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Address saved locally.'),
-                                backgroundColor: AppColors.success,
-                              ),
-                            );
+                            AppToast.showSuccess(context, 'Address saved locally.');
                             if (context.canPop()) {
                               context.pop();
                             } else {

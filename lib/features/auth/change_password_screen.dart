@@ -7,6 +7,7 @@ import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
 import '../../core/network/api_client.dart';
 import '../../core/repositories/auth_repository.dart';
+import '../../core/utils/app_toast.dart';
 import '../../shared/widgets/primary_button.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
@@ -48,32 +49,17 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     final confirmPw = _ctrls['confirm']?.text ?? '';
 
     if (currentPw.isEmpty || newPw.isEmpty || confirmPw.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in all password fields'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'Please fill in all password fields');
       return;
     }
 
     if (newPw.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('New password must be at least 6 characters'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'New password must be at least 6 characters');
       return;
     }
 
     if (newPw != confirmPw) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('New passwords do not match'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'New passwords do not match');
       return;
     }
 
@@ -84,12 +70,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
             newPassword: newPw,
           );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password changed successfully!'),
-            backgroundColor: AppColors.success,
-          ),
-        );
+        AppToast.showSuccess(context, 'Password changed successfully!');
         if (context.canPop()) {
           context.pop();
         } else {
@@ -98,7 +79,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       }
     } catch (e) {
       if (mounted) {
-        String msg = 'Failed to change password. Please verify your current password.';
+        String msg = 'Failed to change password. Please verify current password.';
         if (e is ApiException) {
           if (e.body is Map && e.body['error'] != null) {
             msg = e.body['error'].toString();
@@ -108,12 +89,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
             msg = e.message;
           }
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(msg),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        AppToast.showError(context, msg);
       }
     } finally {
       if (mounted) {
