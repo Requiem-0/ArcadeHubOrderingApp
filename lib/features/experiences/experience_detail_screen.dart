@@ -8,7 +8,7 @@ import '../../core/brandkit/app_theme.dart';
 import '../../core/repositories/experience_repository.dart';
 import '../../core/repositories/service_repository.dart';
 import '../../core/repositories/pos_repository.dart';
-import '../../core/brandkit/experiences.dart';
+import '../../core/models/experience.dart';
 
 class ExperienceDetailScreen extends ConsumerWidget {
   final String experienceId;
@@ -439,13 +439,36 @@ class _ZoneProductsList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Food & Drinks Menu',
-          style: GoogleFonts.outfit(
-            fontSize: 17,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textLight,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Food & Drinks Menu',
+              style: GoogleFonts.outfit(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textLight,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => context.push('/food-menu'),
+              child: Row(
+                children: [
+                  Text(
+                    'Full Menu',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: accentColor,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.arrow_forward_ios_rounded,
+                      size: 11, color: accentColor),
+                ],
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         productsAsync.when(
@@ -459,18 +482,36 @@ class _ZoneProductsList extends ConsumerWidget {
           data: (products) {
             if (products.isEmpty) {
               return Container(
-                padding: const EdgeInsets.all(16),
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceLight,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.borderLight),
                 ),
-                child: Text(
-                  'Menu is currently being updated.',
-                  style: GoogleFonts.dmSans(
-                    color: AppColors.textMutedLight,
-                    fontSize: 13,
-                  ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Browse our full kitchen & bar selection',
+                      style: GoogleFonts.dmSans(
+                        color: AppColors.textMutedLight,
+                        fontSize: 13.5,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () => context.push('/food-menu'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: accentColor,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('Open Food & Drinks Menu',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ],
                 ),
               );
             }
@@ -509,7 +550,7 @@ class _ZoneProductsList extends ConsumerWidget {
                               ? Image.network(
                                   product.imageUrl!,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Center(
+                                  errorBuilder: (context, error, stackTrace) => Center(
                                     child: Text(product.emoji,
                                         style: const TextStyle(fontSize: 28)),
                                   ),

@@ -156,20 +156,45 @@ class PosRepository {
     final catalog = await getCatalog(businessId: businessId);
     final key = zoneId.toLowerCase();
 
-    return catalog.where((p) {
+    final filtered = catalog.where((p) {
       final cat = p.category.toLowerCase();
-      final name = p.name.toLowerCase();
       final tags = p.tags.map((t) => t.toLowerCase()).toList();
 
       if (key == 'sportsbar') {
-        return cat.contains('bar') || cat.contains('drink') || cat.contains('beer') || tags.contains('sportsbar');
+        return cat.contains('bar') ||
+            cat.contains('drink') ||
+            cat.contains('beer') ||
+            cat.contains('munch') ||
+            cat.contains('burger') ||
+            tags.contains('sportsbar') ||
+            tags.contains('drink');
       } else if (key == 'rooftop') {
-        return cat.contains('rooftop') || cat.contains('food') || cat.contains('main') || tags.contains('rooftop');
+        return cat.contains('rooftop') ||
+            cat.contains('food') ||
+            cat.contains('pizza') ||
+            cat.contains('burger') ||
+            cat.contains('main') ||
+            cat.contains('munch') ||
+            tags.contains('rooftop') ||
+            tags.contains('chef special');
       } else if (key == 'playroom') {
-        return cat.contains('snack') || cat.contains('gaming') || tags.contains('playroom');
+        return cat.contains('snack') ||
+            cat.contains('gaming') ||
+            cat.contains('munch') ||
+            cat.contains('drink') ||
+            tags.contains('playroom');
       }
       return true;
     }).toList();
+
+    // If specific zone tags are absent in POS, return all food & drinks
+    if (filtered.isEmpty && catalog.isNotEmpty) {
+      return catalog
+          .where((p) => !p.category.toLowerCase().contains('bundle'))
+          .toList();
+    }
+
+    return filtered;
   }
 }
 

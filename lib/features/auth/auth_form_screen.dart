@@ -1,10 +1,13 @@
 // lib/features/auth/auth_form_screen.dart
 // Generic screen for Forgot Password / Reset Password / Verify Email
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/network/api_client.dart';
+import '../../core/repositories/auth_repository.dart';
 import '../../shared/widgets/primary_button.dart';
 
 class AuthField {
@@ -21,7 +24,7 @@ class AuthField {
   });
 }
 
-class AuthFormScreen extends StatefulWidget {
+class AuthFormScreen extends ConsumerStatefulWidget {
   final String title;
   final String subtitle;
   final List<AuthField> fields;
@@ -40,10 +43,10 @@ class AuthFormScreen extends StatefulWidget {
   });
 
   @override
-  State<AuthFormScreen> createState() => _AuthFormScreenState();
+  ConsumerState<AuthFormScreen> createState() => _AuthFormScreenState();
 }
 
-class _AuthFormScreenState extends State<AuthFormScreen> {
+class _AuthFormScreenState extends ConsumerState<AuthFormScreen> {
   late final Map<String, TextEditingController> _ctrls;
   final Map<String, bool> _pwVis = {};
   bool _loading = false;
@@ -63,11 +66,90 @@ class _AuthFormScreenState extends State<AuthFormScreen> {
   }
 
   void _submit() async {
+    final values = {for (final e in _ctrls.entries) e.key: e.value.text.trim()};
+
+    // Validation
+    for (final f in widget.fields) {
+      if ((values[f.key] ?? '').isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Please enter ${f.label.toLowerCase()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+    }
+
     setState(() => _loading = true);
-    await Future.delayed(const Duration(milliseconds: 1000));
-    if (mounted) {
-      setState(() => _loading = false);
-      context.go(widget.nextRoute);
+    try {
+      final authRepo = ref.read(authRepositoryProvider);
+      String successMsg = 'Request completed successfully.';
+
+      if (values.containsKey('email') && values.containsKey('code')) {
+        // Verify Email
+        await authRepo.verifyEmail(
+          email: values['email']!,
+          code: values['code']!,
+        );
+        successMsg = 'Email verified successfully! You can now log in.';
+      } else if (values.containsKey('code') && values.containsKey('pw')) {
+        // Reset Password
+        final newPw = values['pw']!;
+        final confirmPw = values['pw2'] ?? newPw;
+        if (newPw != confirmPw) {
+          throw ApiException('Passwords do not match');
+        }
+        await authRepo.resetPassword(
+          token: values['code']!,
+          newPassword: newPw,
+          confirmPassword: confirmPw,
+        );
+        successMsg = 'Password reset successfully! Please log in.';
+      } else if (values.containsKey('email')) {
+        // Send reset token
+        final res = await authRepo.sendResetToken(emailOrPhone: values['email']!);
+        if (res is Map && res['message'] != null) {
+          successMsg = res['message'].toString();
+        } else {
+          successMsg = 'Reset token sent to your email!';
+        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(successMsg),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        context.go(widget.nextRoute);
+      }
+    } catch (e) {
+      if (mounted) {
+        String msg = 'Action failed. Please check your information.';
+        if (e is ApiException) {
+          if (e.body is Map && e.body['error'] != null) {
+            msg = e.body['error'].toString();
+          } else if (e.body is Map && e.body['message'] != null) {
+            msg = e.body['message'].toString();
+          } else if (e.body is Map && e.body['data']?['message'] != null) {
+            msg = e.body['data']['message'].toString();
+          } else {
+            msg = e.message;
+          }
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 

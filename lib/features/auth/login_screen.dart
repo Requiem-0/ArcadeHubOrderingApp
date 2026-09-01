@@ -1,21 +1,25 @@
 // lib/features/auth/login_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/network/api_client.dart';
+import '../../core/repositories/auth_repository.dart';
+import '../../core/repositories/order_repository.dart';
 import '../../shared/widgets/app_logo.dart';
 import '../../shared/widgets/primary_button.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   bool _showPw = false;
@@ -29,12 +33,157 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _submit() async {
-    setState(() => _loading = true);
-    await Future.delayed(const Duration(milliseconds: 1000));
-    if (mounted) {
-      setState(() => _loading = false);
-      context.go('/home');
+    final emailOrPhone = _emailCtrl.text.trim();
+    final password = _passwordCtrl.text;
+
+    if (emailOrPhone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your email or phone number'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
     }
+
+    if (password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your password'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _loading = true);
+    try {
+      await ref.read(authRepositoryProvider).login(
+            emailOrPhone: emailOrPhone,
+            password: password,
+          );
+      if (mounted) {
+        ref.invalidate(isLoggedInStateProvider);
+        ref.invalidate(currentUserProvider);
+        ref.invalidate(myOrdersProvider);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login successful! Welcome to Arcade Hub.'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go('/home');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        String msg = 'Invalid credentials. Please check your email/phone and password.';
+        if (e is ApiException) {
+          if (e.body is Map && e.body['error'] != null) {
+            msg = e.body['error'].toString();
+          } else if (e.body is Map && e.body['message'] != null) {
+            msg = e.body['message'].toString();
+          } else {
+            msg = e.message;
+          }
+        }
+
+        if (msg.toLowerCase().contains('deactivate') ||
+            msg.toLowerCase().contains('reactivate')) {
+          _showReactivateDialog(emailOrPhone, password);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(msg),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
+    }
+  }
+
+  void _showReactivateDialog(String emailOrPhone, String password) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceLight,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusL),
+        ),
+        title: Text('Account Deactivated',
+            style: AppTextStyles.headingS(AppColors.textLight)),
+        content: Text(
+          'Your account is currently deactivated. Would you like to reactivate it now and sign in?',
+          style: AppTextStyles.bodyM(AppColors.textMutedLight),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Cancel',
+                style: AppTextStyles.semibold(AppColors.textMutedLight)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryRed,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+              ),
+            ),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              setState(() => _loading = true);
+              try {
+                await ref.read(authRepositoryProvider).reactivate(
+                      emailOrPhone: emailOrPhone,
+                      password: password,
+                    );
+                if (mounted) {
+                  ref.invalidate(isLoggedInStateProvider);
+                  ref.invalidate(currentUserProvider);
+                  ref.invalidate(myOrdersProvider);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Account reactivated! Welcome back.'),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/home');
+                  }
+                }
+              } catch (err) {
+                if (mounted) {
+                  final errorMsg = err is ApiException
+                      ? err.message
+                      : 'Reactivation failed. Please try again.';
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(errorMsg),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              } finally {
+                if (mounted) setState(() => _loading = false);
+              }
+            },
+            child: Text('Reactivate & Sign In',
+                style: AppTextStyles.semibold(Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

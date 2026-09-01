@@ -1,19 +1,22 @@
 // lib/features/auth/change_password_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/network/api_client.dart';
+import '../../core/repositories/auth_repository.dart';
 import '../../shared/widgets/primary_button.dart';
 
-class ChangePasswordScreen extends StatefulWidget {
+class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});
 
   @override
-  State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
+  ConsumerState<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
 }
 
-class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   final _fields = [
     {'key': 'current', 'label': 'Current Password'},
     {'key': 'new', 'label': 'New Password'},
@@ -37,6 +40,86 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       c.dispose();
     }
     super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final currentPw = _ctrls['current']?.text ?? '';
+    final newPw = _ctrls['new']?.text ?? '';
+    final confirmPw = _ctrls['confirm']?.text ?? '';
+
+    if (currentPw.isEmpty || newPw.isEmpty || confirmPw.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill in all password fields'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    if (newPw.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('New password must be at least 6 characters'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    if (newPw != confirmPw) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('New passwords do not match'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _loading = true);
+    try {
+      await ref.read(authRepositoryProvider).changePassword(
+            currentPassword: currentPw,
+            newPassword: newPw,
+          );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Password changed successfully!'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go('/settings');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        String msg = 'Failed to change password. Please verify your current password.';
+        if (e is ApiException) {
+          if (e.body is Map && e.body['error'] != null) {
+            msg = e.body['error'].toString();
+          } else if (e.body is Map && e.body['message'] != null) {
+            msg = e.body['message'].toString();
+          } else {
+            msg = e.message;
+          }
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
+    }
   }
 
   @override
@@ -109,14 +192,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     PrimaryButton(
                       label: 'Update Password',
                       loading: _loading,
-                      onPressed: () async {
-                        setState(() => _loading = true);
-                        await Future.delayed(const Duration(milliseconds: 800));
-                        if (mounted) {
-                          setState(() => _loading = false);
-                          context.go('/settings');
-                        }
-                      },
+                      onPressed: _submit,
                     ),
                   ],
                 ),

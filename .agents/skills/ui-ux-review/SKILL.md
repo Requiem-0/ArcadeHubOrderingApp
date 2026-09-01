@@ -2,9 +2,10 @@
 name: ui-ux-review
 description: >
   Senior product designer + Flutter UI engineer review skill for Arcade Hub.
-  Activates a systematic UI/UX audit — structural first, then visual — before
-  and after any screen modification. Use this skill when redesigning,
-  tweaking, or evaluating any screen, widget, or component.
+  Activates a systematic UI/UX audit — structural, then visual, then motion —
+  before and after any screen modification, with a concrete micro-interaction
+  and haptics reference. Use this skill when redesigning, tweaking, or
+  evaluating any screen, widget, or component.
 ---
 
 # UI/UX Review Skill — Arcade Hub
@@ -26,15 +27,6 @@ production application** with:
 
 Visual polish on a structurally confused screen is not a win. Do the
 structural pass first.
-
-### The "Wonderous" Standard (Reference)
-The Flutter *Wonderous* app (github.com/gskinnerTeam/flutter-wonderous-app) serves as our high-end production benchmark. We map its principles to Arcade Hub as follows:
-
-1. **Structured exploration of a fixed set of items**: Don't repeat the same 6-zone list across three different nav surfaces with the same framing. Each surface has ONE job (e.g., hero carousel for discovery, grid for quick jumping).
-2. **Motion is expensive but purposeful**: Use hero transitions and parallax. Every animation must carry information (where you came from, where you're going). A zone tile should ideally expand into its detail screen to sell the "distinct physical space" concept, rather than a flat push/pop.
-3. **Dark, image-forward, minimal chrome**: Text and UI chrome recede; the zone/location photography does the selling. Let the photography be the hero, keep icons/labels confident but small, and do not compete with heavy gradients or thick borders.
-4. **Accessibility as a core goal**: Motion-heavy doesn't mean skipping semantics. Screen-reader support must remain a priority even amidst high-end visuals.
-
 
 ## Step 1 — Structural / IA Audit (do this BEFORE any visual pass)
 
@@ -70,6 +62,27 @@ The Flutter *Wonderous* app (github.com/gskinnerTeam/flutter-wonderous-app) serv
 6. **Redundant decoration** — Containers that only hold other containers?
    Rounded corners on things that don't need them? Gradients used just
    because they look "cool"?
+7. **Modernity check** — evaluated against what's actually current in 2026
+   mobile design, scoped to what fits a venue app (skip trends irrelevant
+   here like voice UI or AR):
+   - **Bento-style grid for the zone matrix**: instead of 6 uniform
+     rectangles, consider one larger "featured/promoted" cell (e.g.
+     tonight's event, an active discount) alongside standard-size zone
+     cells — asymmetric but ordered, not random. This also gives the
+     "featured" slider a distinct job from the grid (see Step 1,
+     Redundancy check) instead of just repeating it.
+   - **Low-stimulus by default, expressive at high-value moments**:
+     calm surfaces and restrained color for browsing/menu screens; save
+     visual energy (motion, color intensity) for cart/booking
+     confirmation — this also keeps `primaryRed` feeling special instead
+     of everywhere.
+   - **Glassmorphism only as a functional overlay** (e.g. a bottom sheet
+     cart floating over zone photography), never as a default card style
+     — matches the existing DON'T rule below, just naming why it's still
+     current: overuse is what makes it dated, not the effect itself.
+   - **Thumb-friendly layout**: primary actions (add to cart, book,
+     confirm) within easy thumb reach on the lower half of the screen,
+     not top-anchored.
 
 ## Step 3 — Accessibility Pass
 
@@ -87,18 +100,70 @@ The Flutter *Wonderous* app (github.com/gskinnerTeam/flutter-wonderous-app) serv
 
 ## Step 4 — Motion Standard
 
-- Default duration: 150–250ms.
-- Entrances: ease-out. Exits: ease-in. No bounce/elastic curves on
-  functional UI (cart add, booking confirm) — save personality for
-  celebratory moments only (e.g. booking success), not routine taps.
+**Duration bands** (2026 consensus across implicit-animation guidance):
+- Micro-interactions (button press, toggle, icon state change): 100–200ms
+- Component/local transitions (card expand, sheet reveal, tab switch): 200–300ms
+- Page/route transitions (navigation, Hero flights): 300–400ms
+- Large layout changes (reflow, multi-item reorder): 400–600ms
+
+**Curve selection — pick by what the motion is *for*, not by taste:**
+
+| Motion purpose | Curve |
+|---|---|
+| Navigation push/pop | `Curves.easeInOut` |
+| Element expanding/growing | `Curves.fastOutSlowIn` |
+| Dismiss / exit | `Curves.easeOut` |
+| Confirmation / feedback pulse | `Curves.decelerate` |
+| Celebratory (booking success only) | a spring/overshoot curve — the ONE place bounce is allowed |
+
+Rules:
+- Entrances: ease-out. Exits: ease-in. No bounce/elastic curves on routine
+  functional UI (cart add, tab switch) — reserve spring/overshoot for true
+  celebratory moments (booking confirmed, order placed), not every tap.
 - Don't animate things that don't change state. A static icon doesn't need
   an idle animation.
+- Animate `transform`/`opacity` properties, not layout-triggering
+  properties, wherever possible — cheaper to composite, smoother on
+  mid-range Android devices which is most of this app's likely audience.
+- Every animation must earn its place: it should confirm an action,
+  surface a state change, or guide attention — not decorate.
+
+### Micro-interaction reference (what to animate, and with what)
+
+| Trigger | Animation | Flutter approach |
+|---|---|---|
+| Button/card tap | Scale down ~2-4% + ripple | `InkWell`/`GestureDetector` + `AnimatedScale` |
+| Add to cart | Icon/badge pulse + optional item "flies" to cart icon | `TweenAnimationBuilder` or `Hero` on the item image |
+| Zone tile → zone detail | Shared-element expand (image morphs into header) | `Hero` with a custom `flightShuttleBuilder` |
+| Favorite/like toggle | Icon fill + brief scale bounce | `AnimatedIcon` or `AnimatedScale` + `AnimatedSwitcher` |
+| List/grid entrance | Staggered fade + slight rise, ~40-60ms offset per item | `flutter_staggered_animations` |
+| Rebuzz menu/data loading | Shimmer skeleton matching final layout shape | `shimmer` or `skeletonizer` package — never a bare spinner here |
+| Form validation error | Gentle horizontal shake on the field | `TweenAnimationBuilder<Offset>` |
+| Tab bar switch | Underline/indicator slides, content cross-fades | `AnimatedContainer` + `AnimatedSwitcher` |
+| Pull-to-refresh | Standard platform indicator, not a custom one | default `RefreshIndicator` |
+| Toggle/switch | Built-in Material motion | `Switch`, no custom animation needed |
+
+**Useful packages** (evaluate before hand-rolling a custom `AnimationController`):
+- `flutter_animate` — chainable, declarative micro-interactions; good default for one-off entrance/attention effects
+- `shimmer` or `skeletonizer` — skeleton loaders for Rebuzz-sourced content (required — see Post-Edit Verification)
+- `flutter_staggered_animations` — grid/list entrance staggering (home zone grid, menu list)
+- Native `Hero` + `flightShuttleBuilder` — zone tile → zone detail transitions; this is the single highest-leverage animation for this app since it reinforces "6 distinct physical spaces," not a generic push
+- Reach for a heavier animation lib (Rive/Lottie) only for a genuinely bespoke sequence (e.g. a booking-success celebration) — not for routine UI motion
+
+### Haptic feedback
+
+A gesture without haptics is a guess; a gesture with haptics is a
+confirmation. Add `HapticFeedback` calls at these points:
+- Light impact — tile/button tap, tab switch
+- Medium impact — add to cart, favorite toggle
+- Success/notification feedback — booking confirmed, order placed
+- Never haptic on passive state changes (data refresh, screen entrance)
 
 ## Step 5 — Component Reuse Rule
 
 Before creating any new widget:
-1. Check `lib/shared/widgets/` for an existing component that can be
-   configured to fit.
+1. Check `lib/widgets/` (or equivalent shared component directory) for an
+   existing component that can be configured to fit.
 2. Only build a new one if nothing existing can be adapted without hacks.
 3. If you do build a new one and it's likely reusable (e.g. a zone card, a
    menu item tile), put it in the shared widgets directory, not inline in
@@ -186,3 +251,10 @@ If you see any of these, fix them immediately:
 - Icon-only buttons with no semantic label
 - Bare `CircularProgressIndicator` on a screen showing Rebuzz POS data
   (use a skeleton loader instead)
+- A hand-rolled `AnimationController` for a simple entrance/attention
+  effect that `flutter_animate` or an implicit widget would cover
+- Bounce/elastic curves used outside a true celebratory moment
+- A tappable action (add to cart, favorite, booking confirm) with no
+  haptic feedback
+- A "featured" carousel/slider showing the exact same items as the grid
+  below it, in the same order, with no distinct selection logic

@@ -1,21 +1,24 @@
 // lib/features/auth/register_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/network/api_client.dart';
+import '../../core/repositories/auth_repository.dart';
 import '../../shared/widgets/app_logo.dart';
 import '../../shared/widgets/primary_button.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _phone = TextEditingController();
@@ -33,11 +36,78 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _submit() async {
+    final name = _name.text.trim();
+    final email = _email.text.trim();
+    final phone = _phone.text.trim();
+    final password = _password.text;
+    final confirm = _confirm.text;
+
+    if (name.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill in all required fields'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    if (password != confirm) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Passwords do not match'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     setState(() => _loading = true);
-    await Future.delayed(const Duration(milliseconds: 1200));
-    if (mounted) {
-      setState(() => _loading = false);
-      context.go('/home');
+    try {
+      final res = await ref.read(authRepositoryProvider).register(
+            name: name,
+            email: email,
+            phone: phone,
+            password: password,
+            confirmPassword: confirm,
+          );
+
+      if (mounted) {
+        String successMsg = 'Registration successful! Please check your email.';
+        if (res is Map && res['data']?['message'] != null) {
+          successMsg = res['data']['message'].toString();
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(successMsg),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        context.go('/login');
+      }
+    } catch (e) {
+      if (mounted) {
+        String msg = 'Registration failed. Please check your information.';
+        if (e is ApiException) {
+          if (e.body is Map && e.body['error'] != null) {
+            msg = e.body['error'].toString();
+          } else if (e.body is Map && e.body['message'] != null) {
+            msg = e.body['message'].toString();
+          } else {
+            msg = e.message;
+          }
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 

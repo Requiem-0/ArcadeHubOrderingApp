@@ -76,7 +76,7 @@ final appRouter = GoRouter(
         ],
         buttonLabel: 'Send Verification Code',
         backRoute: '/login',
-        nextRoute: '/login',
+        nextRoute: '/reset-password',
       ),
     ),
     GoRoute(

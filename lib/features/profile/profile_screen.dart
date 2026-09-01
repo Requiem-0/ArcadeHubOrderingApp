@@ -6,6 +6,7 @@ import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
 import '../../core/repositories/auth_repository.dart';
+import '../../core/repositories/order_repository.dart';
 import '../../shared/widgets/primary_button.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -89,6 +90,8 @@ class ProfileScreen extends ConsumerWidget {
                         onPressed: () async {
                           await ref.read(authRepositoryProvider).logout();
                           ref.invalidate(isLoggedInStateProvider);
+                          ref.invalidate(currentUserProvider);
+                          ref.invalidate(myOrdersProvider);
                           if (context.mounted) context.go('/login');
                         },
                         child: Text(
@@ -156,6 +159,35 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildUserCard(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(currentUserProvider);
+
+    return userAsync.when(
+      loading: () => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(AppTheme.radiusXXL),
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(color: AppColors.primaryRed),
+        ),
+      ),
+      error: (_, __) => _buildUserCardWithData('Arcade Hub User', 'Member'),
+      data: (user) {
+        final name = user?.name.isNotEmpty == true ? user!.name : 'Arcade Hub User';
+        final emailOrPhone = user?.email.isNotEmpty == true
+            ? user!.email
+            : (user?.phone ?? 'Member');
+        return _buildUserCardWithData(name, emailOrPhone);
+      },
+    );
+  }
+
+  Widget _buildUserCardWithData(String name, String subtitle) {
+    final initials = name.trim().isNotEmpty
+        ? name.trim().split(' ').map((s) => s.isNotEmpty ? s[0] : '').take(2).join().toUpperCase()
+        : 'AH';
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -176,29 +208,41 @@ class ProfileScreen extends ConsumerWidget {
       child: Row(
         children: [
           Container(
-            width: 68,
-            height: 68,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Center(
               child: Text(
-                'AH',
+                initials,
                 style: AppTextStyles.headingM(Colors.white),
               ),
             ),
           ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Arcade Hub User',
-                  style: AppTextStyles.headingS(Colors.white)),
-              Text('Signed In Account',
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: AppTextStyles.headingS(Colors.white),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
                   style: AppTextStyles.bodyS(
-                      Colors.white.withValues(alpha: 0.8))),
-            ],
+                    Colors.white.withValues(alpha: 0.8),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),

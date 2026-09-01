@@ -7,9 +7,76 @@ import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
 import '../../core/brandkit/theme_provider.dart';
 import '../../core/constants.dart';
+import '../../core/network/api_client.dart';
+import '../../core/repositories/auth_repository.dart';
+import '../../core/repositories/order_repository.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
+
+  void _showConfirmDialog({
+    required BuildContext context,
+    required WidgetRef ref,
+    required String title,
+    required String message,
+    required String confirmLabel,
+    required Future<void> Function() onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceLight,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusL),
+        ),
+        title: Text(title, style: AppTextStyles.headingS(AppColors.textLight)),
+        content: Text(message, style: AppTextStyles.bodyM(AppColors.textMutedLight)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Cancel', style: AppTextStyles.semibold(AppColors.textMutedLight)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+              ),
+            ),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              try {
+                await onConfirm();
+                ref.invalidate(isLoggedInStateProvider);
+                ref.invalidate(currentUserProvider);
+                ref.invalidate(myOrdersProvider);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('$title completed.'),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                  context.go('/login');
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  final msg = e is ApiException ? e.message : 'Action failed. Please try again.';
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(msg),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              }
+            },
+            child: Text(confirmLabel, style: AppTextStyles.semibold(Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -81,10 +148,31 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                     const Divider(color: AppColors.borderLight, height: 1),
                     _SettingsTile(
+                      icon: Icons.pause_circle_outline_rounded,
+                      label: 'Deactivate Account',
+                      textColor: AppColors.pending,
+                      onTap: () => _showConfirmDialog(
+                        context: context,
+                        ref: ref,
+                        title: 'Deactivate Account',
+                        message: 'Are you sure you want to deactivate your account? You can reactivate anytime by logging in again.',
+                        confirmLabel: 'Deactivate',
+                        onConfirm: () => ref.read(authRepositoryProvider).deactivate(),
+                      ),
+                    ),
+                    const Divider(color: AppColors.borderLight, height: 1),
+                    _SettingsTile(
                       icon: Icons.delete_outline_rounded,
                       label: 'Delete Account',
                       textColor: AppColors.error,
-                      onTap: () {},
+                      onTap: () => _showConfirmDialog(
+                        context: context,
+                        ref: ref,
+                        title: 'Delete Account',
+                        message: 'Are you sure you want to permanently delete your account? This action cannot be undone.',
+                        confirmLabel: 'Delete Forever',
+                        onConfirm: () => ref.read(authRepositoryProvider).deleteAccount(),
+                      ),
                     ),
                   ]),
                   const SizedBox(height: 24),

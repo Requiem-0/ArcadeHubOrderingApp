@@ -23,27 +23,40 @@ class ApiClient {
 
   final String baseUrl;
   final http.Client _client;
+  String? _cachedToken;
 
   ApiClient({String? baseUrl, http.Client? client})
       : baseUrl = baseUrl ?? _defaultBaseUrl,
         _client = client ?? http.Client();
 
-  /// Read token from SharedPreferences
+  /// Read token from in-memory cache or SharedPreferences
   Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
+    if (_cachedToken != null && _cachedToken!.isNotEmpty) {
+      return _cachedToken;
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _cachedToken = prefs.getString(_tokenKey);
+    } catch (_) {}
+    return _cachedToken;
   }
 
-  /// Save token to SharedPreferences
+  /// Save token to in-memory cache and SharedPreferences
   Future<void> setToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
+    _cachedToken = token;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_tokenKey, token);
+    } catch (_) {}
   }
 
   /// Clear token on logout
   Future<void> clearToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
+    _cachedToken = null;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_tokenKey);
+    } catch (_) {}
   }
 
   /// Headers builder with optional bearer auth
@@ -51,6 +64,7 @@ class ApiClient {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'app': 'user',
     };
     final token = await getToken();
     if (token != null && token.isNotEmpty) {
@@ -131,6 +145,38 @@ class ApiClient {
       return _processResponse(response);
     } catch (e) {
       dev.log('PATCH Error: $e', name: 'ApiClient', error: e);
+      rethrow;
+    }
+  }
+
+  Future<dynamic> patchMultipart(
+    String endpoint, {
+    Map<String, String>? fields,
+    List<http.MultipartFile>? files,
+  }) async {
+    try {
+      final uri = _buildUri(endpoint);
+      final request = http.MultipartRequest('PATCH', uri);
+      final token = await getToken();
+      if (token != null && token.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+      request.headers['app'] = 'user';
+      request.headers['Accept'] = 'application/json';
+
+      if (fields != null) {
+        request.fields.addAll(fields);
+      }
+      if (files != null) {
+        request.files.addAll(files);
+      }
+
+      dev.log('PATCH Multipart -> $uri | Fields: $fields', name: 'ApiClient');
+      final streamedResponse = await _client.send(request);
+      final response = await http.Response.fromStream(streamedResponse);
+      return _processResponse(response);
+    } catch (e) {
+      dev.log('PATCH Multipart Error: $e', name: 'ApiClient', error: e);
       rethrow;
     }
   }
