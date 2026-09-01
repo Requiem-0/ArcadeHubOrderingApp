@@ -203,39 +203,13 @@ class ArcadeAppDrawer extends StatelessWidget {
                     top: BorderSide(color: AppColors.borderLight, width: 1),
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        style: GoogleFonts.dmSans(fontSize: 11, height: 1.4),
-                        children: const [
-                          TextSpan(
-                            text: 'We take fun very seriously.\n',
-                            style: TextStyle(
-                              color: Color(0xFFFFD700),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextSpan(
-                            text: 'Open daily ',
-                            style: TextStyle(color: AppColors.textMutedLight),
-                          ),
-                          TextSpan(
-                            text: '11 AM – 11 PM',
-                            style: TextStyle(
-                              color: AppColors.textLight,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextSpan(
-                            text: ' · Pokhara, Nepal',
-                            style: TextStyle(color: AppColors.textMutedLight),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Pokhara, Nepal',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textMutedLight,
+                  ),
                 ),
               ),
             ],
