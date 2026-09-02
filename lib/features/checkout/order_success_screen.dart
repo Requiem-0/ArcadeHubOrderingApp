@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
-import '../../core/constants.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../shared/widgets/primary_button.dart';
 
 class OrderSuccessScreen extends StatefulWidget {
@@ -37,8 +37,10 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 60, 20, 32),
@@ -50,8 +52,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen>
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.success, AppColors.primaryRedDark],
+                    gradient: LinearGradient(
+                      colors: [AppColors.success, colors.primaryRed],
                     ),
                     shape: BoxShape.circle,
                     boxShadow: [
@@ -78,7 +80,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen>
                       style: GoogleFonts.outfit(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textLight,
+                        color: colors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -86,7 +88,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen>
                       'Order #AH-8092 • Order Placed',
                       style: GoogleFonts.dmSans(
                         fontSize: 13,
-                        color: AppColors.textMutedLight,
+                        color: colors.textMuted,
                       ),
                     ),
                   ],
@@ -100,29 +102,30 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen>
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
+                    color: colors.card,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.borderLight),
+                    border: Border.all(color: colors.border),
+                    boxShadow: colors.cardShadow,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Arcade Hub Loaded Nachos × 1',
-                        style: GoogleFonts.dmSans(fontSize: 14, color: AppColors.textLight),
+                        style: GoogleFonts.dmSans(fontSize: 14, color: colors.textPrimary),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Fewa Sunset Mocktail × 2',
-                        style: GoogleFonts.dmSans(fontSize: 14, color: AppColors.textLight),
+                        style: GoogleFonts.dmSans(fontSize: 14, color: colors.textPrimary),
                       ),
-                      const Divider(color: AppColors.borderLight, height: 24),
+                      Divider(color: colors.border, height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Status',
-                            style: GoogleFonts.dmSans(fontSize: 14, color: AppColors.textMutedLight),
+                            style: GoogleFonts.dmSans(fontSize: 14, color: colors.textMuted),
                           ),
                           Text(
                             'Sent to Kitchen',
@@ -148,10 +151,10 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen>
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                icon: const Icon(Icons.chat_bubble_outline),
+                icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
                 label: Text(
                   'Track / Share on WhatsApp',
-                  style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+                  style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
 

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/constants.dart';
 import '../../features/cart/cart_provider.dart';
 import '../../features/catalogue/data/sample_products.dart';
@@ -19,12 +20,13 @@ class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
 
   void _handleCheckout(BuildContext context, WidgetRef ref) async {
+    final colors = context.appColors;
     final isLoggedIn = await ref.read(authRepositoryProvider).isLoggedIn();
     if (!isLoggedIn) {
       if (!context.mounted) return;
       showModalBottomSheet(
         context: context,
-        backgroundColor: AppColors.scaffoldLight,
+        backgroundColor: colors.scaffold,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -38,28 +40,28 @@ class CartScreen extends ConsumerWidget {
                 height: 56,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.primaryRed.withValues(alpha: 0.15),
+                  color: colors.primaryRed.withValues(alpha: 0.15),
                   border: Border.all(
-                    color: AppColors.primaryRed.withValues(alpha: 0.35),
+                    color: colors.primaryRed.withValues(alpha: 0.35),
                     width: 1.5,
                   ),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.lock_outline_rounded,
                   size: 28,
-                  color: AppColors.primaryRed,
+                  color: colors.primaryRed,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
                 'Sign in to Checkout',
-                style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textLight),
+                style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary),
               ),
               const SizedBox(height: 8),
               Text(
                 'Please sign in or create an account to place orders and receive order updates.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.dmSans(fontSize: 13, color: AppColors.textMutedLight),
+                style: GoogleFonts.dmSans(fontSize: 13, color: colors.textMuted),
               ),
               const SizedBox(height: 24),
               PrimaryButton(
@@ -72,7 +74,7 @@ class CartScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: Text('Continue Browsing as Guest', style: GoogleFonts.dmSans(color: AppColors.textMutedLight)),
+                child: Text('Continue Browsing as Guest', style: GoogleFonts.dmSans(color: colors.textMuted)),
               ),
             ],
           ),
@@ -85,6 +87,7 @@ class CartScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
     final cart = ref.watch(cartProvider);
     final catalog = ref.watch(catalogProvider).asData?.value ?? [];
     final activeDiscount = AppConstants.isDiscountActiveNow();
@@ -108,7 +111,7 @@ class CartScreen extends ConsumerWidget {
     final isEmpty = entries.isEmpty;
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -126,7 +129,7 @@ class CartScreen extends ConsumerWidget {
                         style: GoogleFonts.outfit(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textLight,
+                          color: colors.textPrimary,
                         ),
                       ),
                       Text(
@@ -135,7 +138,7 @@ class CartScreen extends ConsumerWidget {
                             : '${cart.values.fold(0, (s, q) => s + q)} items selected',
                         style: GoogleFonts.dmSans(
                           fontSize: 12,
-                          color: AppColors.textMutedLight,
+                          color: colors.textMuted,
                         ),
                       ),
                     ],
@@ -149,7 +152,7 @@ class CartScreen extends ConsumerWidget {
               child: isEmpty
                   ? EmptyState(
                       iconData: Icons.shopping_bag_outlined,
-                      iconColor: AppColors.primaryRed,
+                      iconColor: colors.primaryRed,
                       title: 'Your Cart is Empty',
                       subtitle: "Explore Arcade Hub dishes, drinks, and combos to start an order.",
                       action: SizedBox(
@@ -251,12 +254,15 @@ class _CartItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: colors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: colors.border),
+        boxShadow: colors.cardShadow,
       ),
       child: Row(
         children: [
@@ -265,7 +271,7 @@ class _CartItemCard extends StatelessWidget {
             height: 64,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: AppColors.primaryRed.withValues(alpha: 0.15),
+              color: colors.primaryRed.withValues(alpha: 0.12),
             ),
             child: Center(
               child: Text(product.emoji, style: const TextStyle(fontSize: 30)),
@@ -281,7 +287,7 @@ class _CartItemCard extends StatelessWidget {
                   style: GoogleFonts.dmSans(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textLight,
+                    color: colors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -295,7 +301,7 @@ class _CartItemCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.primaryRed,
+              color: colors.primaryRed,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -336,12 +342,15 @@ class _PriceSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: colors.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: colors.border),
+        boxShadow: colors.cardShadow,
       ),
       child: Column(
         children: [
@@ -349,7 +358,7 @@ class _PriceSummary extends StatelessWidget {
           if (discount > 0)
             _Row('10% App Discount', '-NPR ${discount.toInt()}', color: AppColors.success),
           _Row('Govt VAT (13%)', 'NPR ${tax.toInt()}'),
-          const Divider(color: AppColors.borderLight, height: 24),
+          Divider(color: colors.border, height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -358,7 +367,7 @@ class _PriceSummary extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textLight,
+                  color: colors.textPrimary,
                 ),
               ),
               Text(
@@ -366,7 +375,7 @@ class _PriceSummary extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.primaryRedDark,
+                  color: colors.primaryRed,
                 ),
               ),
             ],
@@ -385,18 +394,20 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: GoogleFonts.dmSans(fontSize: 13, color: AppColors.textMutedLight)),
+          Text(label, style: GoogleFonts.dmSans(fontSize: 13, color: colors.textMuted)),
           Text(
             value,
             style: GoogleFonts.dmSans(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: color ?? AppColors.textLight,
+              color: color ?? colors.textPrimary,
             ),
           ),
         ],
@@ -413,11 +424,13 @@ class _CheckoutBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-      decoration: const BoxDecoration(
-        color: AppColors.scaffoldLight,
-        border: Border(top: BorderSide(color: AppColors.borderLight)),
+      decoration: BoxDecoration(
+        color: colors.scaffold,
+        border: Border(top: BorderSide(color: colors.border)),
       ),
       child: SafeArea(
         top: false,

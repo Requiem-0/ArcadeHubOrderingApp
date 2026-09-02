@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/constants.dart';
 import '../../features/cart/cart_provider.dart';
 import '../../features/catalogue/data/sample_products.dart';
@@ -30,7 +31,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   ];
 
   @override
+  void dispose() {
+    _spotCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final cart = ref.watch(cartProvider);
     final activeDiscount = AppConstants.isDiscountActiveNow();
 
@@ -52,16 +60,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final total = taxable + tax;
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         child: Column(
           children: [
             // Header
             Container(
               padding: const EdgeInsets.fromLTRB(16, 16, 20, 16),
-              decoration: const BoxDecoration(
-                color: AppColors.scaffoldLight,
-                border: Border(bottom: BorderSide(color: AppColors.borderLight)),
+              decoration: BoxDecoration(
+                color: colors.scaffold,
+                border: Border(bottom: BorderSide(color: colors.border)),
               ),
               child: Row(
                 children: [
@@ -73,7 +81,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         context.go('/cart');
                       }
                     },
-                    icon: const Icon(Icons.arrow_back, color: AppColors.textLight),
+                    icon: Icon(Icons.arrow_back, color: colors.textPrimary),
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -81,7 +89,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     style: GoogleFonts.outfit(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textLight,
+                      color: colors.textPrimary,
                     ),
                   ),
                 ],
@@ -100,24 +108,30 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.0,
-                      color: AppColors.textMutedLight,
+                      color: colors.textMuted,
                     ),
                   ),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _spotCtrl,
+                    style: TextStyle(color: colors.textPrimary),
                     decoration: InputDecoration(
                       hintText: 'e.g. Counter Pickup, Rooftop Table 3...',
+                      hintStyle: TextStyle(color: colors.textMuted),
                       filled: true,
-                      fillColor: AppColors.surfaceLight,
+                      fillColor: colors.card,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(color: AppColors.borderLight),
+                        borderSide: BorderSide(color: colors.border),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(color: AppColors.borderLight),
+                        borderSide: BorderSide(color: colors.border),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: colors.primaryRed),
                       ),
                     ),
                   ),
@@ -131,7 +145,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.0,
-                      color: AppColors.textMutedLight,
+                      color: colors.textMuted,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -147,14 +161,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? AppColors.primaryRed.withValues(alpha: 0.15)
-                                  : AppColors.surfaceLight,
+                                  ? colors.primaryRed.withValues(alpha: 0.1)
+                                  : colors.card,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isSelected
-                                    ? AppColors.primaryRedDark
-                                    : AppColors.borderLight,
+                                    ? colors.primaryRed
+                                    : colors.border,
                               ),
+                              boxShadow: colors.cardShadow,
                             ),
                             child: Row(
                               children: [
@@ -163,8 +178,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                       ? Icons.radio_button_checked
                                       : Icons.radio_button_off,
                                   color: isSelected
-                                      ? AppColors.primaryRedDark
-                                      : AppColors.textMutedLight,
+                                      ? colors.primaryRed
+                                      : colors.textMuted,
                                   size: 20,
                                 ),
                                 const SizedBox(width: 12),
@@ -174,7 +189,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                     style: GoogleFonts.dmSans(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.textLight,
+                                      color: colors.textPrimary,
                                     ),
                                   ),
                                 ),
@@ -192,9 +207,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceLight,
+                      color: colors.card,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.borderLight),
+                      border: Border.all(color: colors.border),
+                      boxShadow: colors.cardShadow,
                     ),
                     child: Column(
                       children: [
@@ -203,17 +219,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primaryRedDark,
+                            color: colors.primaryRed,
                           ),
                         ),
                         Text(
                           'Order Summary',
                           style: GoogleFonts.dmSans(
                             fontSize: 11,
-                            color: AppColors.textMutedLight,
+                            color: colors.textMuted,
                           ),
                         ),
-                        const Divider(color: AppColors.borderLight, height: 20),
+                        Divider(color: colors.border, height: 20),
 
                         ...entries.map((e) => Padding(
                               padding: const EdgeInsets.only(bottom: 6),
@@ -224,7 +240,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                     '${e.product.name} × ${e.qty}',
                                     style: GoogleFonts.dmSans(
                                       fontSize: 13,
-                                      color: AppColors.textLight,
+                                      color: colors.textPrimary,
                                     ),
                                   ),
                                   Text(
@@ -232,21 +248,21 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                     style: GoogleFonts.dmSans(
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.textLight,
+                                      color: colors.textPrimary,
                                     ),
                                   ),
                                 ],
                               ),
                             )),
 
-                        const Divider(color: AppColors.borderLight, height: 20),
+                        Divider(color: colors.border, height: 20),
 
                         _ReceiptRow('Subtotal', 'NPR ${subtotal.toInt()}'),
                         if (discountAmount > 0)
                           _ReceiptRow('10% App Discount', '-NPR ${discountAmount.toInt()}', color: AppColors.success),
                         _ReceiptRow('Govt VAT (13%)', 'NPR ${tax.toInt()}'),
 
-                        const Divider(color: AppColors.borderLight, height: 20),
+                        Divider(color: colors.border, height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -255,7 +271,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               style: GoogleFonts.outfit(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.textLight,
+                                color: colors.textPrimary,
                               ),
                             ),
                             Text(
@@ -263,7 +279,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               style: GoogleFonts.outfit(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.primaryRedDark,
+                                color: colors.primaryRed,
                               ),
                             ),
                           ],
@@ -279,9 +295,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-        decoration: const BoxDecoration(
-          color: AppColors.scaffoldLight,
-          border: Border(top: BorderSide(color: AppColors.borderLight)),
+        decoration: BoxDecoration(
+          color: colors.scaffold,
+          border: Border(top: BorderSide(color: colors.border)),
         ),
         child: SafeArea(
           top: false,
@@ -335,18 +351,20 @@ class _ReceiptRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: GoogleFonts.dmSans(fontSize: 13, color: AppColors.textMutedLight)),
+          Text(label, style: GoogleFonts.dmSans(fontSize: 13, color: colors.textMuted)),
           Text(
             value,
             style: GoogleFonts.dmSans(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: color ?? AppColors.textLight,
+              color: color ?? colors.textPrimary,
             ),
           ),
         ],

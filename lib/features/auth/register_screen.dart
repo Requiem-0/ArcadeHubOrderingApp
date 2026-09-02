@@ -2,10 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
-import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/network/api_client.dart';
 import '../../core/repositories/auth_repository.dart';
 import '../../core/utils/app_toast.dart';
@@ -94,241 +92,172 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
+            colors: [
+              colors.primaryRed.withValues(alpha: colors.isDark ? 0.15 : 0.05),
+              colors.scaffold,
+            ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              AppColors.primaryRed.withValues(alpha: 0.12),
-              AppColors.scaffoldLight.withValues(alpha: 0.95),
-              AppColors.scaffoldLight,
-            ],
           ),
         ),
         child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(36, 16, 36, 40),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight - 56,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Center(child: AppLogo(size: 72)),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Create Account',
+                    style: AppTextStyles.headingXL(colors.textPrimary),
+                    textAlign: TextAlign.center,
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 6),
+                  Text(
+                    'Join Arcade Hub to track orders and earn member rewards.',
+                    style: AppTextStyles.bodyM(colors.textMuted),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 28),
+
+                  _field('FULL NAME', _name, 'e.g. Ren Gurung', Icons.person_outline_rounded, colors),
+                  _field('EMAIL ADDRESS', _email, 'user@example.com', Icons.mail_outline_rounded, colors, keyboard: TextInputType.emailAddress),
+                  _field('PHONE NUMBER', _phone, '+977 9800000000', Icons.phone_outlined, colors, keyboard: TextInputType.phone),
+                  _pwField('PASSWORD', _password, 'password', colors),
+                  _pwField('CONFIRM PASSWORD', _confirm, 'confirm', colors),
+
+                  const SizedBox(height: 12),
+                  PrimaryButton(
+                    label: 'Create Account',
+                    loading: _loading,
+                    onPressed: _submit,
+                  ),
+                  const SizedBox(height: 16),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Top Bar Navigation
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            onPressed: () => context.go('/login'),
-                            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                                color: AppColors.textLight, size: 18),
-                            style: IconButton.styleFrom(
-                              backgroundColor: AppColors.surfaceLight,
-                              shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(AppTheme.radiusSM),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 40, height: 40),
-                        ],
+                      Text(
+                        'Already have an account? ',
+                        style: AppTextStyles.bodyM(colors.textMuted),
                       ),
-
-                      // Centered Form Content Group
-                      Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 380),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                // Glassmorphic Dual-Shadow Icon Box
-                                Container(
-                                  padding: const EdgeInsets.all(14),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.surfaceLight,
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: AppColors.primaryRed.withValues(alpha: 0.5),
-                                      width: 1.5,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColors.primaryRed.withValues(alpha: 0.28),
-                                        blurRadius: 14,
-                                        spreadRadius: 0,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.35),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 5),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const AppLogo(size: 40, compact: true),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Create Account',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textLight,
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-
-                                _buildField(_name,
-                                    icon: Icons.person_outline_rounded,
-                                    placeholder: 'Full Name'),
-                                _buildField(_email,
-                                    icon: Icons.alternate_email_rounded,
-                                    placeholder: 'Email Address',
-                                    type: TextInputType.emailAddress),
-                                _buildField(_phone,
-                                    icon: Icons.phone_outlined,
-                                    placeholder: 'Phone Number',
-                                    type: TextInputType.phone),
-                                _buildField(_password,
-                                    icon: Icons.lock_outline_rounded,
-                                    placeholder: 'Password',
-                                    isPassword: true,
-                                    key: 'password'),
-                                _buildField(_confirm,
-                                    icon: Icons.lock_outline_rounded,
-                                    placeholder: 'Confirm Password',
-                                    isPassword: true,
-                                    key: 'confirm'),
-
-                                const SizedBox(height: 8),
-                                PrimaryButton(
-                                    label: 'CREATE ACCOUNT →',
-                                    loading: _loading,
-                                    onPressed: _submit),
-                                const SizedBox(height: 18),
-
-                                // Subtle Shadow Line Divider
-                                Container(
-                                  height: 1,
-                                  width: 140,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Colors.transparent,
-                                        AppColors.primaryRed.withValues(alpha: 0.3),
-                                        Colors.transparent,
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 18),
-
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'Already have an account? ',
-                                      style: GoogleFonts.dmSans(
-                                        fontSize: 12.5,
-                                        color: AppColors.textMutedLight,
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () => context.go('/login'),
-                                      child: Text(
-                                        'Sign In',
-                                        style: GoogleFonts.dmSans(
-                                          fontSize: 12.5,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.primaryRed,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                GestureDetector(
-                                  onTap: () => context.go('/home'),
-                                  child: Text(
-                                    'Skip for now — Browse as Guest',
-                                    style: GoogleFonts.dmSans(
-                                      fontSize: 12,
-                                      color: AppColors.textMutedLight,
-                                      decoration: TextDecoration.underline,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Footer Subtitle Tag
-                      Center(
+                      GestureDetector(
+                        onTap: () => context.go('/login'),
                         child: Text(
-                          "Pokhara's Premier Entertainment Hub",
-                          style: GoogleFonts.dmSans(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textMutedLight.withValues(alpha: 0.5),
-                            letterSpacing: 0.5,
-                          ),
+                          'Sign In',
+                          style: AppTextStyles.semibold(colors.primaryRed),
                         ),
                       ),
                     ],
                   ),
-                ),
-              );
-            },
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildField(
-    TextEditingController ctrl, {
-    required IconData icon,
-    required String placeholder,
-    bool isPassword = false,
-    String? key,
-    TextInputType? type,
+  Widget _field(
+    String label,
+    TextEditingController ctrl,
+    String hint,
+    IconData icon,
+    AppThemeColors colors, {
+    TextInputType keyboard = TextInputType.text,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextField(
-        controller: ctrl,
-        obscureText: isPassword && !(_pwVis[key ?? placeholder] ?? false),
-        keyboardType: type,
-        style: AppTextStyles.bodyL(AppColors.textLight),
-        decoration: InputDecoration(
-          hintText: placeholder,
-          prefixIcon: Icon(icon, color: AppColors.textMutedLight, size: 20),
-          suffixIcon: isPassword
-              ? IconButton(
-                  onPressed: () => setState(() =>
-                      _pwVis[key ?? placeholder] = !(_pwVis[key ?? placeholder] ?? false)),
-                  icon: Icon(
-                    (_pwVis[key ?? placeholder] ?? false)
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    color: AppColors.textMutedLight,
-                    size: 20,
-                  ),
-                )
-              : null,
-        ),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppTextStyles.label(colors.textMuted)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: ctrl,
+            keyboardType: keyboard,
+            style: AppTextStyles.bodyL(colors.textPrimary),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: TextStyle(color: colors.textMuted),
+              filled: true,
+              fillColor: colors.card,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.primaryRed),
+              ),
+              prefixIcon: Icon(icon, color: colors.textMuted, size: 20),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _pwField(String label, TextEditingController ctrl, String key, AppThemeColors colors) {
+    final show = _pwVis[key] ?? false;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppTextStyles.label(colors.textMuted)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: ctrl,
+            obscureText: !show,
+            style: AppTextStyles.bodyL(colors.textPrimary),
+            decoration: InputDecoration(
+              hintText: '••••••••',
+              hintStyle: TextStyle(color: colors.textMuted),
+              filled: true,
+              fillColor: colors.card,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.primaryRed),
+              ),
+              prefixIcon: Icon(Icons.lock_outline_rounded,
+                  color: colors.textMuted, size: 20),
+              suffixIcon: IconButton(
+                onPressed: () => setState(() => _pwVis[key] = !show),
+                icon: Icon(
+                  show
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: colors.textMuted,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

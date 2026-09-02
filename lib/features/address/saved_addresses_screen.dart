@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/repositories/location_repository.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/secondary_button.dart';
@@ -14,10 +14,11 @@ class SavedAddressesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
     final locationsAsync = ref.watch(savedLocationsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,18 +35,19 @@ class SavedAddressesScreen extends ConsumerWidget {
                         context.go('/profile');
                       }
                     },
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: AppColors.textLight),
+                    icon: Icon(Icons.arrow_back_ios_new_rounded,
+                        color: colors.textPrimary),
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.surfaceLight,
+                      backgroundColor: colors.card,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+                        side: BorderSide(color: colors.border),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Text('Saved Addresses',
-                      style: AppTextStyles.headingM(AppColors.textLight)),
+                      style: AppTextStyles.headingM(colors.textPrimary)),
                 ],
               ),
             ),
@@ -53,12 +55,12 @@ class SavedAddressesScreen extends ConsumerWidget {
 
             Expanded(
               child: locationsAsync.when(
-                loading: () => const Center(
-                  child: CircularProgressIndicator(color: AppColors.primaryRed),
+                loading: () => Center(
+                  child: CircularProgressIndicator(color: colors.primaryRed),
                 ),
                 error: (err, stack) => Center(
                   child: Text('Error loading addresses: $err',
-                      style: AppTextStyles.bodyM(AppColors.error)),
+                      style: TextStyle(color: colors.textPrimary)),
                 ),
                 data: (locations) {
                   if (locations.isEmpty) {
@@ -83,12 +85,13 @@ class SavedAddressesScreen extends ConsumerWidget {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: AppColors.surfaceLight,
+                                color: colors.card,
                                 borderRadius: BorderRadius.circular(
                                     AppTheme.radiusCard),
                                 border: Border.all(
-                                    color: AppColors.borderLight,
+                                    color: colors.border,
                                     width: 1.5),
+                                boxShadow: colors.cardShadow,
                               ),
                               child: Row(
                                 children: [
@@ -96,15 +99,15 @@ class SavedAddressesScreen extends ConsumerWidget {
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color: AppColors.primaryRed
+                                      color: colors.primaryRed
                                           .withValues(alpha: 0.1),
                                       borderRadius:
                                           BorderRadius.circular(
                                               AppTheme.radiusML),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                         Icons.location_on_rounded,
-                                        color: AppColors.primaryRed,
+                                        color: colors.primaryRed,
                                         size: 22),
                                   ),
                                   const SizedBox(width: 12),
@@ -118,7 +121,7 @@ class SavedAddressesScreen extends ConsumerWidget {
                                             Text(loc.title,
                                                 style: AppTextStyles
                                                     .semibold(
-                                                        AppColors.textLight,
+                                                        colors.textPrimary,
                                                         size: 15)),
                                             if (loc.isDefault) ...[
                                               const SizedBox(width: 8),
@@ -128,7 +131,7 @@ class SavedAddressesScreen extends ConsumerWidget {
                                                         horizontal: 8,
                                                         vertical: 2),
                                                 decoration: BoxDecoration(
-                                                  color: AppColors.primaryRed
+                                                  color: colors.primaryRed
                                                       .withValues(alpha: 0.12),
                                                   borderRadius:
                                                       BorderRadius.circular(
@@ -136,7 +139,7 @@ class SavedAddressesScreen extends ConsumerWidget {
                                                 ),
                                                 child: Text('Default',
                                                     style: AppTextStyles
-                                                        .bodyXS(AppColors
+                                                        .bodyXS(colors
                                                             .primaryRed)
                                                         .copyWith(
                                                             fontWeight:
@@ -149,7 +152,7 @@ class SavedAddressesScreen extends ConsumerWidget {
                                         const SizedBox(height: 2),
                                         Text(loc.address,
                                             style: AppTextStyles.bodyS(
-                                                AppColors.textMutedLight)),
+                                                colors.textMuted)),
                                       ],
                                     ),
                                   ),

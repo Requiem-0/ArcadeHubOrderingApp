@@ -1,10 +1,12 @@
 // lib/features/profile/settings_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/brandkit/theme_provider.dart';
 import '../../core/constants.dart';
 import '../../core/network/api_client.dart';
@@ -23,19 +25,21 @@ class SettingsScreen extends ConsumerWidget {
     required String confirmLabel,
     required Future<void> Function() onConfirm,
   }) {
+    final colors = context.appColors;
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusL),
         ),
-        title: Text(title, style: AppTextStyles.headingS(AppColors.textLight)),
-        content: Text(message, style: AppTextStyles.bodyM(AppColors.textMutedLight)),
+        title: Text(title, style: AppTextStyles.headingS(colors.textPrimary)),
+        content: Text(message, style: AppTextStyles.bodyM(colors.textMuted)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel', style: AppTextStyles.semibold(AppColors.textMutedLight)),
+            child: Text('Cancel', style: AppTextStyles.semibold(colors.textMuted)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -71,10 +75,11 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
     final isDark = ref.watch(themeProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,24 +91,30 @@ class SettingsScreen extends ConsumerWidget {
                 children: [
                   IconButton(
                     onPressed: () {
+                      HapticFeedback.lightImpact();
                       if (context.canPop()) {
                         context.pop();
                       } else {
                         context.go('/profile');
                       }
                     },
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: AppColors.textLight),
+                    icon: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: colors.textPrimary,
+                    ),
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.surfaceLight,
+                      backgroundColor: colors.cardElevated,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+                        side: BorderSide(color: colors.border),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text('Settings',
-                      style: AppTextStyles.headingM(AppColors.textLight)),
+                  Text(
+                    'Settings',
+                    style: AppTextStyles.headingM(colors.textPrimary),
+                  ),
                 ],
               ),
             ),
@@ -118,12 +129,14 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(height: 10),
                   _SettingsCard(children: [
                     _ToggleTile(
-                      icon: Icons.dark_mode_outlined,
+                      icon: isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
                       label: 'Dark Mode',
                       subtitle: isDark ? 'On' : 'Off',
                       value: isDark,
-                      onChanged: (v) =>
-                          ref.read(themeProvider.notifier).state = v,
+                      onChanged: (v) {
+                        HapticFeedback.lightImpact();
+                        ref.read(themeProvider.notifier).setTheme(v);
+                      },
                     ),
                   ]),
                   const SizedBox(height: 24),
@@ -135,35 +148,46 @@ class SettingsScreen extends ConsumerWidget {
                     _SettingsTile(
                       icon: Icons.lock_outline_rounded,
                       label: 'Change Password',
-                      onTap: () => context.push('/change-password'),
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        context.push('/change-password');
+                      },
                     ),
-                    const Divider(color: AppColors.borderLight, height: 1),
+                    Divider(color: colors.border, height: 1),
                     _SettingsTile(
                       icon: Icons.pause_circle_outline_rounded,
                       label: 'Deactivate Account',
                       textColor: AppColors.pending,
-                      onTap: () => _showConfirmDialog(
-                        context: context,
-                        ref: ref,
-                        title: 'Deactivate Account',
-                        message: 'Are you sure you want to deactivate your account? You can reactivate anytime by logging in again.',
-                        confirmLabel: 'Deactivate',
-                        onConfirm: () => ref.read(authRepositoryProvider).deactivate(),
-                      ),
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        _showConfirmDialog(
+                          context: context,
+                          ref: ref,
+                          title: 'Deactivate Account',
+                          message:
+                              'Are you sure you want to deactivate your account? You can reactivate anytime by logging in again.',
+                          confirmLabel: 'Deactivate',
+                          onConfirm: () => ref.read(authRepositoryProvider).deactivate(),
+                        );
+                      },
                     ),
-                    const Divider(color: AppColors.borderLight, height: 1),
+                    Divider(color: colors.border, height: 1),
                     _SettingsTile(
                       icon: Icons.delete_outline_rounded,
                       label: 'Delete Account',
                       textColor: AppColors.error,
-                      onTap: () => _showConfirmDialog(
-                        context: context,
-                        ref: ref,
-                        title: 'Delete Account',
-                        message: 'Are you sure you want to permanently delete your account? This action cannot be undone.',
-                        confirmLabel: 'Delete Forever',
-                        onConfirm: () => ref.read(authRepositoryProvider).deleteAccount(),
-                      ),
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        _showConfirmDialog(
+                          context: context,
+                          ref: ref,
+                          title: 'Delete Account',
+                          message:
+                              'Are you sure you want to permanently delete your account? This action cannot be undone.',
+                          confirmLabel: 'Delete Forever',
+                          onConfirm: () => ref.read(authRepositoryProvider).deleteAccount(),
+                        );
+                      },
                     ),
                   ]),
                   const SizedBox(height: 24),
@@ -172,9 +196,8 @@ class SettingsScreen extends ConsumerWidget {
                   _SectionTitle('ABOUT'),
                   const SizedBox(height: 10),
                   _SettingsCard(children: [
-                    _InfoTile(
-                        label: 'Version', value: AppConstants.appVersion),
-                    const Divider(color: AppColors.borderLight, height: 1),
+                    _InfoTile(label: 'Version', value: AppConstants.appVersion),
+                    Divider(color: colors.border, height: 1),
                     _InfoTile(label: 'App', value: AppConstants.appName),
                   ]),
                 ],
@@ -193,7 +216,8 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: AppTextStyles.label(AppColors.textMutedLight));
+    final colors = context.appColors;
+    return Text(text, style: AppTextStyles.label(colors.textMuted));
   }
 }
 
@@ -203,11 +227,13 @@ class _SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: colors.cardElevated,
         borderRadius: BorderRadius.circular(AppTheme.radiusL),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: colors.border),
+        boxShadow: colors.cardShadow,
       ),
       child: Column(children: children),
     );
@@ -231,6 +257,8 @@ class _ToggleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -239,19 +267,18 @@ class _ToggleTile extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: AppColors.primaryRed.withValues(alpha: 0.1),
+              color: colors.primaryRed.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppTheme.radiusML),
             ),
-            child: Icon(icon, color: AppColors.primaryRed, size: 20),
+            child: Icon(icon, color: colors.primaryRed, size: 20),
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: AppTextStyles.bodyL(AppColors.textLight)),
-                Text(subtitle,
-                    style: AppTextStyles.bodyS(AppColors.textMutedLight)),
+                Text(label, style: AppTextStyles.bodyL(colors.textPrimary)),
+                Text(subtitle, style: AppTextStyles.bodyS(colors.textMuted)),
               ],
             ),
           ),
@@ -262,13 +289,12 @@ class _ToggleTile extends StatelessWidget {
               width: 48,
               height: 28,
               decoration: BoxDecoration(
-                color: value ? AppColors.primaryRed : AppColors.borderLight,
+                color: value ? colors.primaryRed : colors.border,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: AnimatedAlign(
                 duration: const Duration(milliseconds: 200),
-                alignment:
-                    value ? Alignment.centerRight : Alignment.centerLeft,
+                alignment: value ? Alignment.centerRight : Alignment.centerLeft,
                 child: Container(
                   margin: const EdgeInsets.all(3),
                   width: 22,
@@ -277,7 +303,7 @@ class _ToggleTile extends StatelessWidget {
                     color: Colors.white,
                     shape: BoxShape.circle,
                     boxShadow: [
-                      BoxShadow(color: Colors.black26, blurRadius: 4)
+                      BoxShadow(color: Colors.black26, blurRadius: 4),
                     ],
                   ),
                 ),
@@ -305,17 +331,20 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
-            Icon(icon, color: textColor ?? AppColors.textMutedLight, size: 20),
+            Icon(icon, color: textColor ?? colors.textMuted, size: 20),
             const SizedBox(width: 14),
-            Text(label,
-                style: AppTextStyles.bodyL(
-                    textColor ?? AppColors.textLight)),
+            Text(
+              label,
+              style: AppTextStyles.bodyL(textColor ?? colors.textPrimary),
+            ),
           ],
         ),
       ),
@@ -330,13 +359,15 @@ class _InfoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: AppTextStyles.bodyL(AppColors.textLight)),
-          Text(value, style: AppTextStyles.bodyM(AppColors.textMutedLight)),
+          Text(label, style: AppTextStyles.bodyL(colors.textPrimary)),
+          Text(value, style: AppTextStyles.bodyM(colors.textMuted)),
         ],
       ),
     );

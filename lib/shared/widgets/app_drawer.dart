@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/brandkit/app_colors.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/brandkit/experiences.dart';
 import '../../core/repositories/auth_repository.dart';
 
@@ -13,6 +13,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
     final userAsync = ref.watch(currentUserProvider);
     final user = userAsync.asData?.value;
     final isLoggedIn = user != null;
@@ -29,14 +30,14 @@ class ArcadeAppDrawer extends ConsumerWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF101015),
+          color: colors.surface,
           borderRadius: const BorderRadius.only(
             topRight: Radius.circular(28),
             bottomRight: Radius.circular(28),
           ),
           border: Border(
             right: BorderSide(
-              color: AppColors.borderLight.withValues(alpha: 0.8),
+              color: colors.border,
               width: 1,
             ),
           ),
@@ -55,14 +56,14 @@ class ArcadeAppDrawer extends ConsumerWidget {
                       height: 40,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        gradient: const LinearGradient(
-                          colors: [AppColors.primaryRed, AppColors.deepRed],
+                        gradient: LinearGradient(
+                          colors: [colors.primaryRed, colors.deepRed],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primaryRed.withValues(alpha: 0.35),
+                            color: colors.primaryRed.withValues(alpha: 0.35),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -86,7 +87,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                             style: GoogleFonts.outfit(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textLight,
+                              color: colors.textPrimary,
                               letterSpacing: 0.2,
                             ),
                           ),
@@ -96,14 +97,14 @@ class ArcadeAppDrawer extends ConsumerWidget {
                               fontSize: 9.5,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1.2,
-                              color: AppColors.primaryRed,
+                              color: colors.primaryRed,
                             ),
                           ),
                         ],
                       ),
                     ),
                     Material(
-                      color: AppColors.surfaceLight,
+                      color: colors.cardElevated,
                       borderRadius: BorderRadius.circular(10),
                       child: InkWell(
                         onTap: () {
@@ -111,11 +112,11 @@ class ArcadeAppDrawer extends ConsumerWidget {
                           Navigator.of(context).pop();
                         },
                         borderRadius: BorderRadius.circular(10),
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
                           child: Icon(
                             Icons.close_rounded,
-                            color: AppColors.textLight,
+                            color: colors.textPrimary,
                             size: 18,
                           ),
                         ),
@@ -154,19 +155,17 @@ class ArcadeAppDrawer extends ConsumerWidget {
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     gradient: isLoggedIn
-                                        ? const LinearGradient(
-                                            colors: [AppColors.primaryRed, AppColors.deepRed],
+                                        ? LinearGradient(
+                                            colors: [colors.primaryRed, colors.deepRed],
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                           )
                                         : null,
-                                    color: isLoggedIn
-                                        ? null
-                                        : AppColors.surfaceLight,
+                                    color: isLoggedIn ? null : colors.cardElevated,
                                     border: Border.all(
                                       color: isLoggedIn
-                                          ? AppColors.primaryRed.withValues(alpha: 0.5)
-                                          : AppColors.borderLight,
+                                          ? colors.primaryRed.withValues(alpha: 0.5)
+                                          : colors.border,
                                       width: 1,
                                     ),
                                   ),
@@ -203,11 +202,11 @@ class ArcadeAppDrawer extends ConsumerWidget {
                                                   ),
                                                 ),
                                               )
-                                        : const Center(
+                                        : Center(
                                             child: Icon(
                                               Icons.person_rounded,
                                               size: 17,
-                                              color: AppColors.textMutedLight,
+                                              color: colors.textMuted,
                                             ),
                                           ),
                                   ),
@@ -223,7 +222,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                                         style: GoogleFonts.outfit(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
-                                          color: AppColors.textLight,
+                                          color: colors.textPrimary,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -232,7 +231,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                                         isLoggedIn ? 'View Profile' : 'Not signed in',
                                         style: GoogleFonts.dmSans(
                                           fontSize: 10.5,
-                                          color: AppColors.textMutedLight,
+                                          color: colors.textMuted,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
@@ -248,7 +247,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                       // Right: Sign In or Sign Out Action Pill
                       if (!isLoggedIn)
                         Material(
-                          color: AppColors.primaryRed,
+                          color: colors.primaryRed,
                           borderRadius: BorderRadius.circular(8),
                           child: InkWell(
                             onTap: () {
@@ -279,7 +278,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                         )
                       else
                         Material(
-                          color: AppColors.surfaceLight,
+                          color: colors.cardElevated,
                           borderRadius: BorderRadius.circular(8),
                           child: InkWell(
                             onTap: () async {
@@ -291,15 +290,22 @@ class ArcadeAppDrawer extends ConsumerWidget {
                               }
                             },
                             borderRadius: BorderRadius.circular(8),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: colors.border,
+                                  width: 1,
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
                                     Icons.logout_rounded,
                                     size: 12,
-                                    color: AppColors.primaryRed.withValues(alpha: 0.9),
+                                    color: colors.primaryRed,
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
@@ -307,7 +313,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                                     style: GoogleFonts.dmSans(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.primaryRed.withValues(alpha: 0.9),
+                                      color: colors.primaryRed,
                                     ),
                                   ),
                                 ],
@@ -320,7 +326,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                 ),
 
                 const SizedBox(height: 8),
-                const Divider(color: AppColors.borderLight, height: 1),
+                Divider(color: colors.border, height: 1),
                 const SizedBox(height: 8),
 
                 // ── Scrollable Navigation Flow (No Scrollbar Track) ───────
@@ -331,7 +337,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                       physics: const BouncingScrollPhysics(),
                       children: [
                         // Section 1: Venue Experiences (Jump to Zone)
-                        _SectionTitle('JUMP TO ZONE'),
+                        _SectionTitle('JUMP TO ZONE', color: colors.textMuted),
 
                         // 2x3 Quick-Jump Zone Capsule Grid
                         GridView.builder(
@@ -346,11 +352,12 @@ class ArcadeAppDrawer extends ConsumerWidget {
                           ),
                           itemBuilder: (context, index) {
                             final exp = kArcadeExperiences[index];
-                            final color = exp.color == const Color(0xFFF8FAFC)
-                                ? AppColors.textLight
-                                : exp.color;
+                            final fgColor = colors.resolveZoneForeground(exp.color);
+                            final bgColor = colors.resolveZoneBackground(exp.color);
+                            final borderColor = colors.resolveZoneBorder(exp.color);
+
                             return Material(
-                              color: AppColors.surfaceLight,
+                              color: colors.cardElevated,
                               borderRadius: BorderRadius.circular(10),
                               child: InkWell(
                                 onTap: () {
@@ -364,7 +371,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                      color: color.withValues(alpha: 0.25),
+                                      color: borderColor,
                                       width: 1,
                                     ),
                                   ),
@@ -374,11 +381,11 @@ class ArcadeAppDrawer extends ConsumerWidget {
                                         width: 26,
                                         height: 26,
                                         decoration: BoxDecoration(
-                                          color: color.withValues(alpha: 0.14),
+                                          color: bgColor,
                                           borderRadius: BorderRadius.circular(6),
                                         ),
                                         child: Center(
-                                          child: Icon(exp.iconData, size: 14, color: color),
+                                          child: Icon(exp.iconData, size: 14, color: fgColor),
                                         ),
                                       ),
                                       const SizedBox(width: 7),
@@ -388,7 +395,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                                           style: GoogleFonts.dmSans(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
-                                            color: AppColors.textLight,
+                                            color: colors.textPrimary,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -403,11 +410,11 @@ class ArcadeAppDrawer extends ConsumerWidget {
                         ),
 
                         const SizedBox(height: 14),
-                        const Divider(color: AppColors.borderLight, height: 1),
+                        Divider(color: colors.border, height: 1),
                         const SizedBox(height: 12),
 
                         // Section 2: Explore & Ordering
-                        _SectionTitle('EXPLORE & ORDER'),
+                        _SectionTitle('EXPLORE & ORDER', color: colors.textMuted),
                         _UnifiedNavRow(
                           icon: Icons.restaurant_menu_rounded,
                           iconColor: const Color(0xFFFF7A00),
@@ -441,7 +448,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                         ),
 
                         const SizedBox(height: 14),
-                        const Divider(color: AppColors.borderLight, height: 1),
+                        Divider(color: colors.border, height: 1),
                         const SizedBox(height: 12),
 
                         // Section 3: Account & Activity (Bottom Nav / Profile)
@@ -486,10 +493,10 @@ class ArcadeAppDrawer extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
+                    color: colors.cardElevated,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: AppColors.borderLight,
+                      color: colors.border,
                       width: 1,
                     ),
                   ),
@@ -499,18 +506,18 @@ class ArcadeAppDrawer extends ConsumerWidget {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: AppColors.primaryRed.withValues(alpha: 0.12),
+                          color: colors.primaryRed.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: AppColors.primaryRed.withValues(alpha: 0.25),
+                            color: colors.primaryRed.withValues(alpha: 0.25),
                             width: 1,
                           ),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Icon(
                             Icons.location_on_rounded,
                             size: 16,
-                            color: AppColors.primaryRed,
+                            color: colors.primaryRed,
                           ),
                         ),
                       ),
@@ -524,14 +531,14 @@ class ArcadeAppDrawer extends ConsumerWidget {
                               style: GoogleFonts.dmSans(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textLight,
+                                color: colors.textPrimary,
                               ),
                             ),
                             Text(
                               'New Road, Pokhara, Nepal',
                               style: GoogleFonts.dmSans(
                                 fontSize: 10,
-                                color: AppColors.textMutedLight,
+                                color: colors.textMuted,
                               ),
                             ),
                           ],
@@ -552,11 +559,13 @@ class ArcadeAppDrawer extends ConsumerWidget {
 /// Compact Section Header
 class _SectionTitle extends StatelessWidget {
   final String title;
+  final Color? color;
 
-  const _SectionTitle(this.title);
+  const _SectionTitle(this.title, {this.color});
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 2, 4, 6),
       child: Text(
@@ -565,7 +574,7 @@ class _SectionTitle extends StatelessWidget {
           fontSize: 10,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.2,
-          color: AppColors.textMutedLight.withValues(alpha: 0.65),
+          color: color ?? colors.textMuted.withValues(alpha: 0.8),
         ),
       ),
     );
@@ -590,6 +599,11 @@ class _UnifiedNavRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final fgColor = colors.resolveZoneForeground(iconColor);
+    final bgColor = colors.resolveZoneBackground(iconColor);
+    final borderColor = colors.resolveZoneBorder(iconColor);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Material(
@@ -606,15 +620,15 @@ class _UnifiedNavRow extends StatelessWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.12),
+                    color: bgColor,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: iconColor.withValues(alpha: 0.25),
+                      color: borderColor,
                       width: 1,
                     ),
                   ),
                   child: Center(
-                    child: Icon(icon, size: 16, color: iconColor),
+                    child: Icon(icon, size: 16, color: fgColor),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -626,7 +640,7 @@ class _UnifiedNavRow extends StatelessWidget {
                         style: GoogleFonts.dmSans(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textLight,
+                          color: colors.textPrimary,
                         ),
                       ),
                       if (badge != null) ...[
@@ -634,10 +648,10 @@ class _UnifiedNavRow extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryRed.withValues(alpha: 0.15),
+                            color: colors.primaryRed.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(
-                              color: AppColors.primaryRed.withValues(alpha: 0.4),
+                              color: colors.primaryRed.withValues(alpha: 0.4),
                               width: 0.8,
                             ),
                           ),
@@ -647,7 +661,7 @@ class _UnifiedNavRow extends StatelessWidget {
                               fontSize: 8.5,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
-                              color: AppColors.primaryRed,
+                              color: colors.primaryRed,
                             ),
                           ),
                         ),
@@ -657,7 +671,7 @@ class _UnifiedNavRow extends StatelessWidget {
                 ),
                 Icon(
                   Icons.chevron_right_rounded,
-                  color: AppColors.textMutedLight.withValues(alpha: 0.35),
+                  color: colors.textMuted.withValues(alpha: 0.45),
                   size: 16,
                 ),
               ],

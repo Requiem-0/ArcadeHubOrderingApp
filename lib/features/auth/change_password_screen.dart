@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/network/api_client.dart';
 import '../../core/repositories/auth_repository.dart';
 import '../../core/utils/app_toast.dart';
@@ -100,8 +100,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,18 +121,19 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                         context.go('/profile');
                       }
                     },
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: AppColors.textLight),
+                    icon: Icon(Icons.arrow_back_ios_new_rounded,
+                        color: colors.textPrimary),
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.surfaceLight,
+                      backgroundColor: colors.card,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+                        side: BorderSide(color: colors.border),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Text('Change Password',
-                      style: AppTextStyles.headingM(AppColors.textLight)),
+                      style: AppTextStyles.headingM(colors.textPrimary)),
                 ],
               ),
             ),
@@ -144,17 +147,32 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                     for (final f in _fields) ...[
                       Text(
                         f['label']!.toUpperCase(),
-                        style: AppTextStyles.label(AppColors.textMutedLight),
+                        style: AppTextStyles.label(colors.textMuted),
                       ),
                       const SizedBox(height: 6),
                       TextField(
                         controller: _ctrls[f['key']!],
                         obscureText: !(_vis[f['key']!] ?? false),
-                        style: AppTextStyles.bodyL(AppColors.textLight),
+                        style: AppTextStyles.bodyL(colors.textPrimary),
                         decoration: InputDecoration(
                           hintText: '••••••••',
-                          prefixIcon: const Icon(Icons.lock_outline_rounded,
-                              color: AppColors.textMutedLight, size: 20),
+                          hintStyle: TextStyle(color: colors.textMuted),
+                          filled: true,
+                          fillColor: colors.card,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: colors.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: colors.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: colors.primaryRed),
+                          ),
+                          prefixIcon: Icon(Icons.lock_outline_rounded,
+                              color: colors.textMuted, size: 20),
                           suffixIcon: IconButton(
                             onPressed: () => setState(() =>
                                 _vis[f['key']!] = !(_vis[f['key']!] ?? false)),
@@ -162,7 +180,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                               (_vis[f['key']!] ?? false)
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: AppColors.textMutedLight,
+                              color: colors.textMuted,
                               size: 20,
                             ),
                           ),

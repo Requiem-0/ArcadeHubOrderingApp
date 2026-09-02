@@ -1,7 +1,7 @@
 // lib/shared/widgets/price_text.dart
 import 'package:flutter/material.dart';
-import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/constants.dart';
 
 class PriceText extends StatelessWidget {
@@ -21,6 +21,7 @@ class PriceText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final hasDiscount =
         originalPrice != null && originalPrice! > price;
     final fontSize = small ? 13.0 : 16.0;
@@ -33,7 +34,7 @@ class PriceText extends StatelessWidget {
         if (hasDiscount) ...[
           Text(
             _format(originalPrice!),
-            style: AppTextStyles.bodyM(AppColors.textMutedLight).copyWith(
+            style: AppTextStyles.bodyM(colors.textMuted).copyWith(
               decoration: TextDecoration.lineThrough,
               fontSize: fontSize - 2,
             ),
@@ -42,7 +43,7 @@ class PriceText extends StatelessWidget {
         ],
         Text(
           _format(price),
-          style: AppTextStyles.bold(AppColors.primaryRed, size: fontSize),
+          style: AppTextStyles.bold(colors.primaryRed, size: fontSize),
         ),
       ],
     );

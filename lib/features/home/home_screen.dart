@@ -1,12 +1,12 @@
 import 'package:flutter/services.dart';
 // lib/features/home/home_screen.dart
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/brandkit/app_spacing.dart';
 import '../../core/brandkit/experiences.dart';
 import '../../core/repositories/pos_repository.dart';
@@ -77,17 +77,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (mounted) setState(() {});
   }
 
-  String _formatDuration(Duration d) {
-    final h = d.inHours.toString().padLeft(2, '0');
-    final m = (d.inMinutes % 60).toString().padLeft(2, '0');
-    final s = (d.inSeconds % 60).toString().padLeft(2, '0');
-    return '$h:$m:$s';
-  }
+
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Scaffold(
-      backgroundColor: AppColors.scaffoldDark,
+      backgroundColor: colors.scaffold,
       drawerScrimColor: Colors.black.withValues(alpha: 0.75),
       drawer: const ArcadeAppDrawer(),
       body: Builder(
@@ -101,7 +97,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   horizontal: AppSpacing.lg,
                   vertical: AppSpacing.sm,
                 ),
-                color: AppColors.scaffoldDark,
+                color: colors.scaffold,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -113,14 +109,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           height: 40,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            gradient: const LinearGradient(
-                              colors: [AppColors.primaryRedDark, AppColors.deepRed],
+                            gradient: LinearGradient(
+                              colors: [colors.primaryRed, colors.deepRed],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primaryRedDark.withValues(alpha: 0.4),
+                                color: colors.primaryRed.withValues(alpha: 0.4),
                                 blurRadius: 12,
                               ),
                             ],
@@ -143,7 +139,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 fontSize: 17,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.5,
-                                color: AppColors.textLight,
+                                color: colors.textPrimary,
                               ),
                             ),
                             Text(
@@ -152,7 +148,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 fontSize: 9.5,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 1.8,
-                                color: AppColors.textMutedLight,
+                                color: colors.primaryRed,
                               ),
                             ),
                           ],
@@ -164,7 +160,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Tooltip(
                       message: 'Open menu',
                       child: Material(
-                        color: AppColors.surfaceLight,
+                        color: colors.cardElevated,
                         borderRadius: BorderRadius.circular(12),
                         child: InkWell(
                           onTap: () => Scaffold.of(innerContext).openDrawer(),
@@ -174,7 +170,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             height: 40,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppColors.borderLight),
+                              border: Border.all(color: colors.border),
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -183,7 +179,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   width: 18,
                                   height: 2,
                                   decoration: BoxDecoration(
-                                    color: AppColors.primaryRedDark,
+                                    color: colors.primaryRed,
                                     borderRadius: BorderRadius.circular(2),
                                   ),
                                 ),
@@ -195,7 +191,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     height: 2,
                                     margin: const EdgeInsets.only(right: 11),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primaryRedDark,
+                                      color: colors.primaryRed,
                                       borderRadius: BorderRadius.circular(2),
                                     ),
                                   ),
@@ -205,7 +201,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   width: 18,
                                   height: 2,
                                   decoration: BoxDecoration(
-                                    color: AppColors.primaryRedDark,
+                                    color: colors.primaryRed,
                                     borderRadius: BorderRadius.circular(2),
                                   ),
                                 ),
@@ -260,8 +256,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(999),
                           color: active
-                              ? AppColors.primaryRedDark
-                              : AppColors.borderLight.withValues(alpha: 0.5),
+                              ? colors.primaryRed
+                              : colors.border.withValues(alpha: 0.7),
                         ),
                       );
                     }),
@@ -303,10 +299,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                   ref.watch(bundleProductsProvider).when(
                         loading: () => _BundleSkeleton(),
-                        error: (_, __) => _buildNoBundlesPlaceholder(),
+                        error: (_, __) => _buildNoBundlesPlaceholder(colors),
                         data: (bundleProducts) {
                           if (bundleProducts.isEmpty) {
-                            return _buildNoBundlesPlaceholder();
+                            return _buildNoBundlesPlaceholder(colors);
                           }
 
                           return SizedBox(
@@ -333,16 +329,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   );
 }
 
-  Widget _buildNoBundlesPlaceholder() {
+  Widget _buildNoBundlesPlaceholder(AppThemeColors colors) {
     return Padding(
       padding: AppSpacing.pagePadding,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         decoration: BoxDecoration(
-          color: AppColors.cardLight,
+          color: colors.card,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.borderLight),
+          boxShadow: colors.cardShadow,
+          border: Border.all(color: colors.border),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -350,12 +347,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primaryRed.withValues(alpha: 0.12),
+                color: colors.primaryRed.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.card_giftcard_rounded,
-                color: AppColors.primaryRedDark,
+                color: colors.primaryRed,
                 size: 30,
               ),
             ),
@@ -365,7 +362,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               style: GoogleFonts.outfit(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textLight,
+                color: colors.textPrimary,
               ),
             ),
             const SizedBox(height: 4),
@@ -374,7 +371,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               textAlign: TextAlign.center,
               style: GoogleFonts.dmSans(
                 fontSize: 12,
-                color: AppColors.textMutedLight,
+                color: colors.textMuted,
               ),
             ),
           ],
@@ -394,6 +391,7 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Padding(
       padding: AppSpacing.pagePadding,
       child: Text(
@@ -401,7 +399,7 @@ class _SectionHeader extends StatelessWidget {
         style: GoogleFonts.outfit(
           fontSize: 22,
           fontWeight: FontWeight.w900,
-          color: Colors.white,
+          color: colors.textPrimary,
           letterSpacing: -0.5,
         ),
       ),
@@ -537,10 +535,11 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final exp = widget.exp;
-    final color = exp.color == const Color(0xFFF8FAFC)
-        ? AppColors.textLight
-        : exp.color;
+    final fgColor = colors.resolveZoneForeground(exp.color);
+    final bgColor = colors.resolveZoneBackground(exp.color);
+    final borderColor = colors.resolveZoneBorder(exp.color);
 
     return Listener(
       onPointerDown: (_) {
@@ -560,19 +559,21 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
             child: Container(
               clipBehavior: Clip.hardEdge,
               decoration: BoxDecoration(
-                color: AppColors.surfaceDark,
-                borderRadius: BorderRadius.circular(24),
+                color: colors.card,
+                borderRadius: BorderRadius.circular(22),
                 border: Border.all(
-                  color: color.withValues(alpha: 0.25),
-                  width: 1.5,
+                  color: colors.isDark ? borderColor : fgColor.withValues(alpha: 0.22),
+                  width: 1.2,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.1),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                boxShadow: colors.isDark
+                    ? [
+                        BoxShadow(
+                          color: fgColor.withValues(alpha: 0.1),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : colors.cardShadow,
               ),
               child: Stack(
                 children: [
@@ -584,18 +585,18 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
                       angle: -0.2,
                       child: Icon(
                         exp.iconData,
-                        size: widget.isLarge ? 110 : 70,
-                        color: color.withValues(alpha: 0.05),
+                        size: widget.isLarge ? 110 : 64,
+                        color: fgColor.withValues(alpha: colors.isDark ? 0.05 : 0.12),
                       ),
                     ),
                   ),
                   // Foreground content
                   Positioned.fill(
                     child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.md),
+                      padding: EdgeInsets.all(widget.isLarge ? AppSpacing.md : 10),
                       child: widget.isLarge
-                          ? _buildLargeLayout(exp, color)
-                          : _buildSmallLayout(exp, color),
+                          ? _buildLargeLayout(exp, fgColor, bgColor, colors)
+                          : _buildSmallLayout(exp, fgColor, colors),
                     ),
                   ),
                 ],
@@ -607,18 +608,22 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
     );
   }
 
-  Widget _buildLargeLayout(ArcadeExperience exp, Color color) {
+  Widget _buildLargeLayout(ArcadeExperience exp, Color fgColor, Color bgColor, AppThemeColors colors) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
-          padding: const EdgeInsets.all(10), // Reduced from 12
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
+            color: bgColor,
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: fgColor.withValues(alpha: colors.isDark ? 0.25 : 0.22),
+              width: 1.2,
+            ),
           ),
-          child: Icon(exp.iconData, color: color, size: 36), // Reduced from 48
+          child: Icon(exp.iconData, color: fgColor, size: 34),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -626,9 +631,9 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
             Text(
               exp.name,
               style: GoogleFonts.outfit(
-                fontSize: 20, // Reduced from 24
+                fontSize: 19,
                 fontWeight: FontWeight.w900,
-                color: Colors.white,
+                color: colors.textPrimary,
                 height: 1.1,
               ),
               maxLines: 2,
@@ -638,8 +643,9 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
             Text(
               exp.subtitle.split('·').first.trim(),
               style: GoogleFonts.dmSans(
-                fontSize: 12, // Reduced from 14
-                color: AppColors.textMutedLight,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: colors.textSecondary,
               ),
             ),
           ],
@@ -648,21 +654,20 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
     );
   }
 
-  Widget _buildSmallLayout(ArcadeExperience exp, Color color) {
+  Widget _buildSmallLayout(ArcadeExperience exp, Color fgColor, AppThemeColors colors) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(exp.iconData, color: color, size: 22), // Reduced from 28
-        AppSpacing.gapV4,
+        Icon(exp.iconData, color: fgColor, size: 24),
+        const SizedBox(height: 4),
         Text(
           exp.name,
           style: GoogleFonts.dmSans(
-            fontSize: 11, // Reduced from 12
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+            fontSize: 11.5,
+            fontWeight: FontWeight.w700,
+            color: colors.textPrimary,
           ),
           textAlign: TextAlign.center,
-          maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
       ],
@@ -695,9 +700,8 @@ class _FeaturedZoneCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = exp.color == const Color(0xFFF8FAFC)
-        ? AppColors.textLight
-        : exp.color;
+    final colors = context.appColors;
+    final fgColor = colors.resolveZoneForeground(exp.color);
 
     return AnimatedBuilder(
       animation: pageController,
@@ -723,20 +727,22 @@ class _FeaturedZoneCard extends StatelessWidget {
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceLight,
+                  color: colors.cardElevated,
                   borderRadius: BorderRadius.circular(32),
                   border: Border.all(
-                    color: color.withValues(alpha: 0.15),
+                    color: fgColor.withValues(alpha: 0.25),
                     width: 1,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withValues(alpha: 0.15),
-                      blurRadius: 30,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 15),
-                    ),
-                  ],
+                  boxShadow: colors.isDark
+                      ? [
+                          BoxShadow(
+                            color: fgColor.withValues(alpha: 0.15),
+                            blurRadius: 30,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 15),
+                          ),
+                        ]
+                      : colors.cardShadow,
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: Stack(
@@ -782,7 +788,7 @@ class _FeaturedZoneCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: Colors.black.withValues(alpha: 0.6),
                                   borderRadius: BorderRadius.circular(999),
-                                  border: Border.all(color: color.withValues(alpha: 0.5)),
+                                  border: Border.all(color: fgColor.withValues(alpha: 0.5)),
                                 ),
                                 child: Text(
                                   exp.featureTag.toUpperCase(),
@@ -790,7 +796,7 @@ class _FeaturedZoneCard extends StatelessWidget {
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 1.5,
-                                    color: color,
+                                    color: fgColor,
                                   ),
                                 ),
                               ),
@@ -799,11 +805,11 @@ class _FeaturedZoneCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: Colors.black.withValues(alpha: 0.4),
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: color.withValues(alpha: 0.4)),
+                                  border: Border.all(color: fgColor.withValues(alpha: 0.4)),
                                 ),
                                 child: Icon(
                                   exp.iconData,
-                                  color: color,
+                                  color: fgColor,
                                   size: 20,
                                 ),
                               ),
@@ -897,6 +903,7 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (context, child) {
@@ -904,24 +911,31 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
           padding: AppSpacing.pagePadding,
           child: Container(
             decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: widget.brandColor.withValues(alpha: _glow.value * 0.15),
-                  blurRadius: 24,
-                  spreadRadius: 2,
-                  offset: const Offset(0, 10),
-                )
-              ],
+              boxShadow: colors.isDark
+                  ? [
+                      BoxShadow(
+                        color: widget.brandColor.withValues(alpha: _glow.value * 0.15),
+                        blurRadius: 24,
+                        spreadRadius: 2,
+                        offset: const Offset(0, 10),
+                      )
+                    ]
+                  : colors.cardShadow,
             ),
             child: ClipPath(
               clipper: _TicketClipper(holeRadius: 16),
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF2A2A2A),
-                      Color(0xFF1A1A1A),
-                    ],
+                  gradient: LinearGradient(
+                    colors: colors.isDark
+                        ? const [
+                            Color(0xFF2A2A2A),
+                            Color(0xFF1A1A1A),
+                          ]
+                        : const [
+                            Color(0xFFFFFFFF),
+                            Color(0xFFF9FAFB),
+                          ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -956,7 +970,7 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                                 fontSize: 36,
                                 fontWeight: FontWeight.w900,
                                 height: 1,
-                                color: Colors.white,
+                                color: colors.textPrimary,
                                 letterSpacing: -1,
                               ),
                             ),
@@ -964,7 +978,7 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: widget.brandColor.withValues(alpha: 0.2),
+                                color: widget.brandColor.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -983,7 +997,7 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                       
                       // Vertical Perforated Divider
                       CustomPaint(
-                        painter: _DashedLinePainter(color: Colors.white.withValues(alpha: 0.15)),
+                        painter: _DashedLinePainter(color: colors.border),
                         size: const Size(1, double.infinity),
                       ),
                       
@@ -1015,7 +1029,7 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                                 widget.subtitle,
                                 style: GoogleFonts.dmSans(
                                   fontSize: 13,
-                                  color: AppColors.textLight,
+                                  color: colors.textSecondary,
                                   height: 1.4,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -1045,7 +1059,7 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                                     style: GoogleFonts.dmSans(
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.textMutedLight,
+                                      color: colors.textMuted,
                                     ),
                                   ),
                                   const Spacer(),
@@ -1054,7 +1068,7 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                                     style: GoogleFonts.outfit(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w900,
-                                      color: Colors.white,
+                                      color: colors.textPrimary,
                                       letterSpacing: 1,
                                     ),
                                   ),
@@ -1166,6 +1180,7 @@ class _BundleSkeletonState extends State<_BundleSkeleton>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return AnimatedBuilder(
       animation: _anim,
       builder: (_, __) => SizedBox(
@@ -1178,9 +1193,9 @@ class _BundleSkeletonState extends State<_BundleSkeleton>
           itemBuilder: (_, __) => Container(
             width: 310,
             decoration: BoxDecoration(
-              color: AppColors.cardLight.withValues(alpha: _anim.value),
+              color: colors.card.withValues(alpha: _anim.value),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: colors.border),
             ),
           ),
         ),
@@ -1225,6 +1240,7 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
   @override
   Widget build(BuildContext context) {
     final product = widget.product;
+    final colors = context.appColors;
     final tag = product.tags.isNotEmpty ? product.tags.first : 'Combo';
     final savePillText = product.tags.firstWhere(
       (t) => t.toUpperCase().contains('SAVE') || t.contains('%'),
@@ -1232,7 +1248,7 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
           ? 'SAVE ${(((product.originalPrice! - product.price) / product.originalPrice!) * 100).round()}%'
           : 'SPECIAL',
     );
-    const cardAccentColor = AppColors.primaryRedDark;
+    final cardAccentColor = colors.primaryRed;
 
     return Listener(
       onPointerDown: (_) {
@@ -1250,9 +1266,18 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
               width: 310,
               padding: const EdgeInsets.all(AppSpacing.md),
               decoration: BoxDecoration(
-                color: AppColors.cardLight,
+                color: colors.card,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: cardAccentColor.withValues(alpha: 0.35)),
+                boxShadow: colors.isDark
+                    ? [
+                        BoxShadow(
+                          color: cardAccentColor.withValues(alpha: 0.12),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : colors.cardShadow,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1265,7 +1290,7 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceDark,
+                          color: colors.cardElevated,
                           borderRadius: BorderRadius.circular(999),
                           border: Border.all(color: cardAccentColor.withValues(alpha: 0.5)),
                         ),
@@ -1282,8 +1307,8 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFFFD700), AppColors.primaryRedDark],
+                          gradient: LinearGradient(
+                            colors: [const Color(0xFFFFD700), colors.primaryRed],
                           ),
                           borderRadius: BorderRadius.circular(999),
                         ),
@@ -1327,7 +1352,7 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
                           style: GoogleFonts.outfit(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textLight,
+                            color: colors.textPrimary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -1341,7 +1366,7 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
                     product.description,
                     style: GoogleFonts.dmSans(
                       fontSize: 13,
-                      color: AppColors.textMutedLight,
+                      color: colors.textMuted,
                       height: 1.3,
                     ),
                     maxLines: 2,
@@ -1357,7 +1382,7 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
                           style: GoogleFonts.outfit(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primaryRedDark,
+                            color: colors.primaryRed,
                           ),
                           children: [
                             TextSpan(text: 'Rs. ${product.price.toInt()} '),
@@ -1384,7 +1409,7 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
                             horizontal: AppSpacing.sm,
                             vertical: AppSpacing.xs,
                           ),
-                          backgroundColor: AppColors.primaryRed,
+                          backgroundColor: colors.primaryRed,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(999),
                           ),

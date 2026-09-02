@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/constants.dart';
 import '../../core/repositories/auth_repository.dart';
 import '../../core/repositories/order_repository.dart';
@@ -19,11 +20,12 @@ class RecentOrdersScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
     final loggedInAsync = ref.watch(isLoggedInStateProvider);
     final ordersAsync = ref.watch(myOrdersProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldDark,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -40,7 +42,7 @@ class RecentOrdersScreen extends ConsumerWidget {
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.5,
-                      color: AppColors.textLight,
+                      color: colors.textPrimary,
                     ),
                   ),
                 ],
@@ -50,20 +52,20 @@ class RecentOrdersScreen extends ConsumerWidget {
 
             Expanded(
               child: loggedInAsync.when(
-                loading: () => const Center(
-                  child: CircularProgressIndicator(color: AppColors.primaryRed),
+                loading: () => Center(
+                  child: CircularProgressIndicator(color: colors.primaryRed),
                 ),
-                error: (_, __) => _buildGuestState(context),
+                error: (err, _) => _buildGuestState(context, colors),
                 data: (isLoggedIn) {
                   if (!isLoggedIn) {
-                    return _buildGuestState(context);
+                    return _buildGuestState(context, colors);
                   }
 
                   return ordersAsync.when(
-                    loading: () => const Center(
-                      child: CircularProgressIndicator(color: AppColors.primaryRed),
+                    loading: () => Center(
+                      child: CircularProgressIndicator(color: colors.primaryRed),
                     ),
-                    error: (_, __) => EmptyState(
+                    error: (err, _) => EmptyState(
                       iconData: Icons.wifi_off_rounded,
                       iconColor: AppColors.error,
                       title: 'Unable to Load Orders',
@@ -81,7 +83,7 @@ class RecentOrdersScreen extends ConsumerWidget {
                       if (orders.isEmpty) {
                         return EmptyState(
                           iconData: Icons.receipt_long_rounded,
-                          iconColor: AppColors.primaryRed,
+                          iconColor: colors.primaryRed,
                           title: 'No Orders Yet',
                           subtitle: 'Your active kitchen orders and past receipts will appear here.',
                           action: SizedBox(
@@ -105,22 +107,19 @@ class RecentOrdersScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.all(22),
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
+                              gradient: LinearGradient(
                                 colors: [
-                                  Color(0xFF8B1111),
-                                  Color(0xFF3B0505),
+                                  colors.primaryRed,
+                                  colors.deepRed,
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
                               borderRadius:
                                   BorderRadius.circular(22),
-                              border: Border.all(
-                                color: AppColors.primaryRed.withValues(alpha: 0.35),
-                              ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primaryRed.withValues(alpha: 0.25),
+                                  color: colors.primaryRed.withValues(alpha: 0.3),
                                   blurRadius: 20,
                                   offset: const Offset(0, 6),
                                 ),
@@ -175,10 +174,10 @@ class RecentOrdersScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGuestState(BuildContext context) {
+  Widget _buildGuestState(BuildContext context, AppThemeColors colors) {
     return EmptyState(
       iconData: Icons.person_outline_rounded,
-      iconColor: AppColors.primaryRed,
+      iconColor: colors.primaryRed,
       title: 'Guest Account',
       subtitle: 'Sign in to track real-time kitchen progress, receipts, and order history.',
       action: SizedBox(
@@ -239,18 +238,14 @@ class _OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: colors.card,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: Border.all(color: colors.border),
+        boxShadow: colors.cardShadow,
       ),
       child: Material(
         color: Colors.transparent,
@@ -271,11 +266,11 @@ class _OrderCard extends StatelessWidget {
                         style: GoogleFonts.dmSans(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textLight,
+                          color: colors.textPrimary,
                         )),
                     const Spacer(),
                     Text(order.date,
-                        style: AppTextStyles.bodyS(AppColors.textMutedLight)),
+                        style: AppTextStyles.bodyS(colors.textMuted)),
                     const SizedBox(width: 8),
                     Container(
                       padding:
@@ -300,37 +295,37 @@ class _OrderCard extends StatelessWidget {
                       child: Row(
                         children: [
                           Text('${item.name} × ${item.qty}',
-                              style: AppTextStyles.bodyM(AppColors.textLight)),
+                              style: AppTextStyles.bodyM(colors.textPrimary)),
                           if (item.variant != null) ...[
                             const SizedBox(width: 4),
                             Text('(${item.variant})',
                                 style:
-                                    AppTextStyles.bodyXS(AppColors.textMutedLight)),
+                                    AppTextStyles.bodyXS(colors.textMuted)),
                           ],
                         ],
                       ),
                     )),
                 if (order.items.length > 3)
                   Text('+${order.items.length - 3} more',
-                      style: AppTextStyles.bodyXS(AppColors.textMutedLight)),
+                      style: AppTextStyles.bodyXS(colors.textMuted)),
                 const SizedBox(height: 10),
-                const Divider(color: AppColors.borderLight, height: 1),
+                Divider(color: colors.border, height: 1),
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       '${AppConstants.currencySymbol} ${order.total.toStringAsFixed(0)}',
-                      style: AppTextStyles.bold(AppColors.textLight, size: 18),
+                      style: AppTextStyles.bold(colors.textPrimary, size: 18),
                     ),
                     Row(
                       children: [
                         Text(
                           'View Receipt',
-                          style: AppTextStyles.semibold(AppColors.textMutedLight, size: 13),
+                          style: AppTextStyles.semibold(colors.textMuted, size: 13),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppColors.textMutedLight),
+                        Icon(Icons.arrow_forward_ios_rounded, size: 12, color: colors.textMuted),
                       ],
                     ),
                   ],

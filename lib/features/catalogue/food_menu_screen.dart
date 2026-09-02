@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/repositories/pos_repository.dart';
 import '../../features/cart/cart_provider.dart';
 import '../../features/favourites/favourites_provider.dart';
@@ -36,13 +37,14 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final catalogAsync = ref.watch(catalogProvider);
     final cart = ref.watch(cartProvider);
     final favs = ref.watch(favouritesProvider);
     final totalCartCount = cart.values.fold<int>(0, (sum, q) => sum + q);
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         child: Column(
           children: [
@@ -52,7 +54,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back, color: AppColors.textLight),
+                    icon: Icon(Icons.arrow_back, color: colors.textPrimary),
                     onPressed: () {
                       if (context.canPop()) {
                         context.pop();
@@ -71,14 +73,14 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textLight,
+                            color: colors.textPrimary,
                           ),
                         ),
                         Text(
                           'Arcade Hub Menu',
                           style: GoogleFonts.dmSans(
                             fontSize: 12,
-                            color: AppColors.textMutedLight,
+                            color: colors.textMuted,
                           ),
                         ),
                       ],
@@ -87,7 +89,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                   Stack(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.shopping_cart_outlined, color: AppColors.textLight, size: 26),
+                        icon: Icon(Icons.shopping_cart_outlined, color: colors.textPrimary, size: 26),
                         onPressed: () => context.push('/cart'),
                       ),
                       if (totalCartCount > 0)
@@ -96,8 +98,8 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                           top: 4,
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: AppColors.primaryRed,
+                            decoration: BoxDecoration(
+                              color: colors.primaryRed,
                               shape: BoxShape.circle,
                             ),
                             constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
@@ -118,9 +120,9 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
             Expanded(
               child: catalogAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(child: Text('Error: $err')),
+                error: (err, _) => Center(child: Text('Error: $err', style: TextStyle(color: colors.textPrimary))),
                 data: (products) {
-                  final categories = ['All', ...products.map((p) => p.category).toSet().toList()];
+                  final categories = ['All', ...products.map((p) => p.category).toSet()];
                   final filtered = products.where((p) {
                     final matchSearch = _search.isEmpty || p.name.toLowerCase().contains(_search.toLowerCase());
                     final matchCat = _category == 'All' || p.category == _category;
@@ -133,12 +135,28 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                       // Search Input
                       TextField(
                         controller: _searchCtrl,
+                        style: TextStyle(color: colors.textPrimary),
                         decoration: InputDecoration(
                           hintText: 'Search delicious items...',
-                          prefixIcon: const Icon(Icons.search, color: AppColors.textMutedLight),
+                          hintStyle: TextStyle(color: colors.textMuted),
+                          filled: true,
+                          fillColor: colors.card,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: colors.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: colors.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: colors.primaryRed),
+                          ),
+                          prefixIcon: Icon(Icons.search, color: colors.textMuted),
                           suffixIcon: _search.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.clear),
+                                  icon: Icon(Icons.clear, color: colors.textMuted),
                                   onPressed: () => _searchCtrl.clear(),
                                 )
                               : null,
@@ -153,7 +171,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                           scrollDirection: Axis.horizontal,
                           itemCount: categories.length,
                           separatorBuilder: (_, __) => const SizedBox(width: 8),
-                          itemBuilder: (_, i) => CategoryPill(
+                          itemBuilder: (context, i) => CategoryPill(
                             label: categories[i],
                             active: _category == categories[i],
                             onTap: () => setState(() => _category = categories[i]),
@@ -162,7 +180,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // 2-Column Grid Layout with Generous Spacing & White Space
+                      // 2-Column Grid Layout
                       if (filtered.isEmpty)
                         EmptyState(
                           iconData: Icons.search_off_rounded,
@@ -174,7 +192,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                               _searchCtrl.clear();
                               setState(() => _category = 'All');
                             },
-                            child: const Text('Reset filters'),
+                            child: Text('Reset filters', style: TextStyle(color: colors.primaryRed)),
                           ),
                         )
                       else
@@ -198,16 +216,10 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: AppColors.surfaceLight,
+                                  color: colors.card,
                                   borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: AppColors.borderLight, width: 1.5),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.04),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
+                                  border: Border.all(color: colors.border, width: 1.5),
+                                  boxShadow: colors.cardShadow,
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,7 +233,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                             height: 115,
                                             width: double.infinity,
                                             decoration: BoxDecoration(
-                                              color: AppColors.primaryRed.withValues(alpha: 0.12),
+                                              color: colors.primaryRed.withValues(alpha: 0.08),
                                             ),
                                             child: (p.imageUrl != null && p.imageUrl!.isNotEmpty)
                                                 ? Image.network(
@@ -246,12 +258,12 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                             child: Container(
                                               padding: const EdgeInsets.all(6),
                                               decoration: BoxDecoration(
-                                                color: Colors.white.withValues(alpha: 0.9),
+                                                color: colors.isDark ? Colors.black.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.9),
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Icon(
                                                 isFav ? Icons.favorite : Icons.favorite_border,
-                                                color: isFav ? AppColors.error : AppColors.textMutedLight,
+                                                color: isFav ? AppColors.error : colors.textMuted,
                                                 size: 18,
                                               ),
                                             ),
@@ -267,7 +279,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                       style: GoogleFonts.outfit(
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
-                                        color: AppColors.textLight,
+                                        color: colors.textPrimary,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
@@ -275,7 +287,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                       p.category,
                                       style: GoogleFonts.dmSans(
                                         fontSize: 11,
-                                        color: AppColors.textMutedLight,
+                                        color: colors.textMuted,
                                       ),
                                     ),
                                     const Spacer(),
@@ -289,7 +301,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                           Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                             decoration: BoxDecoration(
-                                              color: AppColors.primaryRed,
+                                              color: colors.primaryRed,
                                               borderRadius: BorderRadius.circular(16),
                                             ),
                                             child: Row(
@@ -318,8 +330,8 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                             onTap: () => ref.read(cartProvider.notifier).add(p.id),
                                             child: Container(
                                               padding: const EdgeInsets.all(6),
-                                              decoration: const BoxDecoration(
-                                                color: AppColors.primaryRedDark,
+                                              decoration: BoxDecoration(
+                                                color: colors.primaryRed,
                                                 shape: BoxShape.circle,
                                               ),
                                               child: const Icon(Icons.add, color: Colors.white, size: 20),

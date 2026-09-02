@@ -1,13 +1,12 @@
 // lib/features/profile/edit_profile_screen.dart
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/repositories/auth_repository.dart';
 import '../../core/utils/app_toast.dart';
 import '../../shared/widgets/primary_button.dart';
@@ -120,12 +119,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final userAsync = ref.watch(currentUserProvider);
 
     userAsync.whenData((user) => _populateUser(user));
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         child: Column(
           children: [
@@ -142,18 +142,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         context.go('/profile');
                       }
                     },
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textLight),
+                    icon: Icon(Icons.arrow_back_ios_new_rounded, color: colors.textPrimary),
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.surfaceLight,
+                      backgroundColor: colors.card,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+                        side: BorderSide(color: colors.border),
                       ),
                     ),
                   ),
                   const SizedBox(width: 14),
                   Text(
                     'Edit Profile',
-                    style: AppTextStyles.headingM(AppColors.textLight),
+                    style: AppTextStyles.headingM(colors.textPrimary),
                   ),
                 ],
               ),
@@ -161,11 +162,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
             Expanded(
               child: userAsync.when(
-                loading: () => const Center(
-                  child: CircularProgressIndicator(color: AppColors.primaryRed),
+                loading: () => Center(
+                  child: CircularProgressIndicator(color: colors.primaryRed),
                 ),
-                error: (_, __) => _buildForm(),
-                data: (_) => _buildForm(),
+                error: (err, _) => _buildForm(colors),
+                data: (_) => _buildForm(colors),
               ),
             ),
           ],
@@ -174,7 +175,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     );
   }
 
-  Widget _buildForm() {
+  Widget _buildForm(AppThemeColors colors) {
     final initials = _nameCtrl.text.trim().isNotEmpty
         ? _nameCtrl.text.trim().split(' ').map((s) => s.isNotEmpty ? s[0] : '').take(2).join().toUpperCase()
         : 'AH';
@@ -195,15 +196,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     width: 96,
                     height: 96,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppColors.primaryRed, AppColors.deepRed],
+                      gradient: LinearGradient(
+                        colors: [colors.primaryRed, colors.deepRed],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primaryRed.withValues(alpha: 0.35),
+                          color: colors.primaryRed.withValues(alpha: 0.35),
                           blurRadius: 18,
                           offset: const Offset(0, 6),
                         ),
@@ -241,14 +242,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E26),
+                      color: colors.cardElevated,
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.borderLight, width: 2),
+                      border: Border.all(color: colors.border, width: 2),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.camera_alt_rounded,
                       size: 16,
-                      color: AppColors.textLight,
+                      color: colors.textPrimary,
                     ),
                   ),
                 ],
@@ -261,52 +262,97 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               onPressed: _pickImage,
               child: Text(
                 'Change Photo',
-                style: AppTextStyles.semibold(AppColors.primaryRed),
+                style: AppTextStyles.semibold(colors.primaryRed),
               ),
             ),
           ),
           const SizedBox(height: 24),
 
           // ── Name Field ─────────────────────────────────────────────
-          Text('FULL NAME', style: AppTextStyles.label(AppColors.textMutedLight)),
+          Text('FULL NAME', style: AppTextStyles.label(colors.textMuted)),
           const SizedBox(height: 8),
           TextField(
             controller: _nameCtrl,
-            style: AppTextStyles.bodyL(AppColors.textLight),
+            style: AppTextStyles.bodyL(colors.textPrimary),
             onChanged: (_) => setState(() {}),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: 'e.g. Ren Gurung',
-              prefixIcon: Icon(Icons.person_outline_rounded, color: AppColors.textMutedLight, size: 20),
+              hintStyle: TextStyle(color: colors.textMuted),
+              filled: true,
+              fillColor: colors.card,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.primaryRed),
+              ),
+              prefixIcon: Icon(Icons.person_outline_rounded, color: colors.textMuted, size: 20),
             ),
           ),
           const SizedBox(height: 20),
 
           // ── Phone Field ────────────────────────────────────────────
-          Text('PHONE NUMBER', style: AppTextStyles.label(AppColors.textMutedLight)),
+          Text('PHONE NUMBER', style: AppTextStyles.label(colors.textMuted)),
           const SizedBox(height: 8),
           TextField(
             controller: _phoneCtrl,
             keyboardType: TextInputType.phone,
-            style: AppTextStyles.bodyL(AppColors.textLight),
-            decoration: const InputDecoration(
+            style: AppTextStyles.bodyL(colors.textPrimary),
+            decoration: InputDecoration(
               hintText: 'e.g. 9816647410',
-              prefixIcon: Icon(Icons.phone_outlined, color: AppColors.textMutedLight, size: 20),
+              hintStyle: TextStyle(color: colors.textMuted),
+              filled: true,
+              fillColor: colors.card,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.primaryRed),
+              ),
+              prefixIcon: Icon(Icons.phone_outlined, color: colors.textMuted, size: 20),
             ),
           ),
           const SizedBox(height: 20),
 
           // ── Address Field ──────────────────────────────────────────
-          Text('DELIVERY / HOME ADDRESS', style: AppTextStyles.label(AppColors.textMutedLight)),
+          Text('DELIVERY / HOME ADDRESS', style: AppTextStyles.label(colors.textMuted)),
           const SizedBox(height: 8),
           TextField(
             controller: _addressCtrl,
             maxLines: 2,
-            style: AppTextStyles.bodyL(AppColors.textLight),
-            decoration: const InputDecoration(
+            style: AppTextStyles.bodyL(colors.textPrimary),
+            decoration: InputDecoration(
               hintText: 'e.g. New Road, Pokhara',
+              hintStyle: TextStyle(color: colors.textMuted),
+              filled: true,
+              fillColor: colors.card,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: colors.primaryRed),
+              ),
               prefixIcon: Padding(
-                padding: EdgeInsets.only(bottom: 24),
-                child: Icon(Icons.location_on_outlined, color: AppColors.textMutedLight, size: 20),
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Icon(Icons.location_on_outlined, color: colors.textMuted, size: 20),
               ),
             ),
           ),

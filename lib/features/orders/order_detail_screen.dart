@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/constants.dart';
 import '../../core/repositories/order_repository.dart';
 import 'data/order_model.dart';
@@ -32,8 +33,10 @@ class OrderDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
+
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         child: FutureBuilder<OrderModel>(
           future: ref.read(orderRepositoryProvider).getTicketById(orderId),
@@ -42,8 +45,8 @@ class OrderDetailScreen extends ConsumerWidget {
             final order = snapshot.data ?? initialOrder;
 
             if (order == null && snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(color: AppColors.primaryRed),
+              return Center(
+                child: CircularProgressIndicator(color: colors.primaryRed),
               );
             }
 
@@ -52,7 +55,7 @@ class OrderDetailScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Order not found', style: TextStyle(color: AppColors.textLight)),
+                    Text('Order not found', style: TextStyle(color: colors.textPrimary)),
                     const SizedBox(height: 12),
                     ElevatedButton(
                       onPressed: () => context.pop(),
@@ -80,11 +83,12 @@ class OrderDetailScreen extends ConsumerWidget {
                             context.go('/orders');
                           }
                         },
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textLight),
+                        icon: Icon(Icons.arrow_back_ios_new_rounded, color: colors.textPrimary),
                         style: IconButton.styleFrom(
-                          backgroundColor: AppColors.surfaceLight,
+                          backgroundColor: colors.card,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+                            side: BorderSide(color: colors.border),
                           ),
                         ),
                       ),
@@ -95,11 +99,11 @@ class OrderDetailScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'Order Details',
-                              style: AppTextStyles.headingM(AppColors.textLight),
+                              style: AppTextStyles.headingM(colors.textPrimary),
                             ),
                             Text(
                               order.id,
-                              style: AppTextStyles.bodyXS(AppColors.textMutedLight),
+                              style: AppTextStyles.bodyXS(colors.textMuted),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
@@ -127,16 +131,17 @@ class OrderDetailScreen extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
                     children: [
                       // ── Status Stepper ───────────────────────────────
-                      _buildStatusTracker(order),
+                      _buildStatusTracker(colors, order),
                       const SizedBox(height: 24),
 
                       // ── Location & Metadata Card ──────────────────────
                       Container(
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
+                          color: colors.card,
                           borderRadius: BorderRadius.circular(AppTheme.radiusL),
-                          border: Border.all(color: AppColors.borderLight),
+                          border: Border.all(color: colors.border),
+                          boxShadow: colors.cardShadow,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,23 +151,23 @@ class OrderDetailScreen extends ConsumerWidget {
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(Icons.storefront_rounded, size: 20, color: AppColors.primaryRed),
+                                    Icon(Icons.storefront_rounded, size: 20, color: colors.primaryRed),
                                     const SizedBox(width: 8),
                                     Text(
                                       order.businessName ?? 'Arcade Hub',
-                                      style: AppTextStyles.semibold(AppColors.textLight, size: 15),
+                                      style: AppTextStyles.semibold(colors.textPrimary, size: 15),
                                     ),
                                   ],
                                 ),
                                 if (order.invoice != null)
                                   Text(
                                     'Invoice #${order.invoice}',
-                                    style: AppTextStyles.bodyXS(AppColors.textMutedLight),
+                                    style: AppTextStyles.bodyXS(colors.textMuted),
                                   ),
                               ],
                             ),
                             const SizedBox(height: 12),
-                            const Divider(color: AppColors.borderLight, height: 1),
+                            Divider(color: colors.border, height: 1),
                             const SizedBox(height: 12),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -170,22 +175,22 @@ class OrderDetailScreen extends ConsumerWidget {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('TABLE / SPOT', style: AppTextStyles.label(AppColors.textMutedLight)),
+                                    Text('TABLE / SPOT', style: AppTextStyles.label(colors.textMuted)),
                                     const SizedBox(height: 4),
                                     Text(
                                       order.spot != null && order.spot!.isNotEmpty ? 'Table ${order.spot}' : 'Dine-In',
-                                      style: AppTextStyles.semibold(AppColors.textLight, size: 14),
+                                      style: AppTextStyles.semibold(colors.textPrimary, size: 14),
                                     ),
                                   ],
                                 ),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Text('ORDER DATE', style: AppTextStyles.label(AppColors.textMutedLight)),
+                                    Text('ORDER DATE', style: AppTextStyles.label(colors.textMuted)),
                                     const SizedBox(height: 4),
                                     Text(
                                       order.date,
-                                      style: AppTextStyles.bodyS(AppColors.textLight),
+                                      style: AppTextStyles.bodyS(colors.textPrimary),
                                     ),
                                   ],
                                 ),
@@ -197,29 +202,31 @@ class OrderDetailScreen extends ConsumerWidget {
                       const SizedBox(height: 24),
 
                       // ── Itemized Order Receipt ────────────────────────
-                      Text('ITEMIZED RECEIPT', style: AppTextStyles.label(AppColors.textMutedLight)),
+                      Text('ITEMIZED RECEIPT', style: AppTextStyles.label(colors.textMuted)),
                       const SizedBox(height: 10),
                       Container(
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
+                          color: colors.card,
                           borderRadius: BorderRadius.circular(AppTheme.radiusL),
-                          border: Border.all(color: AppColors.borderLight),
+                          border: Border.all(color: colors.border),
+                          boxShadow: colors.cardShadow,
                         ),
                         child: Column(
                           children: [
                             for (int i = 0; i < order.items.length; i++) ...[
-                              _buildReceiptItem(order.items[i]),
+                              _buildReceiptItem(colors, order.items[i]),
                               if (i < order.items.length - 1)
-                                const Divider(color: AppColors.borderLight, height: 16),
+                                Divider(color: colors.border, height: 16),
                             ],
                             const SizedBox(height: 16),
-                            const Divider(color: AppColors.borderLight, thickness: 1.5),
+                            Divider(color: colors.border, thickness: 1.5),
                             const SizedBox(height: 14),
 
                             // Total summary rows
                             if (order.discount != null && order.discount! > 0) ...[
                               _buildSummaryRow(
+                                colors,
                                 'Discount',
                                 '- ${AppConstants.currencySymbol} ${order.discount!.toStringAsFixed(0)}',
                                 color: AppColors.success,
@@ -227,6 +234,7 @@ class OrderDetailScreen extends ConsumerWidget {
                               const SizedBox(height: 8),
                             ],
                             _buildSummaryRow(
+                              colors,
                               'Grand Total',
                               '${AppConstants.currencySymbol} ${order.total.toStringAsFixed(0)}',
                               isTotal: true,
@@ -240,22 +248,22 @@ class OrderDetailScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         decoration: BoxDecoration(
-                          color: AppColors.cardLight,
+                          color: colors.cardElevated,
                           borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                          border: Border.all(color: AppColors.borderLight),
+                          border: Border.all(color: colors.border),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.payment_rounded, color: AppColors.primaryRed, size: 20),
+                            Icon(Icons.payment_rounded, color: colors.primaryRed, size: 20),
                             const SizedBox(width: 12),
                             Text(
                               'Payment Method',
-                              style: AppTextStyles.bodyM(AppColors.textMutedLight),
+                              style: AppTextStyles.bodyM(colors.textMuted),
                             ),
                             const Spacer(),
                             Text(
                               (order.paymentMethod ?? 'Cash').toUpperCase(),
-                              style: AppTextStyles.semibold(AppColors.textLight, size: 14),
+                              style: AppTextStyles.semibold(colors.textPrimary, size: 14),
                             ),
                           ],
                         ),
@@ -271,18 +279,19 @@ class OrderDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatusTracker(OrderModel order) {
+  Widget _buildStatusTracker(AppThemeColors colors, OrderModel order) {
     final isCompleted = order.status == OrderStatus.completed;
     final isCancelled = order.status == OrderStatus.cancelled;
 
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: colors.card,
         borderRadius: BorderRadius.circular(AppTheme.radiusL),
         border: Border.all(
-          color: isCancelled ? AppColors.error.withValues(alpha: 0.3) : AppColors.primaryRed.withValues(alpha: 0.3),
+          color: isCancelled ? AppColors.error.withValues(alpha: 0.3) : colors.primaryRed.withValues(alpha: 0.3),
         ),
+        boxShadow: colors.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,26 +302,29 @@ class OrderDetailScreen extends ConsumerWidget {
                 : isCompleted
                     ? 'Order Completed'
                     : 'Order in Progress',
-            style: AppTextStyles.headingS(AppColors.textLight),
+            style: AppTextStyles.headingS(colors.textPrimary),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               _buildStepIcon(
+                colors: colors,
                 icon: Icons.check_circle_rounded,
                 label: 'Placed',
                 active: true,
                 completed: true,
               ),
-              _buildStepLine(active: !isCancelled),
+              _buildStepLine(colors: colors, active: !isCancelled),
               _buildStepIcon(
+                colors: colors,
                 icon: Icons.soup_kitchen_rounded,
                 label: 'Kitchen',
                 active: !isCancelled,
                 completed: isCompleted,
               ),
-              _buildStepLine(active: isCompleted),
+              _buildStepLine(colors: colors, active: isCompleted),
               _buildStepIcon(
+                colors: colors,
                 icon: isCancelled ? Icons.cancel_rounded : Icons.task_alt_rounded,
                 label: isCancelled ? 'Cancelled' : 'Served',
                 active: isCompleted || isCancelled,
@@ -327,6 +339,7 @@ class OrderDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildStepIcon({
+    required AppThemeColors colors,
     required IconData icon,
     required String label,
     required bool active,
@@ -338,8 +351,8 @@ class OrderDetailScreen extends ConsumerWidget {
         : completed
             ? AppColors.success
             : active
-                ? AppColors.primaryRed
-                : AppColors.textMutedLight;
+                ? colors.primaryRed
+                : colors.textMuted;
 
     return Column(
       children: [
@@ -355,17 +368,17 @@ class OrderDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStepLine({required bool active}) {
+  Widget _buildStepLine({required AppThemeColors colors, required bool active}) {
     return Expanded(
       child: Container(
         height: 2,
         margin: const EdgeInsets.only(bottom: 16, left: 4, right: 4),
-        color: active ? AppColors.primaryRed : AppColors.borderLight,
+        color: active ? colors.primaryRed : colors.border,
       ),
     );
   }
 
-  Widget _buildReceiptItem(OrderItem item) {
+  Widget _buildReceiptItem(AppThemeColors colors, OrderItem item) {
     final priceStr = item.price != null
         ? '${AppConstants.currencySymbol} ${(item.price! * item.qty).toStringAsFixed(0)}'
         : '';
@@ -376,12 +389,12 @@ class OrderDetailScreen extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
-            color: AppColors.primaryRed.withValues(alpha: 0.15),
+            color: colors.primaryRed.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(AppTheme.radiusSM),
           ),
           child: Text(
             '${item.qty}x',
-            style: AppTextStyles.semibold(AppColors.primaryRed, size: 12),
+            style: AppTextStyles.semibold(colors.primaryRed, size: 12),
           ),
         ),
         const SizedBox(width: 12),
@@ -391,12 +404,12 @@ class OrderDetailScreen extends ConsumerWidget {
             children: [
               Text(
                 item.name,
-                style: AppTextStyles.semibold(AppColors.textLight, size: 14),
+                style: AppTextStyles.semibold(colors.textPrimary, size: 14),
               ),
               if (item.variant != null)
                 Text(
                   item.variant!,
-                  style: AppTextStyles.bodyXS(AppColors.textMutedLight),
+                  style: AppTextStyles.bodyXS(colors.textMuted),
                 ),
             ],
           ),
@@ -404,27 +417,27 @@ class OrderDetailScreen extends ConsumerWidget {
         if (priceStr.isNotEmpty)
           Text(
             priceStr,
-            style: AppTextStyles.semibold(AppColors.textLight, size: 14),
+            style: AppTextStyles.semibold(colors.textPrimary, size: 14),
           ),
       ],
     );
   }
 
-  Widget _buildSummaryRow(String label, String value, {bool isTotal = false, Color? color}) {
+  Widget _buildSummaryRow(AppThemeColors colors, String label, String value, {bool isTotal = false, Color? color}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
           style: isTotal
-              ? AppTextStyles.headingS(AppColors.textLight)
-              : AppTextStyles.bodyM(AppColors.textMutedLight),
+              ? AppTextStyles.headingS(colors.textPrimary)
+              : AppTextStyles.bodyM(colors.textMuted),
         ),
         Text(
           value,
           style: isTotal
-              ? AppTextStyles.bold(color ?? AppColors.primaryRed, size: 20)
-              : AppTextStyles.semibold(color ?? AppColors.textLight, size: 14),
+              ? AppTextStyles.bold(color ?? colors.primaryRed, size: 20)
+              : AppTextStyles.semibold(color ?? colors.textPrimary, size: 14),
         ),
       ],
     );

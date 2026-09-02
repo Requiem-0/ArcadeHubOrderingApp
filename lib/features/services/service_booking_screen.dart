@@ -1,9 +1,10 @@
+// lib/features/services/service_booking_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/brandkit/app_colors.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../shared/widgets/primary_button.dart';
 import '../../core/repositories/auth_repository.dart';
 import '../../core/utils/app_toast.dart';
@@ -29,27 +30,26 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     if (serviceId == null) {
-      return const Scaffold(body: Center(child: Text('No service specified')));
+      return Scaffold(
+        backgroundColor: colors.scaffold,
+        body: Center(child: Text('No service specified', style: TextStyle(color: colors.textPrimary))),
+      );
     }
 
-    // A hack to find the service from our provider since we don't have a direct getServiceById in our mock
-    // In a real app we'd fetch it via id. For now we can fetch all services for 'playroom' and others, 
-    // but a better way is to just find it from a global state.
-    // Given our mock structure, let's pretend we pass the service data or just show a loading screen while we fetch.
-    // For simplicity, let's just make a generic UI.
-
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         child: Column(
           children: [
             // Header
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: AppColors.scaffoldLight,
-                border: Border(bottom: BorderSide(color: AppColors.borderLight)),
+              decoration: BoxDecoration(
+                color: colors.scaffold,
+                border: Border(bottom: BorderSide(color: colors.border)),
               ),
               child: Row(
                 children: [
@@ -62,12 +62,13 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                         context.go('/home');
                       }
                     },
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: AppColors.textLight, size: 20),
+                    icon: Icon(Icons.arrow_back_ios_new_rounded,
+                        color: colors.textPrimary, size: 20),
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.surfaceLight,
+                      backgroundColor: colors.card,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
+                        side: BorderSide(color: colors.border),
                       ),
                     ),
                   ),
@@ -77,7 +78,7 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                     style: GoogleFonts.outfit(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textLight,
+                      color: colors.textPrimary,
                     ),
                   ),
                 ],
@@ -92,9 +93,10 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryRed.withValues(alpha: 0.05),
+                      color: colors.card,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.primaryRedDark.withValues(alpha: 0.3)),
+                      border: Border.all(color: colors.primaryRed.withValues(alpha: 0.3)),
+                      boxShadow: colors.cardShadow,
                     ),
                     child: Column(
                       children: [
@@ -103,16 +105,16 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                           height: 68,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: AppColors.primaryRed.withValues(alpha: 0.15),
+                            color: colors.primaryRed.withValues(alpha: 0.15),
                             border: Border.all(
-                              color: AppColors.primaryRed.withValues(alpha: 0.35),
+                              color: colors.primaryRed.withValues(alpha: 0.35),
                               width: 1.5,
                             ),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.sports_esports_rounded,
                             size: 34,
-                            color: AppColors.primaryRed,
+                            color: colors.primaryRed,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -121,7 +123,7 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textLight,
+                            color: colors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -129,9 +131,9 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: colors.cardElevated,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.borderLight),
+                            border: Border.all(color: colors.border),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,21 +141,21 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Base Price', style: GoogleFonts.dmSans(color: AppColors.textMutedLight)),
+                                  Text('Base Price', style: GoogleFonts.dmSans(color: colors.textMuted)),
                                   Text(
                                     'Standard Rate',
-                                    style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+                                    style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, color: colors.textPrimary),
                                   ),
                                 ],
                               ),
-                              const Divider(height: 24),
+                              Divider(color: colors.border, height: 24),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Duration', style: GoogleFonts.dmSans(color: AppColors.textMutedLight)),
+                                  Text('Duration', style: GoogleFonts.dmSans(color: colors.textMuted)),
                                   Text(
                                     'Standard Duration',
-                                    style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+                                    style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, color: colors.textPrimary),
                                   ),
                                 ],
                               ),
@@ -169,19 +171,20 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceLight,
+                      color: colors.card,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.borderLight),
+                      border: Border.all(color: colors.border),
+                      boxShadow: colors.cardShadow,
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.info_outline, color: AppColors.textMutedLight, size: 20),
+                        Icon(Icons.info_outline, color: colors.textMuted, size: 20),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             'Please review the terms and conditions for this booking, including cancellation and late return policies provided by the venue.',
-                            style: GoogleFonts.dmSans(fontSize: 13, color: AppColors.textMutedLight, height: 1.4),
+                            style: GoogleFonts.dmSans(fontSize: 13, color: colors.textMuted, height: 1.4),
                           ),
                         ),
                       ],
@@ -200,12 +203,12 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                           onChanged: (v) {
                             if (v != null) setState(() => _agreedToTerms = v);
                           },
-                          activeColor: AppColors.primaryRedDark,
+                          activeColor: colors.primaryRed,
                         ),
                         Expanded(
                           child: Text(
                             'I agree to the service rules and venue terms of service.',
-                            style: GoogleFonts.dmSans(fontSize: 13, color: AppColors.textLight),
+                            style: GoogleFonts.dmSans(fontSize: 13, color: colors.textPrimary),
                           ),
                         ),
                       ],
@@ -219,9 +222,9 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: AppColors.scaffoldLight,
-          border: Border(top: BorderSide(color: AppColors.borderLight)),
+        decoration: BoxDecoration(
+          color: colors.scaffold,
+          border: Border(top: BorderSide(color: colors.border)),
         ),
         child: SafeArea(
           top: false,
@@ -235,7 +238,7 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                       if (!mounted) return;
                       showModalBottomSheet(
                         context: context,
-                        backgroundColor: AppColors.scaffoldLight,
+                        backgroundColor: colors.scaffold,
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                         ),
@@ -249,28 +252,28 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                                 height: 56,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: AppColors.primaryRed.withValues(alpha: 0.15),
+                                  color: colors.primaryRed.withValues(alpha: 0.15),
                                   border: Border.all(
-                                    color: AppColors.primaryRed.withValues(alpha: 0.35),
+                                    color: colors.primaryRed.withValues(alpha: 0.35),
                                     width: 1.5,
                                   ),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.sports_esports_rounded,
                                   size: 28,
-                                  color: AppColors.primaryRed,
+                                  color: colors.primaryRed,
                                 ),
                               ),
                               const SizedBox(height: 12),
                               Text(
                                 'Sign in to Book PS5 Rental',
-                                style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textLight),
+                                style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary),
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 'Please sign in or register to reserve PS5 console rental slots.',
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.dmSans(fontSize: 13, color: AppColors.textMutedLight),
+                                style: GoogleFonts.dmSans(fontSize: 13, color: colors.textMuted),
                               ),
                               const SizedBox(height: 24),
                               PrimaryButton(
@@ -283,7 +286,7 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                               const SizedBox(height: 8),
                               TextButton(
                                 onPressed: () => Navigator.pop(ctx),
-                                child: Text('Cancel', style: GoogleFonts.dmSans(color: AppColors.textMutedLight)),
+                                child: Text('Cancel', style: GoogleFonts.dmSans(color: colors.textMuted)),
                               ),
                             ],
                           ),

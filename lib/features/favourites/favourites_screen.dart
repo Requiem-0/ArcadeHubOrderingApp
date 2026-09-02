@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/repositories/pos_repository.dart';
 import '../../features/cart/cart_provider.dart';
 import '../../features/favourites/favourites_provider.dart';
@@ -18,12 +19,13 @@ class FavouritesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
     final favIds = ref.watch(favouritesProvider);
     final cart = ref.watch(cartProvider);
     final catalogAsync = ref.watch(catalogProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,11 +42,12 @@ class FavouritesScreen extends ConsumerWidget {
                         context.go('/home');
                       }
                     },
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textLight),
+                    icon: Icon(Icons.arrow_back_ios_new_rounded, color: colors.textPrimary),
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.surfaceLight,
+                      backgroundColor: colors.card,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+                        side: BorderSide(color: colors.border),
                       ),
                     ),
                   ),
@@ -53,9 +56,9 @@ class FavouritesScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('My Favourites',
-                          style: AppTextStyles.headingM(AppColors.textLight)),
+                          style: AppTextStyles.headingM(colors.textPrimary)),
                       Text('${favIds.length} items saved',
-                          style: AppTextStyles.bodyXS(AppColors.textMutedLight)),
+                          style: AppTextStyles.bodyXS(colors.textMuted)),
                     ],
                   ),
                 ],
@@ -63,10 +66,10 @@ class FavouritesScreen extends ConsumerWidget {
             ),
             Expanded(
               child: catalogAsync.when(
-                loading: () => const Center(
-                  child: CircularProgressIndicator(color: AppColors.primaryRed),
+                loading: () => Center(
+                  child: CircularProgressIndicator(color: colors.primaryRed),
                 ),
-                error: (_, __) => EmptyState(
+                error: (err, _) => EmptyState(
                   iconData: Icons.wifi_off_rounded,
                   iconColor: AppColors.error,
                   title: 'Unable to Load Items',
@@ -110,18 +113,19 @@ class FavouritesScreen extends ConsumerWidget {
                       childAspectRatio: 0.72,
                     ),
                     itemCount: favProducts.length,
-                    itemBuilder: (_, i) {
+                    itemBuilder: (context, i) {
                       final p = favProducts[i];
                       final qty = cart[p.id] ?? 0;
                       return GestureDetector(
                         onTap: () => context.push('/product/${p.id}'),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceLight,
+                            color: colors.card,
                             borderRadius:
                                 BorderRadius.circular(AppTheme.radiusCard),
                             border:
-                                Border.all(color: AppColors.borderLight),
+                                Border.all(color: colors.border),
+                            boxShadow: colors.cardShadow,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +139,7 @@ class FavouritesScreen extends ConsumerWidget {
                                       height: 110,
                                       width: double.infinity,
                                       decoration: BoxDecoration(
-                                        color: AppColors.primaryRed.withValues(alpha: 0.12),
+                                        color: colors.primaryRed.withValues(alpha: 0.1),
                                       ),
                                       child: (p.imageUrl != null && p.imageUrl!.isNotEmpty)
                                           ? Image.network(
@@ -162,12 +166,12 @@ class FavouritesScreen extends ConsumerWidget {
                                       child: Container(
                                         padding: const EdgeInsets.all(6),
                                         decoration: BoxDecoration(
-                                          color: Colors.black.withValues(alpha: 0.6),
+                                          color: colors.isDark ? Colors.black.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.9),
                                           shape: BoxShape.circle,
                                         ),
                                         child: const Icon(
                                           Icons.favorite,
-                                          color: AppColors.primaryRed,
+                                          color: AppColors.error,
                                           size: 16,
                                         ),
                                       ),
@@ -184,7 +188,7 @@ class FavouritesScreen extends ConsumerWidget {
                                     Text(
                                       p.name,
                                       style: AppTextStyles.bold(
-                                          AppColors.textLight,
+                                          colors.textPrimary,
                                           size: 13),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -193,7 +197,7 @@ class FavouritesScreen extends ConsumerWidget {
                                     Text(
                                       p.category.toUpperCase(),
                                       style: AppTextStyles.label(
-                                          AppColors.textMutedLight),
+                                          colors.textMuted),
                                     ),
                                     const SizedBox(height: 8),
                                     Row(
@@ -206,7 +210,7 @@ class FavouritesScreen extends ConsumerWidget {
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 2),
                                             decoration: BoxDecoration(
-                                              color: AppColors.primaryRed,
+                                              color: colors.primaryRed,
                                               borderRadius:
                                                   BorderRadius.circular(AppTheme.radiusPill),
                                             ),
@@ -224,8 +228,8 @@ class FavouritesScreen extends ConsumerWidget {
                                             child: Container(
                                               width: 26,
                                               height: 26,
-                                              decoration: const BoxDecoration(
-                                                color: AppColors.primaryRed,
+                                              decoration: BoxDecoration(
+                                                color: colors.primaryRed,
                                                 shape: BoxShape.circle,
                                               ),
                                               child: const Icon(Icons.add,

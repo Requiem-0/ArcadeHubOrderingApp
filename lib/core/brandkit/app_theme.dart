@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
+import 'app_theme_colors.dart';
 
 class AppTheme {
   AppTheme._();
@@ -25,71 +26,66 @@ class AppTheme {
   static const double elevationMid = 8;
   static const double elevationHigh = 16;
 
-  // ── Light Theme (still dark-first — scaffold is near-black) ───
+  // ── Light Theme ───────────────────────────────────────────────
   static ThemeData get light => _build(isDark: false);
 
-  // ── Dark Theme ────────────────────────────────────────────────
+  // ── Dark Theme (100% frozen shipping dark fidelity) ───────────
   static ThemeData get dark => _build(isDark: true);
 
   static ThemeData _build({required bool isDark}) {
-    final scaffold = isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight;
-    final surface = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
-    final primary = isDark ? AppColors.primaryRedDark : AppColors.primaryRed;
-    final secondary = isDark ? AppColors.deepRedDark : AppColors.deepRed;
-    final text = isDark ? AppColors.textDark : AppColors.textLight;
-    final textMuted = isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
-    final border = isDark ? AppColors.borderDark : AppColors.borderLight;
+    final colors = isDark ? AppThemeColors.dark : AppThemeColors.light;
 
     final colorScheme = ColorScheme(
-      brightness: isDark ? Brightness.dark : Brightness.dark, // always dark bg
-      primary: primary,
-      onPrimary: AppColors.onPrimary,
-      secondary: secondary,
-      onSecondary: AppColors.onPrimary,
+      brightness: isDark ? Brightness.dark : Brightness.light,
+      primary: colors.primaryRed,
+      onPrimary: Colors.white,
+      secondary: colors.deepRed,
+      onSecondary: Colors.white,
       error: AppColors.error,
-      onError: AppColors.onPrimary,
-      surface: surface,
-      onSurface: text,
+      onError: Colors.white,
+      surface: colors.surface,
+      onSurface: colors.textPrimary,
     );
 
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: isDark ? Brightness.dark : Brightness.light,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: scaffold,
-      cardColor: surface,
-      dividerColor: border,
+      scaffoldBackgroundColor: colors.scaffold,
+      cardColor: colors.card,
+      dividerColor: colors.border,
+      extensions: [colors],
       textTheme: GoogleFonts.dmSansTextTheme().apply(
-        bodyColor: text,
-        displayColor: text,
+        bodyColor: colors.textPrimary,
+        displayColor: colors.textPrimary,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: scaffold,
-        foregroundColor: text,
+        backgroundColor: colors.scaffold,
+        foregroundColor: colors.textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.light,
-          systemNavigationBarColor: scaffold,
-          systemNavigationBarIconBrightness: Brightness.light,
+          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+          systemNavigationBarColor: colors.scaffold,
+          systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
         ),
         titleTextStyle: GoogleFonts.dmSerifDisplay(
           fontSize: 22,
-          color: text,
+          color: colors.textPrimary,
           fontWeight: FontWeight.w400,
         ),
       ),
       drawerTheme: DrawerThemeData(
         scrimColor: Colors.black.withValues(alpha: 0.75),
-        backgroundColor: const Color(0xFF101015),
+        backgroundColor: colors.surface,
         elevation: 0,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primary,
-          foregroundColor: AppColors.onPrimary,
-          elevation: 0,
+          backgroundColor: colors.primaryRed,
+          foregroundColor: Colors.white,
+          elevation: isDark ? 0 : 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusL),
           ),
@@ -103,8 +99,8 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: primary,
-          side: BorderSide(color: primary, width: 1.5),
+          foregroundColor: colors.primaryRed,
+          side: BorderSide(color: colors.primaryRed, width: 1.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusML),
           ),
@@ -117,19 +113,19 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: surface,
+        fillColor: colors.surface,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusSM),
-          borderSide: BorderSide(color: border, width: 1.5),
+          borderSide: BorderSide(color: colors.border, width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusSM),
-          borderSide: BorderSide(color: border, width: 1.5),
+          borderSide: BorderSide(color: colors.border, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusSM),
-          borderSide: BorderSide(color: primary, width: 1.5),
+          borderSide: BorderSide(color: colors.primaryRed, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusSM),
@@ -137,19 +133,19 @@ class AppTheme {
         ),
         hintStyle: GoogleFonts.dmSans(
           fontSize: 14,
-          color: textMuted,
+          color: colors.textMuted,
         ),
         labelStyle: GoogleFonts.dmSans(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: textMuted,
+          color: colors.textMuted,
           letterSpacing: 1.0,
         ),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: surface,
-        selectedItemColor: primary,
-        unselectedItemColor: textMuted,
+        backgroundColor: colors.surface,
+        selectedItemColor: colors.primaryRed,
+        unselectedItemColor: colors.textMuted,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
         selectedLabelStyle: GoogleFonts.dmSans(
@@ -162,20 +158,24 @@ class AppTheme {
         ),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: surface,
-        selectedColor: primary,
-        labelStyle: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w500),
-        side: BorderSide(color: border),
+        backgroundColor: colors.surface,
+        selectedColor: colors.primaryRed,
+        labelStyle: GoogleFonts.dmSans(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: colors.textPrimary,
+        ),
+        side: BorderSide(color: colors.border),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusPill),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: surface,
+        backgroundColor: colors.surface,
         contentTextStyle: GoogleFonts.dmSans(
           fontSize: 14,
-          color: text,
+          color: colors.textPrimary,
           fontWeight: FontWeight.w500,
         ),
         behavior: SnackBarBehavior.floating,

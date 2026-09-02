@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/utils/app_toast.dart';
 import '../../shared/widgets/primary_button.dart';
 
@@ -64,10 +64,12 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       appBar: AppBar(
-        backgroundColor: AppColors.scaffoldLight,
+        backgroundColor: colors.scaffold,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
@@ -75,12 +77,13 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: AppColors.textLight, size: 18),
+            icon: Icon(Icons.arrow_back_ios_new_rounded,
+                color: colors.textPrimary, size: 18),
             style: IconButton.styleFrom(
-              backgroundColor: AppColors.surfaceLight,
+              backgroundColor: colors.card,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+                side: BorderSide(color: colors.border),
               ),
             ),
             onPressed: () {
@@ -97,7 +100,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
           style: GoogleFonts.outfit(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: AppColors.textLight,
+            color: colors.textPrimary,
           ),
         ),
       ),
@@ -115,17 +118,18 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppColors.primaryRed.withValues(alpha: 0.18),
-                      AppColors.surfaceLight,
+                      colors.primaryRed.withValues(alpha: 0.15),
+                      colors.card,
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: AppColors.primaryRed.withValues(alpha: 0.3),
+                    color: colors.primaryRed.withValues(alpha: 0.3),
                     width: 1,
                   ),
+                  boxShadow: colors.cardShadow,
                 ),
                 child: Row(
                   children: [
@@ -133,12 +137,12 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                       width: 42,
                       height: 42,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryRed.withValues(alpha: 0.15),
+                        color: colors.primaryRed.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.headset_mic_rounded,
-                        color: AppColors.primaryRed,
+                        color: colors.primaryRed,
                         size: 22,
                       ),
                     ),
@@ -152,7 +156,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                             style: GoogleFonts.outfit(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textLight,
+                              color: colors.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -160,7 +164,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                             'Have a question about food delivery or station bookings?',
                             style: GoogleFonts.dmSans(
                               fontSize: 12,
-                              color: AppColors.textMutedLight,
+                              color: colors.textMuted,
                             ),
                           ),
                         ],
@@ -171,13 +175,13 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
               ),
               const SizedBox(height: 18),
 
-              // Direct Channels (Compact 2-Column + 1 Full Width Grid)
+              // Direct Channels
               Text(
                 'Direct Channels',
                 style: GoogleFonts.outfit(
                   fontSize: 15.5,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textLight,
+                  color: colors.textPrimary,
                 ),
               ),
               const SizedBox(height: 10),
@@ -190,7 +194,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                       label: 'Call Us',
                       subtext: '+977 9805855494',
                       onTap: _launchPhone,
-                      color: AppColors.primaryRed,
+                      color: colors.primaryRed,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -215,20 +219,21 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Venue Info Box (Combined Card)
+              // Venue Info Box
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceLight,
+                  color: colors.card,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderLight),
+                  border: Border.all(color: colors.border),
+                  boxShadow: colors.cardShadow,
                 ),
                 child: Column(
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.location_on_rounded,
-                            color: AppColors.primaryRed, size: 18),
+                        Icon(Icons.location_on_rounded,
+                            color: colors.primaryRed, size: 18),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -239,14 +244,14 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                                 style: GoogleFonts.outfit(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.textLight,
+                                  color: colors.textPrimary,
                                 ),
                               ),
                               Text(
                                 'New Road, Pokhara 33700, Nepal',
                                 style: GoogleFonts.dmSans(
                                   fontSize: 12,
-                                  color: AppColors.textMutedLight,
+                                  color: colors.textMuted,
                                 ),
                               ),
                             ],
@@ -254,11 +259,11 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                         ),
                       ],
                     ),
-                    const Divider(color: AppColors.borderLight, height: 20),
+                    Divider(color: colors.border, height: 20),
                     Row(
                       children: [
-                        const Icon(Icons.schedule_rounded,
-                            color: AppColors.primaryRed, size: 18),
+                        Icon(Icons.schedule_rounded,
+                            color: colors.primaryRed, size: 18),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -269,14 +274,14 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                                 style: GoogleFonts.outfit(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.textLight,
+                                  color: colors.textPrimary,
                                 ),
                               ),
                               Text(
                                 'Daily: 11:00 AM – 11:00 PM',
                                 style: GoogleFonts.dmSans(
                                   fontSize: 12,
-                                  color: AppColors.textMutedLight,
+                                  color: colors.textMuted,
                                 ),
                               ),
                             ],
@@ -295,18 +300,33 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 style: GoogleFonts.outfit(
                   fontSize: 15.5,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textLight,
+                  color: colors.textPrimary,
                 ),
               ),
               const SizedBox(height: 10),
 
               TextField(
                 controller: _nameCtrl,
-                style: GoogleFonts.dmSans(color: AppColors.textLight),
-                decoration: const InputDecoration(
+                style: GoogleFonts.dmSans(color: colors.textPrimary),
+                decoration: InputDecoration(
                   hintText: 'Your Name',
+                  hintStyle: TextStyle(color: colors.textMuted),
+                  filled: true,
+                  fillColor: colors.card,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: colors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: colors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: colors.primaryRed),
+                  ),
                   prefixIcon: Icon(Icons.person_outline_rounded,
-                      color: AppColors.textMutedLight, size: 18),
+                      color: colors.textMuted, size: 18),
                 ),
               ),
               const SizedBox(height: 10),
@@ -314,11 +334,26 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
               TextField(
                 controller: _emailCtrl,
                 keyboardType: TextInputType.emailAddress,
-                style: GoogleFonts.dmSans(color: AppColors.textLight),
-                decoration: const InputDecoration(
+                style: GoogleFonts.dmSans(color: colors.textPrimary),
+                decoration: InputDecoration(
                   hintText: 'Email or Phone Number',
+                  hintStyle: TextStyle(color: colors.textMuted),
+                  filled: true,
+                  fillColor: colors.card,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: colors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: colors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: colors.primaryRed),
+                  ),
                   prefixIcon: Icon(Icons.alternate_email_rounded,
-                      color: AppColors.textMutedLight, size: 18),
+                      color: colors.textMuted, size: 18),
                 ),
               ),
               const SizedBox(height: 10),
@@ -326,10 +361,25 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
               TextField(
                 controller: _msgCtrl,
                 maxLines: 3,
-                style: GoogleFonts.dmSans(color: AppColors.textLight),
-                decoration: const InputDecoration(
+                style: GoogleFonts.dmSans(color: colors.textPrimary),
+                decoration: InputDecoration(
                   hintText: 'How can we help you?',
+                  hintStyle: TextStyle(color: colors.textMuted),
+                  filled: true,
+                  fillColor: colors.card,
                   alignLabelWithHint: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: colors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: colors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: colors.primaryRed),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -365,8 +415,10 @@ class _ContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Material(
-      color: AppColors.surfaceLight,
+      color: colors.card,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,
@@ -375,7 +427,8 @@ class _ContactCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: colors.border),
+            boxShadow: colors.cardShadow,
           ),
           child: Row(
             children: [
@@ -397,7 +450,7 @@ class _ContactCard extends StatelessWidget {
                       style: GoogleFonts.outfit(
                         fontSize: 13.5,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textLight,
+                        color: colors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 1),
@@ -405,7 +458,7 @@ class _ContactCard extends StatelessWidget {
                       subtext,
                       style: GoogleFonts.dmSans(
                         fontSize: 11.5,
-                        color: AppColors.textMutedLight,
+                        color: colors.textMuted,
                       ),
                     ),
                   ],

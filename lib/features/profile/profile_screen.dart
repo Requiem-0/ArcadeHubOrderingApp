@@ -4,8 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/brandkit/app_colors.dart';
+import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/repositories/auth_repository.dart';
 import '../../core/repositories/order_repository.dart';
 import '../../features/favourites/favourites_provider.dart';
@@ -15,6 +16,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
     final loggedInAsync = ref.watch(isLoggedInStateProvider);
     final userAsync = ref.watch(currentUserProvider);
     final favIds = ref.watch(favouritesProvider);
@@ -24,7 +26,7 @@ class ProfileScreen extends ConsumerWidget {
     final favCount = favIds.length;
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldDark,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         bottom: false,
         child: ListView(
@@ -44,7 +46,7 @@ class ProfileScreen extends ConsumerWidget {
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.5,
-                        color: AppColors.textLight,
+                        color: colors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -53,13 +55,13 @@ class ProfileScreen extends ConsumerWidget {
                       style: GoogleFonts.dmSans(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textMutedLight,
+                        color: colors.textMuted,
                       ),
                     ),
                   ],
                 ),
                 Material(
-                  color: AppColors.primaryRed.withValues(alpha: 0.12),
+                  color: colors.primaryRed.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                   child: InkWell(
                     onTap: () {
@@ -72,14 +74,14 @@ class ProfileScreen extends ConsumerWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.primaryRed.withValues(alpha: 0.35),
+                          color: colors.primaryRed.withValues(alpha: 0.35),
                           width: 1,
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.settings_rounded,
                         size: 20,
-                        color: AppColors.primaryRed,
+                        color: colors.primaryRed,
                       ),
                     ),
                   ),
@@ -88,15 +90,16 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
-            // ── Clean Profile Identity (Open Header, No Card Box) ───
+            // ── Clean Profile Identity ──────────────────────────────
             loggedInAsync.when(
-              loading: () => _buildSkeletonHeader(),
-              error: (_, __) => _buildGuestHeader(context),
+              loading: () => _buildSkeletonHeader(colors),
+              error: (err, _) => _buildGuestHeader(context, colors),
               data: (isLoggedIn) => isLoggedIn
                   ? userAsync.when(
-                      loading: () => _buildSkeletonHeader(),
-                      error: (_, __) => _buildUserHeader(
+                      loading: () => _buildSkeletonHeader(colors),
+                      error: (err, _) => _buildUserHeader(
                         context,
+                        colors,
                         'Arcade Hub User',
                         'member@arcadehub.com',
                         null,
@@ -104,6 +107,7 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       data: (user) => _buildUserHeader(
                         context,
+                        colors,
                         user?.name.isNotEmpty == true ? user!.name : 'Arcade Hub User',
                         user?.email.isNotEmpty == true
                             ? user!.email
@@ -113,7 +117,7 @@ class ProfileScreen extends ConsumerWidget {
                         user?.image,
                       ),
                     )
-                  : _buildGuestHeader(context),
+                  : _buildGuestHeader(context, colors),
             ),
 
             const SizedBox(height: 24),
@@ -123,6 +127,7 @@ class ProfileScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: _buildBentoCard(
+                    context: context,
                     title: 'Wishlist',
                     count: '$favCount',
                     subtitle: 'Saved items',
@@ -137,6 +142,7 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(width: 14),
                 Expanded(
                   child: _buildBentoCard(
+                    context: context,
                     title: 'Orders',
                     count: '$orderCount',
                     subtitle: 'Past & active',
@@ -160,7 +166,7 @@ class ProfileScreen extends ConsumerWidget {
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.2,
-                color: AppColors.textMutedLight.withValues(alpha: 0.7),
+                color: colors.textMuted.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 10),
@@ -168,18 +174,20 @@ class ProfileScreen extends ConsumerWidget {
             // ── Structured Menu Card Group ──────────────────────────
             Container(
               decoration: BoxDecoration(
-                color: AppColors.surfaceLight,
+                color: colors.card,
                 borderRadius: BorderRadius.circular(AppTheme.radiusCard),
                 border: Border.all(
-                  color: AppColors.borderLight,
+                  color: colors.border,
                   width: 1,
                 ),
+                boxShadow: colors.cardShadow,
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppTheme.radiusCard),
                 child: Column(
                   children: [
                     _buildSettingsRow(
+                      context: context,
                       icon: Icons.location_on_rounded,
                       iconColor: const Color(0xFF00E5FF),
                       title: 'Saved Addresses',
@@ -189,8 +197,9 @@ class ProfileScreen extends ConsumerWidget {
                         context.push('/addresses');
                       },
                     ),
-                    const Divider(color: AppColors.borderLight, height: 1),
+                    Divider(color: colors.border, height: 1),
                     _buildSettingsRow(
+                      context: context,
                       icon: Icons.lock_outline_rounded,
                       iconColor: const Color(0xFF00E676),
                       title: 'Change Password',
@@ -200,8 +209,9 @@ class ProfileScreen extends ConsumerWidget {
                         context.push('/change-password');
                       },
                     ),
-                    const Divider(color: AppColors.borderLight, height: 1),
+                    Divider(color: colors.border, height: 1),
                     _buildSettingsRow(
+                      context: context,
                       icon: Icons.settings_rounded,
                       iconColor: const Color(0xFF9D4EDD),
                       title: 'Settings & Theme',
@@ -211,8 +221,9 @@ class ProfileScreen extends ConsumerWidget {
                         context.push('/settings');
                       },
                     ),
-                    const Divider(color: AppColors.borderLight, height: 1),
+                    Divider(color: colors.border, height: 1),
                     _buildSettingsRow(
+                      context: context,
                       icon: Icons.support_agent_rounded,
                       iconColor: const Color(0xFF38BDF8),
                       title: 'Contact Support',
@@ -276,9 +287,10 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  // ── Centered User Identity (Avatar + Name + Contact) ─────────────
+  // ── Centered User Identity ─────────────────────────────────────────
   Widget _buildUserHeader(
     BuildContext context,
+    AppThemeColors colors,
     String name,
     String contact,
     String? address,
@@ -298,14 +310,14 @@ class ProfileScreen extends ConsumerWidget {
               height: 76,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: const LinearGradient(
-                  colors: [AppColors.primaryRed, AppColors.deepRed],
+                gradient: LinearGradient(
+                  colors: [colors.primaryRed, colors.deepRed],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primaryRed.withValues(alpha: 0.35),
+                    color: colors.primaryRed.withValues(alpha: 0.35),
                     blurRadius: 18,
                     offset: const Offset(0, 4),
                   ),
@@ -343,7 +355,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
             // Floating Edit Pencil
             Material(
-              color: const Color(0xFF1A1A22),
+              color: colors.cardElevated,
               shape: const CircleBorder(),
               child: InkWell(
                 onTap: () {
@@ -355,12 +367,12 @@ class ProfileScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.borderLight, width: 1.5),
+                    border: Border.all(color: colors.border, width: 1.5),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.edit_rounded,
                     size: 13,
-                    color: AppColors.textLight,
+                    color: colors.textPrimary,
                   ),
                 ),
               ),
@@ -379,7 +391,7 @@ class ProfileScreen extends ConsumerWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 21,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textLight,
+                  color: colors.textPrimary,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
@@ -404,7 +416,7 @@ class ProfileScreen extends ConsumerWidget {
             contact,
             style: GoogleFonts.dmSans(
               fontSize: 13,
-              color: AppColors.textMutedLight,
+              color: colors.textMuted,
             ),
             textAlign: TextAlign.center,
           ),
@@ -416,7 +428,7 @@ class ProfileScreen extends ConsumerWidget {
             address,
             style: GoogleFonts.dmSans(
               fontSize: 11.5,
-              color: AppColors.textMutedLight.withValues(alpha: 0.7),
+              color: colors.textMuted.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -426,7 +438,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   // ── Centered Guest Header ─────────────────────────────────────────
-  Widget _buildGuestHeader(BuildContext context) {
+  Widget _buildGuestHeader(BuildContext context, AppThemeColors colors) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -436,13 +448,13 @@ class ProfileScreen extends ConsumerWidget {
           height: 72,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withValues(alpha: 0.06),
+            color: colors.primaryRed.withValues(alpha: 0.1),
           ),
-          child: const Center(
+          child: Center(
             child: Icon(
               Icons.person_outline_rounded,
               size: 32,
-              color: AppColors.textMutedLight,
+              color: colors.textMuted,
             ),
           ),
         ),
@@ -452,7 +464,7 @@ class ProfileScreen extends ConsumerWidget {
           style: GoogleFonts.outfit(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: AppColors.textLight,
+            color: colors.textPrimary,
           ),
           textAlign: TextAlign.center,
         ),
@@ -461,7 +473,7 @@ class ProfileScreen extends ConsumerWidget {
           'Sign in to sync your orders & favourites',
           style: GoogleFonts.dmSans(
             fontSize: 12.5,
-            color: AppColors.textMutedLight,
+            color: colors.textMuted,
           ),
           textAlign: TextAlign.center,
         ),
@@ -472,7 +484,7 @@ class ProfileScreen extends ConsumerWidget {
             context.push('/login');
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryRed,
+            backgroundColor: colors.primaryRed,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 11),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppTheme.radiusPill),
@@ -491,8 +503,9 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  // ── Bento Matrix Card (Wishlist & Orders) ──────────────────────────
+  // ── Bento Matrix Card ─────────────────────────────────────────────
   Widget _buildBentoCard({
+    required BuildContext context,
     required String title,
     required String count,
     required String subtitle,
@@ -500,8 +513,10 @@ class ProfileScreen extends ConsumerWidget {
     required Color accentColor,
     required VoidCallback onTap,
   }) {
+    final colors = context.appColors;
+
     return Material(
-      color: AppColors.surfaceLight,
+      color: colors.card,
       borderRadius: BorderRadius.circular(AppTheme.radiusCard),
       child: InkWell(
         onTap: onTap,
@@ -511,9 +526,10 @@ class ProfileScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppTheme.radiusCard),
             border: Border.all(
-              color: AppColors.borderLight,
+              color: colors.border,
               width: 1,
             ),
+            boxShadow: colors.cardShadow,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -541,7 +557,7 @@ class ProfileScreen extends ConsumerWidget {
                     style: GoogleFonts.outfit(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textLight,
+                      color: colors.textPrimary,
                     ),
                   ),
                 ],
@@ -552,7 +568,7 @@ class ProfileScreen extends ConsumerWidget {
                 style: GoogleFonts.dmSans(
                   fontSize: 14.5,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textLight,
+                  color: colors.textPrimary,
                 ),
               ),
               const SizedBox(height: 1),
@@ -561,7 +577,7 @@ class ProfileScreen extends ConsumerWidget {
                 style: GoogleFonts.dmSans(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w400,
-                  color: AppColors.textMutedLight,
+                  color: colors.textMuted,
                 ),
               ),
             ],
@@ -573,12 +589,15 @@ class ProfileScreen extends ConsumerWidget {
 
   // ── Settings Row ──────────────────────────────────────────────────
   Widget _buildSettingsRow({
+    required BuildContext context,
     required IconData icon,
     required Color iconColor,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
   }) {
+    final colors = context.appColors;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -612,7 +631,7 @@ class ProfileScreen extends ConsumerWidget {
                       style: GoogleFonts.dmSans(
                         fontSize: 14.5,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textLight,
+                        color: colors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 1),
@@ -621,7 +640,7 @@ class ProfileScreen extends ConsumerWidget {
                       style: GoogleFonts.dmSans(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w400,
-                        color: AppColors.textMutedLight,
+                        color: colors.textMuted,
                       ),
                     ),
                   ],
@@ -629,7 +648,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
               Icon(
                 Icons.chevron_right_rounded,
-                color: AppColors.textMutedLight.withValues(alpha: 0.6),
+                color: colors.textMuted.withValues(alpha: 0.6),
                 size: 20,
               ),
             ],
@@ -640,7 +659,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   // ── Centered Skeleton Loader ──────────────────────────────────────
-  Widget _buildSkeletonHeader() {
+  Widget _buildSkeletonHeader(AppThemeColors colors) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -649,7 +668,7 @@ class ProfileScreen extends ConsumerWidget {
           height: 72,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withValues(alpha: 0.05),
+            color: colors.border.withValues(alpha: 0.3),
           ),
         ),
         const SizedBox(height: 14),
@@ -657,7 +676,7 @@ class ProfileScreen extends ConsumerWidget {
           width: 130,
           height: 16,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: colors.border.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(4),
           ),
         ),
@@ -666,7 +685,7 @@ class ProfileScreen extends ConsumerWidget {
           width: 170,
           height: 12,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.03),
+            color: colors.border.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(4),
           ),
         ),
@@ -676,10 +695,12 @@ class ProfileScreen extends ConsumerWidget {
 
   // ── Sign Out Modal ────────────────────────────────────────────────
   void _confirmSignOut(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF16161D),
+        backgroundColor: colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusL),
         ),
@@ -688,14 +709,14 @@ class ProfileScreen extends ConsumerWidget {
           style: GoogleFonts.outfit(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: colors.textPrimary,
           ),
         ),
         content: Text(
           'Are you sure you want to sign out of your account?',
           style: GoogleFonts.dmSans(
             fontSize: 13.5,
-            color: AppColors.textMutedLight,
+            color: colors.textMuted,
           ),
         ),
         actions: [
@@ -704,7 +725,7 @@ class ProfileScreen extends ConsumerWidget {
             child: Text(
               'Cancel',
               style: GoogleFonts.dmSans(
-                color: AppColors.textMutedLight,
+                color: colors.textMuted,
                 fontWeight: FontWeight.w500,
               ),
             ),

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/repositories/location_repository.dart';
 import '../../core/utils/app_toast.dart';
 import '../../shared/widgets/primary_button.dart';
@@ -47,8 +48,10 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,18 +69,19 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                         context.go('/addresses');
                       }
                     },
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: AppColors.textLight),
+                    icon: Icon(Icons.arrow_back_ios_new_rounded,
+                        color: colors.textPrimary),
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.surfaceLight,
+                      backgroundColor: colors.card,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+                        side: BorderSide(color: colors.border),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Text('New Address',
-                      style: AppTextStyles.headingM(AppColors.textLight)),
+                      style: AppTextStyles.headingM(colors.textPrimary)),
                 ],
               ),
             ),
@@ -93,9 +97,10 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceLight,
+                        color: colors.card,
                         borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-                        border: Border.all(color: AppColors.borderLight, width: 1.5),
+                        border: Border.all(color: colors.border, width: 1.5),
+                        boxShadow: colors.cardShadow,
                       ),
                       child: Row(
                         children: [
@@ -116,7 +121,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                               children: [
                                 Text('Use my current location',
                                     style: AppTextStyles.semibold(
-                                        AppColors.textLight, size: 14)),
+                                        colors.textPrimary, size: 14)),
                                 Row(
                                   children: [
                                     Text('Location pinned',
@@ -137,13 +142,30 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                     for (final f in _fields) ...[
                       Text(
                         f['label']!.toUpperCase(),
-                        style: AppTextStyles.label(AppColors.textMutedLight),
+                        style: AppTextStyles.label(colors.textMuted),
                       ),
                       const SizedBox(height: 6),
                       TextField(
                         controller: _ctrls[f['key']!],
-                        style: AppTextStyles.bodyL(AppColors.textLight),
-                        decoration: InputDecoration(hintText: f['placeholder']),
+                        style: AppTextStyles.bodyL(colors.textPrimary),
+                        decoration: InputDecoration(
+                          hintText: f['placeholder'],
+                          hintStyle: TextStyle(color: colors.textMuted),
+                          filled: true,
+                          fillColor: colors.card,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: colors.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: colors.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: colors.primaryRed),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 18),
                     ],

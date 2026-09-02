@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/constants.dart';
 import '../../features/cart/cart_provider.dart';
 import '../../features/favourites/favourites_provider.dart';
@@ -70,6 +71,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final product = _resolvedProduct(ref);
     final cart = ref.watch(cartProvider);
     final favs = ref.watch(favouritesProvider);
@@ -79,7 +81,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     final addonsPriceToDisplay = _addonsTotal(product);
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldLight,
+      backgroundColor: colors.scaffold,
       body: Stack(
         children: [
           // Scrollable content
@@ -89,11 +91,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               SliverAppBar(
                 expandedHeight: 280,
                 pinned: true,
-                backgroundColor: AppColors.scaffoldLight,
+                backgroundColor: colors.scaffold,
                 leading: Container(
                   margin: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceLight.withValues(alpha: 0.9),
+                    color: colors.card.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(AppTheme.radiusSM),
                   ),
                   child: IconButton(
@@ -104,15 +106,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         context.go('/home');
                       }
                     },
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: AppColors.textLight, size: 18),
+                    icon: Icon(Icons.arrow_back_ios_new_rounded,
+                        color: colors.textPrimary, size: 18),
                   ),
                 ),
                 actions: [
                   Container(
                     margin: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceLight.withValues(alpha: 0.9),
+                      color: colors.card.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(AppTheme.radiusSM),
                     ),
                     child: IconButton(
@@ -123,7 +125,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         isFav
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
-                        color: isFav ? AppColors.error : AppColors.textLight,
+                        color: isFav ? AppColors.error : colors.textPrimary,
                         size: 20,
                       ),
                     ),
@@ -134,8 +136,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.borderLight,
-                          AppColors.primaryRed.withValues(alpha: 0.2),
+                          colors.border,
+                          colors.primaryRed.withValues(alpha: 0.15),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -161,9 +163,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               // Content
               SliverToBoxAdapter(
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: AppColors.scaffoldLight,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                  decoration: BoxDecoration(
+                    color: colors.scaffold,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
                   ),
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
                   child: Column(
@@ -171,15 +173,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     children: [
                       // Name + price
                       Text(product.name,
-                          style: AppTextStyles.headingL(AppColors.textLight)),
+                          style: AppTextStyles.headingL(colors.textPrimary)),
                       const SizedBox(height: 4),
                       if (product.prepTime != null)
                         Row(children: [
-                          const Icon(Icons.access_time_rounded,
-                              color: AppColors.textMutedLight, size: 14),
+                          Icon(Icons.access_time_rounded,
+                              color: colors.textMuted, size: 14),
                           const SizedBox(width: 4),
                           Text(product.prepTime!,
-                              style: AppTextStyles.bodyS(AppColors.textMutedLight)),
+                              style: AppTextStyles.bodyS(colors.textMuted)),
                         ]),
                       const SizedBox(height: 14),
 
@@ -193,13 +195,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppColors.primaryRed.withValues(alpha: 0.12),
+                              color: colors.primaryRed.withValues(alpha: 0.12),
                               borderRadius:
                                   BorderRadius.circular(AppTheme.radiusPill),
                             ),
                             child: Text(
                               '+${(AppConstants.vatRate * 100).toStringAsFixed(0)}% VAT',
-                              style: AppTextStyles.bodyXS(AppColors.primaryRed),
+                              style: AppTextStyles.bodyXS(colors.primaryRed),
                             ),
                           ),
                         ],
@@ -218,14 +220,14 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                               decoration: BoxDecoration(
                                 color: isGood
                                     ? AppColors.success.withValues(alpha: 0.15)
-                                    : AppColors.error.withValues(alpha: 0.15),
+                                    : colors.primaryRed.withValues(alpha: 0.15),
                                 borderRadius:
                                     BorderRadius.circular(AppTheme.radiusPill),
                               ),
                               child: Text(
                                 tag,
                                 style: AppTextStyles.bodyXS(
-                                    isGood ? AppColors.success : AppColors.error),
+                                    isGood ? AppColors.success : colors.primaryRed),
                               ),
                             );
                           }).toList(),
@@ -237,7 +239,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       if (product.description.isNotEmpty || product.longDescription != null) ...[
                         Text(
                           product.longDescription ?? product.description,
-                          style: AppTextStyles.bodyM(AppColors.textMutedLight),
+                          style: AppTextStyles.bodyM(colors.textMuted),
                         ),
                         const SizedBox(height: 24),
                       ],
@@ -258,16 +260,17 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                   horizontal: 16, vertical: 14),
                               decoration: BoxDecoration(
                                 color: selected
-                                    ? AppColors.primaryRed.withValues(alpha: 0.1)
-                                    : AppColors.surfaceLight,
+                                    ? colors.primaryRed.withValues(alpha: 0.1)
+                                    : colors.card,
                                 borderRadius:
                                     BorderRadius.circular(AppTheme.radiusSM),
                                 border: Border.all(
                                   color: selected
-                                      ? AppColors.primaryRed
-                                      : AppColors.borderLight,
+                                      ? colors.primaryRed
+                                      : colors.border,
                                   width: 1.5,
                                 ),
+                                boxShadow: colors.cardShadow,
                               ),
                               child: Row(
                                 children: [
@@ -276,11 +279,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                   Expanded(
                                       child: Text(v.label,
                                           style: AppTextStyles.bodyM(
-                                              AppColors.textLight))),
+                                              colors.textPrimary))),
                                   Text(
                                     'Rs ${v.price.toStringAsFixed(0)}',
                                     style: AppTextStyles.semibold(
-                                        AppColors.primaryRed, size: 14),
+                                        colors.primaryRed, size: 14),
                                   ),
                                 ],
                               ),
@@ -309,16 +312,17 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                   horizontal: 16, vertical: 14),
                               decoration: BoxDecoration(
                                 color: selected
-                                    ? AppColors.primaryRed.withValues(alpha: 0.1)
-                                    : AppColors.surfaceLight,
+                                    ? colors.primaryRed.withValues(alpha: 0.1)
+                                    : colors.card,
                                 borderRadius:
                                     BorderRadius.circular(AppTheme.radiusSM),
                                 border: Border.all(
                                   color: selected
-                                      ? AppColors.primaryRed
-                                      : AppColors.borderLight,
+                                      ? colors.primaryRed
+                                      : colors.border,
                                   width: 1.5,
                                 ),
+                                boxShadow: colors.cardShadow,
                               ),
                               child: Row(
                                 children: [
@@ -327,11 +331,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                   Expanded(
                                       child: Text(a.name,
                                           style: AppTextStyles.bodyM(
-                                              AppColors.textLight))),
+                                              colors.textPrimary))),
                                   Text(
                                     '+Rs ${a.price.toStringAsFixed(0)}',
                                     style: AppTextStyles.semibold(
-                                        AppColors.primaryRed, size: 14),
+                                        colors.primaryRed, size: 14),
                                   ),
                                 ],
                               ),
@@ -354,9 +358,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             child: Container(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
               decoration: BoxDecoration(
-                color: AppColors.scaffoldLight.withValues(alpha: 0.95),
-                border: const Border(
-                    top: BorderSide(color: AppColors.borderLight)),
+                color: colors.scaffold.withValues(alpha: 0.95),
+                border: Border(
+                    top: BorderSide(color: colors.border)),
               ),
               child: Row(
                 children: [
@@ -365,10 +369,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('Total',
-                          style: AppTextStyles.bodyXS(AppColors.textMutedLight)),
+                          style: AppTextStyles.bodyXS(colors.textMuted)),
                       Text(
                         'Rs ${(priceToDisplay + addonsPriceToDisplay) * (qty == 0 ? 1 : qty)}',
-                        style: AppTextStyles.bold(AppColors.primaryRed, size: 22),
+                        style: AppTextStyles.bold(colors.primaryRed, size: 22),
                       ),
                     ],
                   ),
@@ -395,15 +399,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       child: Container(
                         height: 52,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.primaryRed, AppColors.deepRed],
+                          gradient: LinearGradient(
+                            colors: [colors.primaryRed, colors.deepRed],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(AppTheme.radiusL),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primaryRed.withValues(alpha: 0.35),
+                              color: colors.primaryRed.withValues(alpha: 0.35),
                               blurRadius: 16,
                               offset: const Offset(0, 6),
                             )
@@ -447,13 +451,14 @@ class _RadioDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       width: 18,
       height: 18,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: selected ? AppColors.primaryRed : AppColors.textMutedLight,
+          color: selected ? colors.primaryRed : colors.textMuted,
           width: 2,
         ),
       ),
@@ -462,8 +467,8 @@ class _RadioDot extends StatelessWidget {
               child: Container(
                 width: 10,
                 height: 10,
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryRed,
+                decoration: BoxDecoration(
+                  color: colors.primaryRed,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -479,15 +484,16 @@ class _CheckDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       width: 18,
       height: 18,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: selected ? AppColors.primaryRed : Colors.transparent,
+        color: selected ? colors.primaryRed : Colors.transparent,
         border: Border.all(
-          color: selected ? AppColors.primaryRed : AppColors.textMutedLight,
+          color: selected ? colors.primaryRed : colors.textMuted,
           width: 2,
         ),
       ),
@@ -511,35 +517,35 @@ class _FloatingQtyControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: colors.cardElevated,
         borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: colors.border),
       ),
       child: Row(
         children: [
           GestureDetector(
             onTap: onDecrement,
-            child: const Icon(Icons.remove, color: AppColors.textLight, size: 18),
+            child: Icon(Icons.remove, color: colors.textPrimary, size: 18),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text('$qty',
-                style: AppTextStyles.bold(AppColors.textLight, size: 16)),
+                style: AppTextStyles.bold(colors.textPrimary, size: 16)),
           ),
           GestureDetector(
             onTap: onIncrement,
             child: Container(
               width: 28,
               height: 28,
-              decoration: const BoxDecoration(
-                color: AppColors.primaryRed,
+              decoration: BoxDecoration(
+                color: colors.primaryRed,
                 shape: BoxShape.circle,
               ),
-              child:
-                  const Icon(Icons.add, color: Colors.white, size: 16),
+              child: const Icon(Icons.add, color: Colors.white, size: 16),
             ),
           ),
         ],
