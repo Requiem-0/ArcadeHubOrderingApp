@@ -448,7 +448,7 @@ class ProfileScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 14),
         Text(
-          'Guest Player',
+          'Guest',
           style: GoogleFonts.outfit(
             fontSize: 20,
             fontWeight: FontWeight.bold,

@@ -191,14 +191,20 @@ class ArcadeAppDrawer extends ConsumerWidget {
                                       ),
                                     )
                                   : Center(
-                                      child: Text(
-                                        isLoggedIn ? user.name.substring(0, 1).toUpperCase() : '👤',
-                                        style: GoogleFonts.outfit(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
+                                      child: isLoggedIn
+                                          ? Text(
+                                              user.name.substring(0, 1).toUpperCase(),
+                                              style: GoogleFonts.outfit(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : const Icon(
+                                              Icons.person_rounded,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
                                     ),
                             ),
                           ),
@@ -208,7 +214,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  isLoggedIn ? user.name : 'Guest Player',
+                                  isLoggedIn ? user.name : 'Guest',
                                   style: GoogleFonts.dmSans(
                                     fontSize: 13.5,
                                     fontWeight: FontWeight.w600,

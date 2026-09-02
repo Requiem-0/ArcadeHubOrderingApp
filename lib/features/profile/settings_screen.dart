@@ -89,7 +89,7 @@ class SettingsScreen extends ConsumerWidget {
                       if (context.canPop()) {
                         context.pop();
                       } else {
-                        context.go('/home');
+                        context.go('/profile');
                       }
                     },
                     icon: const Icon(Icons.arrow_back_ios_new_rounded,

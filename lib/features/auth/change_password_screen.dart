@@ -74,7 +74,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         if (context.canPop()) {
           context.pop();
         } else {
-          context.go('/settings');
+          context.go('/profile');
         }
       }
     } catch (e) {
@@ -112,7 +112,13 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () => context.go('/settings'),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/profile');
+                      }
+                    },
                     icon: const Icon(Icons.arrow_back_ios_new_rounded,
                         color: AppColors.textLight),
                     style: IconButton.styleFrom(

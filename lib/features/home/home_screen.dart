@@ -1298,10 +1298,27 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
                     ],
                   ),
 
-                  // Emoji & Title
                   Row(
                     children: [
-                      Text(product.emoji.isNotEmpty ? product.emoji : '🍱', style: const TextStyle(fontSize: 32)),
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFB703).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: const Color(0xFFFFB703).withValues(alpha: 0.35),
+                            width: 1,
+                          ),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.restaurant_menu_rounded,
+                            size: 20,
+                            color: Color(0xFFFFB703),
+                          ),
+                        ),
+                      ),
                       AppSpacing.gapH8,
                       Expanded(
                         child: Text(

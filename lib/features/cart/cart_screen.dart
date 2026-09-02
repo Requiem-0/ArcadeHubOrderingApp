@@ -33,7 +33,23 @@ class CartScreen extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('🔐', style: TextStyle(fontSize: 40)),
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primaryRed.withValues(alpha: 0.15),
+                  border: Border.all(
+                    color: AppColors.primaryRed.withValues(alpha: 0.35),
+                    width: 1.5,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.lock_outline_rounded,
+                  size: 28,
+                  color: AppColors.primaryRed,
+                ),
+              ),
               const SizedBox(height: 12),
               Text(
                 'Sign in to Checkout',
@@ -159,7 +175,11 @@ class CartScreen extends ConsumerWidget {
                             ),
                             child: Row(
                               children: [
-                                const Text('⚡', style: TextStyle(fontSize: 20)),
+                                const Icon(
+                                  Icons.bolt_rounded,
+                                  size: 20,
+                                  color: AppColors.success,
+                                ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(

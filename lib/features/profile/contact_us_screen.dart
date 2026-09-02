@@ -87,7 +87,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
               if (context.canPop()) {
                 context.pop();
               } else {
-                context.go('/home');
+                context.go('/profile');
               }
             },
           ),

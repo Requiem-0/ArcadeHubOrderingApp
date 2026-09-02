@@ -63,7 +63,8 @@ class SavedAddressesScreen extends ConsumerWidget {
                 data: (locations) {
                   if (locations.isEmpty) {
                     return EmptyState(
-                      icon: '📍',
+                      iconData: Icons.location_off_rounded,
+                      iconColor: const Color(0xFF00E5FF),
                       title: 'No saved addresses',
                       subtitle: 'Add an address for quick checkout.',
                       action: SecondaryButton(

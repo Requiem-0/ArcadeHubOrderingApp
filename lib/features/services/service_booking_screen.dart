@@ -89,7 +89,23 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                     ),
                     child: Column(
                       children: [
-                        const Text('🎮', style: TextStyle(fontSize: 48)),
+                        Container(
+                          width: 68,
+                          height: 68,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.primaryRed.withValues(alpha: 0.15),
+                            border: Border.all(
+                              color: AppColors.primaryRed.withValues(alpha: 0.35),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.sports_esports_rounded,
+                            size: 34,
+                            color: AppColors.primaryRed,
+                          ),
+                        ),
                         const SizedBox(height: 12),
                         Text(
                           'Service Booking',
@@ -219,7 +235,23 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text('🎮', style: TextStyle(fontSize: 40)),
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppColors.primaryRed.withValues(alpha: 0.15),
+                                  border: Border.all(
+                                    color: AppColors.primaryRed.withValues(alpha: 0.35),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.sports_esports_rounded,
+                                  size: 28,
+                                  color: AppColors.primaryRed,
+                                ),
+                              ),
                               const SizedBox(height: 12),
                               Text(
                                 'Sign in to Book PS5 Rental',

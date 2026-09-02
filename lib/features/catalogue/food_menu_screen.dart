@@ -165,7 +165,8 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                       // 2-Column Grid Layout with Generous Spacing & White Space
                       if (filtered.isEmpty)
                         EmptyState(
-                          icon: '🔍',
+                          iconData: Icons.search_off_rounded,
+                          iconColor: const Color(0xFFFF7A00),
                           title: 'No items found',
                           subtitle: 'Try a different category or search query',
                           action: TextButton(

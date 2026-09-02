@@ -117,8 +117,15 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                                 Text('Use my current location',
                                     style: AppTextStyles.semibold(
                                         AppColors.textLight, size: 14)),
-                                Text('Location pinned ✓',
-                                    style: AppTextStyles.bodyS(AppColors.success)),
+                                Row(
+                                  children: [
+                                    Text('Location pinned',
+                                        style: AppTextStyles.bodyS(AppColors.success)),
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.check_circle_rounded,
+                                        size: 13, color: AppColors.success),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
