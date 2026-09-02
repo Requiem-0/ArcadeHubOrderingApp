@@ -80,6 +80,11 @@ class AppTheme {
           fontWeight: FontWeight.w400,
         ),
       ),
+      drawerTheme: DrawerThemeData(
+        scrimColor: Colors.black.withValues(alpha: 0.75),
+        backgroundColor: const Color(0xFF101015),
+        elevation: 0,
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,

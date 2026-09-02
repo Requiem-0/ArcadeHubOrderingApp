@@ -88,6 +88,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldDark,
+      drawerScrimColor: Colors.black.withValues(alpha: 0.75),
       drawer: const ArcadeAppDrawer(),
       body: Builder(
         builder: (innerContext) => SafeArea(

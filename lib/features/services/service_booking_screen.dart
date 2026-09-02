@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -54,13 +55,21 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                 children: [
                   IconButton(
                     onPressed: () {
+                      HapticFeedback.lightImpact();
                       if (context.canPop()) {
                         context.pop();
                       } else {
                         context.go('/home');
                       }
                     },
-                    icon: const Icon(Icons.arrow_back, color: AppColors.textLight),
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                        color: AppColors.textLight, size: 20),
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.surfaceLight,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Text(

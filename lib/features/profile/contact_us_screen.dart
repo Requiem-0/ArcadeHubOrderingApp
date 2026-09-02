@@ -243,7 +243,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                                 ),
                               ),
                               Text(
-                                'Lakeside, Pokhara 33700, Nepal',
+                                'New Road, Pokhara 33700, Nepal',
                                 style: GoogleFonts.dmSans(
                                   fontSize: 12,
                                   color: AppColors.textMutedLight,

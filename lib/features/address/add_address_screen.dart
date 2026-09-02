@@ -23,10 +23,10 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
   static const _fields = [
     {'key': 'label', 'label': 'Label', 'placeholder': 'Home, Office, Rooftop Spot...'},
     {'key': 'phone', 'label': 'Phone', 'placeholder': '+977 9800000000'},
-    {'key': 'street', 'label': 'Street Address / Spot', 'placeholder': 'Lakeside Street 5'},
+    {'key': 'street', 'label': 'Street Address / Spot', 'placeholder': 'New Road, Pokhara'},
     {'key': 'city', 'label': 'City', 'placeholder': 'Pokhara'},
     {'key': 'postcode', 'label': 'Postcode', 'placeholder': '33700'},
-    {'key': 'landmark', 'label': 'Landmark / Note (Optional)', 'placeholder': 'Near Fewa Lake'},
+    {'key': 'landmark', 'label': 'Landmark / Note (Optional)', 'placeholder': 'Near New Road'},
   ];
 
   @override

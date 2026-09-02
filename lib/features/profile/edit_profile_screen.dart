@@ -303,7 +303,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             maxLines: 2,
             style: AppTextStyles.bodyL(AppColors.textLight),
             decoration: const InputDecoration(
-              hintText: 'e.g. Lakeside, Ward 6, Pokhara',
+              hintText: 'e.g. New Road, Pokhara',
               prefixIcon: Padding(
                 padding: EdgeInsets.only(bottom: 24),
                 child: Icon(Icons.location_on_outlined, color: AppColors.textMutedLight, size: 20),

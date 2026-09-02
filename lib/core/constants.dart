@@ -5,7 +5,7 @@ abstract final class AppConstants {
   static String appName = 'Arcade Hub';
   static String currency = 'NPR';
 
-  static const String appLocation = 'Lakeside, Pokhara, Nepal';
+  static const String appLocation = 'New Road, Pokhara, Nepal';
   static const String appTagline = 'Gaming, Food, Drinks & Entertainment';
   static const String appVersion = '1.0.0';
   static const String currencySymbol = 'NPR';
