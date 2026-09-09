@@ -15,6 +15,7 @@ import '../../features/cart/cart_provider.dart';
 import '../../features/catalogue/data/product_model.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../shared/widgets/app_network_image.dart';
+import '../../shared/widgets/app_logo.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -113,31 +114,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     // Brand Logo & Title
                     Row(
                       children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            gradient: LinearGradient(
-                              colors: [colors.primaryRed, colors.deepRed],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: colors.primaryRed.withValues(alpha: 0.4),
-                                blurRadius: 12,
-                              ),
-                            ],
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.sports_esports_rounded,
-                              color: Colors.white,
-                              size: 22,
-                            ),
-                          ),
-                        ),
+                        const AppLogoPlate(size: 40, glow: false),
                         AppSpacing.gapH12,
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

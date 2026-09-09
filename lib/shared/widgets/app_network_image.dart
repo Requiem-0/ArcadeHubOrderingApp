@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_theme_colors.dart';
+import 'app_logo.dart';
 
 /// Network image with disk caching and Arcade Hub branding while it loads.
 ///
@@ -56,7 +57,7 @@ class AppNetworkImage extends StatelessWidget {
       );
 }
 
-/// The Arcade Hub mark, sized to whatever box it lands in.
+/// The Arcade Hub wordmark, sized to whatever box it lands in.
 ///
 /// Deliberately understated: it fills the gap while a photo loads without
 /// competing with the real content that replaces it.
@@ -112,25 +113,21 @@ class _AppLogoPlaceholderState extends State<AppLogoPlaceholder>
         ].reduce((a, b) => a < b ? a : b);
         final size = (shortest * 0.34).clamp(22.0, 72.0);
 
-        final mark = Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppColors.primaryRed, AppColors.deepRed],
-            ),
-            borderRadius: BorderRadius.circular(size * 0.22),
-          ),
-          child: Center(
-            child: Text(
-              'AH',
-              style: TextStyle(
-                color: AppColors.onPrimary,
-                fontSize: size * 0.36,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
+        final mark = SizedBox(
+          width: size * 1.5,
+          child: Image.asset(
+            kLogoAsset,
+            fit: BoxFit.contain,
+            errorBuilder: (_, _, _) => Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppColors.primaryRed, AppColors.deepRed],
+                ),
+                borderRadius: BorderRadius.circular(size * 0.22),
               ),
             ),
           ),

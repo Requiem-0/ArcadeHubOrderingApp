@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Arcade Hub brand red, backs the adaptive launcher icon. -->
-    <color name="ic_launcher_background">#CC0000</color>
+    <!-- White ground for the adaptive launcher icon: the wordmark is red on black keyline. -->
+    <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- Matches AppColors.scaffoldLight, the Dart splash background. -->
+    <color name="launch_background">#0D0D0D</color>
 </resources>

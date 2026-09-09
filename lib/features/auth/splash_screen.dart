@@ -32,7 +32,9 @@ class _SplashScreenState extends State<SplashScreen>
 
     _ctrl.forward();
 
-    Future.delayed(const Duration(milliseconds: 2200), () {
+    // Just long enough for the logo animation (900ms) to land and read.
+    // Nothing is fetched here, so holding longer only costs the user time.
+    Future.delayed(const Duration(milliseconds: 1300), () {
       if (mounted) context.go('/home');
     });
   }
@@ -79,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const AppLogo(size: 110, showLabel: false),
+                    const AppLogoPlate(size: 148),
                     const SizedBox(height: 24),
                     Text(
                       'Arcade Hub',

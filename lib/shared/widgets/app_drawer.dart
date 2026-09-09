@@ -8,6 +8,7 @@ import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/brandkit/experiences.dart';
 import '../../core/repositories/auth_repository.dart';
 import 'app_network_image.dart';
+import 'app_logo.dart';
 
 class ArcadeAppDrawer extends ConsumerWidget {
   const ArcadeAppDrawer({super.key});
@@ -52,32 +53,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                 // ── Brand Header ──────────────────────────────────────────
                 Row(
                   children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        gradient: LinearGradient(
-                          colors: [colors.primaryRed, colors.deepRed],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: colors.primaryRed.withValues(alpha: 0.35),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.sports_esports_rounded,
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                      ),
-                    ),
+                    const AppLogoPlate(size: 40, glow: false),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(

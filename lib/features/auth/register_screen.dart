@@ -114,7 +114,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Center(child: AppLogo(size: 72)),
+                  const Center(child: AppLogoPlate(size: 96)),
                   const SizedBox(height: 20),
                   Text(
                     'Create Account',

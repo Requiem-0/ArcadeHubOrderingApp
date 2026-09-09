@@ -189,7 +189,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Center(child: AppLogo(size: 84)),
+                  const Center(child: AppLogoPlate(size: 112)),
                   const SizedBox(height: 24),
                   Text(
                     'Welcome to\nArcade Hub',
