@@ -1,11 +1,11 @@
 {
-    "name": "arcadehuborderingapp",
-    "short_name": "arcadehuborderingapp",
+    "name": "Arcade Hub",
+    "short_name": "Arcade Hub",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#CC0000",
+    "theme_color": "#CC0000",
+    "description": "Arcade Hub — gaming, food, drinks and entertainment ordering.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
