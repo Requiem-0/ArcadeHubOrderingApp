@@ -41,7 +41,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
     final catalogAsync = ref.watch(catalogProvider);
     final cart = ref.watch(cartProvider);
     final favs = ref.watch(favouritesProvider);
-    final totalCartCount = cart.values.fold<int>(0, (sum, q) => sum + q);
+    final totalCartCount = ref.watch(cartCountProvider);
 
     return Scaffold(
       backgroundColor: colors.scaffold,
@@ -69,7 +69,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Food & Drinks Catalogue',
+                          'Food & Drinks',
                           style: GoogleFonts.outfit(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -77,7 +77,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                           ),
                         ),
                         Text(
-                          'Arcade Hub Menu',
+                          'Menu',
                           style: GoogleFonts.dmSans(
                             fontSize: 12,
                             color: colors.textMuted,
@@ -122,10 +122,16 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (err, _) => Center(child: Text('Error: $err', style: TextStyle(color: colors.textPrimary))),
                 data: (products) {
-                  final categories = ['All', ...products.map((p) => p.category).toSet()];
+                  final distinctCategories = products
+                      .map((p) => p.category.trim())
+                      .where((c) => c.isNotEmpty && c.toLowerCase() != 'all')
+                      .toSet()
+                      .toList()
+                    ..sort();
+                  final categories = ['All', ...distinctCategories];
                   final filtered = products.where((p) {
                     final matchSearch = _search.isEmpty || p.name.toLowerCase().contains(_search.toLowerCase());
-                    final matchCat = _category == 'All' || p.category == _category;
+                    final matchCat = _category == 'All' || p.category.toLowerCase() == _category.toLowerCase();
                     return matchSearch && matchCat;
                   }).toList();
 
@@ -137,7 +143,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                         controller: _searchCtrl,
                         style: TextStyle(color: colors.textPrimary),
                         decoration: InputDecoration(
-                          hintText: 'Search delicious items...',
+                          hintText: 'Search menu...',
                           hintStyle: TextStyle(color: colors.textMuted),
                           filled: true,
                           fillColor: colors.card,
@@ -185,8 +191,8 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                         EmptyState(
                           iconData: Icons.search_off_rounded,
                           iconColor: const Color(0xFFFF7A00),
-                          title: 'No items found',
-                          subtitle: 'Try a different category or search query',
+                          title: 'No items',
+                          subtitle: 'Try a different search or category',
                           action: TextButton(
                             onPressed: () {
                               _searchCtrl.clear();
@@ -208,7 +214,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                           itemCount: filtered.length,
                           itemBuilder: (context, i) {
                             final p = filtered[i];
-                            final qty = cart[p.id] ?? 0;
+                            final qty = ref.read(cartProvider.notifier).getProductQuantity(p.id);
                             final isFav = favs.contains(p.id);
 
                             return GestureDetector(
@@ -250,6 +256,36 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                                   ),
                                           ),
                                         ),
+                                        if (p.hasDiscount)
+                                          Positioned(
+                                            top: 6,
+                                            left: 6,
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 7, vertical: 3),
+                                              decoration: BoxDecoration(
+                                                color: colors.primaryRed,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: colors.primaryRed
+                                                        .withValues(alpha: 0.4),
+                                                    blurRadius: 6,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Text(
+                                                p.discountTag ?? 'OFFER',
+                                                style: GoogleFonts.dmSans(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                         Positioned(
                                           top: 6,
                                           right: 6,
@@ -282,21 +318,25 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                         color: colors.textPrimary,
                                       ),
                                     ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      p.category,
-                                      style: GoogleFonts.dmSans(
-                                        fontSize: 11,
-                                        color: colors.textMuted,
-                                      ),
-                                    ),
+                                     if (p.category.isNotEmpty && p.category.toLowerCase() != 'all') ...[
+                                       const SizedBox(height: 2),
+                                       Text(
+                                         p.category,
+                                         maxLines: 1,
+                                         overflow: TextOverflow.ellipsis,
+                                         style: GoogleFonts.dmSans(
+                                           fontSize: 11,
+                                           color: colors.textMuted,
+                                         ),
+                                       ),
+                                     ],
                                     const Spacer(),
 
                                     // Price & Cart Button Row
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        PriceText(price: p.price, originalPrice: p.originalPrice),
+                                        PriceText(price: p.effectivePrice, originalPrice: p.displayOriginalPrice),
                                         if (qty > 0)
                                           Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -316,7 +356,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                                 ),
                                                 Text('$qty', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
                                                 InkWell(
-                                                  onTap: () => ref.read(cartProvider.notifier).add(p.id),
+                                                  onTap: () => ref.read(cartProvider.notifier).add(p.id, p),
                                                   child: const Padding(
                                                     padding: EdgeInsets.symmetric(horizontal: 4),
                                                     child: Text('+', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
@@ -327,7 +367,13 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                           )
                                         else
                                           GestureDetector(
-                                            onTap: () => ref.read(cartProvider.notifier).add(p.id),
+                                            onTap: () {
+                                              if (p.variants.isNotEmpty) {
+                                                context.push('/product/${p.id}');
+                                              } else {
+                                                ref.read(cartProvider.notifier).add(p.id, p);
+                                              }
+                                            },
                                             child: Container(
                                               padding: const EdgeInsets.all(6),
                                               decoration: BoxDecoration(

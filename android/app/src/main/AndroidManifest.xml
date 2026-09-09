@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required in release builds too: the POS catalog, orders and auth
+         calls all go over HTTPS. Without this, release APKs fall back to
+         the local sample catalog. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="arcadehuborderingapp"
         android:name="${applicationName}"

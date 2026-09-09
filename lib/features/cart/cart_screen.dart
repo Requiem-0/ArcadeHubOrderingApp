@@ -89,18 +89,9 @@ class CartScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final cart = ref.watch(cartProvider);
-    final catalog = ref.watch(catalogProvider).asData?.value ?? [];
+    final items = cart.values.toList();
     final activeDiscount = AppConstants.isDiscountActiveNow();
-
-    final entries = cart.entries
-        .map((e) => (
-              product: catalog.firstWhere(
-                (p) => p.id == e.key,
-                orElse: () => kSampleProducts.firstWhere((p) => p.id == e.key, orElse: () => kSampleProducts.first),
-              ),
-              qty: e.value
-            ))
-        .toList();
+    final totalItemCount = ref.watch(cartCountProvider);
 
     final subtotal = ref.watch(cartSubtotalProvider);
     final discountAmount = activeDiscount
@@ -108,7 +99,7 @@ class CartScreen extends ConsumerWidget {
         : 0.0;
     final tax = ref.watch(cartVatProvider);
     final total = ref.watch(cartGrandTotalProvider);
-    final isEmpty = entries.isEmpty;
+    final isEmpty = items.isEmpty;
 
     return Scaffold(
       backgroundColor: colors.scaffold,
@@ -125,7 +116,7 @@ class CartScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Your Order Cart',
+                        'Cart',
                         style: GoogleFonts.outfit(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -134,8 +125,8 @@ class CartScreen extends ConsumerWidget {
                       ),
                       Text(
                         isEmpty
-                            ? '0 items in cart'
-                            : '${cart.values.fold(0, (s, q) => s + q)} items selected',
+                            ? '0 items'
+                            : '$totalItemCount items',
                         style: GoogleFonts.dmSans(
                           fontSize: 12,
                           color: colors.textMuted,
@@ -153,8 +144,8 @@ class CartScreen extends ConsumerWidget {
                   ? EmptyState(
                       iconData: Icons.shopping_bag_outlined,
                       iconColor: colors.primaryRed,
-                      title: 'Your Cart is Empty',
-                      subtitle: "Explore Arcade Hub dishes, drinks, and combos to start an order.",
+                      title: 'Cart is empty',
+                      subtitle: "Add items to start your order.",
                       action: SizedBox(
                         width: 180,
                         child: PrimaryButton(
@@ -186,7 +177,7 @@ class CartScreen extends ConsumerWidget {
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
-                                    '10% App Special Discount Applied! (-NPR ${discountAmount.toInt()})',
+                                    '10% Discount Applied (-NPR ${discountAmount.toInt()})',
                                     style: GoogleFonts.dmSans(
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
@@ -199,20 +190,19 @@ class CartScreen extends ConsumerWidget {
                           ),
 
                         // Cart items
-                        ...entries.map((e) => Padding(
+                        ...items.map((item) => Padding(
                               padding: const EdgeInsets.only(bottom: 12),
                               child: _CartItemCard(
-                                product: e.product,
-                                qty: e.qty,
+                                item: item,
                                 onAdd: () => ref
                                     .read(cartProvider.notifier)
-                                    .add(e.product.id),
+                                    .increment(item.id),
                                 onRemove: () => ref
                                     .read(cartProvider.notifier)
-                                    .remove(e.product.id),
+                                    .decrement(item.id),
                                 onDelete: () => ref
                                     .read(cartProvider.notifier)
-                                    .setQty(e.product.id, 0),
+                                    .removeLineItem(item.id),
                               ),
                             )),
 
@@ -238,15 +228,13 @@ class CartScreen extends ConsumerWidget {
 }
 
 class _CartItemCard extends StatelessWidget {
-  final ProductModel product;
-  final int qty;
+  final CartItem item;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
   final VoidCallback onDelete;
 
   const _CartItemCard({
-    required this.product,
-    required this.qty,
+    required this.item,
     required this.onAdd,
     required this.onRemove,
     required this.onDelete,
@@ -273,9 +261,20 @@ class _CartItemCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               color: colors.primaryRed.withValues(alpha: 0.12),
             ),
-            child: Center(
-              child: Text(product.emoji, style: const TextStyle(fontSize: 30)),
-            ),
+            child: (item.product.imageUrl != null && item.product.imageUrl!.isNotEmpty)
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      item.product.imageUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Center(
+                        child: Text(item.product.emoji, style: const TextStyle(fontSize: 28)),
+                      ),
+                    ),
+                  )
+                : Center(
+                    child: Text(item.product.emoji, style: const TextStyle(fontSize: 28)),
+                  ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -283,17 +282,32 @@ class _CartItemCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.name,
+                  item.displayName,
                   style: GoogleFonts.dmSans(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: colors.textPrimary,
                   ),
                 ),
+                if (item.addonsDescription != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    '+ ${item.addonsDescription!}',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w500,
+                      color: colors.textMuted,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 4),
-                PriceText(
-                  price: product.price,
-                  originalPrice: product.originalPrice,
+                Text(
+                  'Rs ${item.totalPrice.toStringAsFixed(0)}',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: colors.primaryRed,
+                  ),
                 ),
               ],
             ),
@@ -312,7 +326,7 @@ class _CartItemCard extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text('$qty', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: Text('${item.quantity}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
                 GestureDetector(
                   onTap: onAdd,

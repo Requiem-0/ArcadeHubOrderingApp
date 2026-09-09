@@ -1,7 +1,7 @@
-import 'package:flutter/services.dart';
-// lib/features/home/home_screen.dart
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -97,7 +97,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   horizontal: AppSpacing.lg,
                   vertical: AppSpacing.sm,
                 ),
-                color: colors.scaffold,
+                decoration: BoxDecoration(
+                  color: colors.scaffold,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: colors.borderSubtle,
+                      width: 1,
+                    ),
+                  ),
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -579,13 +587,13 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
                 children: [
                   // Subtle watermark in the background
                   Positioned(
-                    right: widget.isLarge ? -15 : -10,
-                    bottom: widget.isLarge ? -15 : -10,
+                    right: widget.isLarge ? -15 : -8,
+                    bottom: widget.isLarge ? -15 : -8,
                     child: Transform.rotate(
                       angle: -0.2,
                       child: Icon(
                         exp.iconData,
-                        size: widget.isLarge ? 110 : 64,
+                        size: widget.isLarge ? 110 : 52,
                         color: fgColor.withValues(alpha: colors.isDark ? 0.05 : 0.12),
                       ),
                     ),
@@ -593,7 +601,10 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
                   // Foreground content
                   Positioned.fill(
                     child: Padding(
-                      padding: EdgeInsets.all(widget.isLarge ? AppSpacing.md : 10),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: widget.isLarge ? AppSpacing.md : 6,
+                        vertical: widget.isLarge ? AppSpacing.md : 8,
+                      ),
                       child: widget.isLarge
                           ? _buildLargeLayout(exp, fgColor, bgColor, colors)
                           : _buildSmallLayout(exp, fgColor, colors),
@@ -655,22 +666,34 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
   }
 
   Widget _buildSmallLayout(ArcadeExperience exp, Color fgColor, AppThemeColors colors) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(exp.iconData, color: fgColor, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          exp.name,
-          style: GoogleFonts.dmSans(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w700,
-            color: colors.textPrimary,
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 24,
+            width: 24,
+            child: Center(
+              child: Icon(exp.iconData, color: fgColor, size: 22),
+            ),
           ),
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
+          const SizedBox(height: 6),
+          Text(
+            exp.name,
+            style: GoogleFonts.dmSans(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+              color: colors.textPrimary,
+              height: 1.0,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -725,14 +748,9 @@ class _FeaturedZoneCard extends StatelessWidget {
             child: GestureDetector(
               onTap: () => context.push('/experience/${exp.id}'),
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
+                margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 decoration: BoxDecoration(
-                  color: colors.cardElevated,
                   borderRadius: BorderRadius.circular(32),
-                  border: Border.all(
-                    color: fgColor.withValues(alpha: 0.25),
-                    width: 1,
-                  ),
                   boxShadow: colors.isDark
                       ? [
                           BoxShadow(
@@ -742,107 +760,145 @@ class _FeaturedZoneCard extends StatelessWidget {
                             offset: const Offset(0, 15),
                           ),
                         ]
-                      : colors.cardShadow,
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // Parallax Photographic Background
-                    Image.network(
-                      _getZoneImage(exp.id),
-                      fit: BoxFit.cover,
-                      alignment: Alignment(pageOffset * 0.8, 0),
-                    ),
-                    
-                    // Gradient overlay to make text readable (Wonderous style)
-                    Positioned.fill(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.black.withValues(alpha: 0.7),
-                              Colors.transparent,
-                              Colors.black.withValues(alpha: 0.9),
-                            ],
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            stops: const [0.0, 0.4, 1.0],
+                      : const [
+                          BoxShadow(
+                            color: Color(0x30000000),
+                            blurRadius: 24,
+                            spreadRadius: 0,
+                            offset: Offset(0, 10),
                           ),
-                        ),
-                      ),
-                    ),
-                    
-                    // Content
-                    Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Top Bar (Tag and Icon)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.6),
-                                  borderRadius: BorderRadius.circular(999),
-                                  border: Border.all(color: fgColor.withValues(alpha: 0.5)),
-                                ),
-                                child: Text(
-                                  exp.featureTag.toUpperCase(),
-                                  style: GoogleFonts.dmSans(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.5,
-                                    color: fgColor,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.4),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: fgColor.withValues(alpha: 0.4)),
-                                ),
-                                child: Icon(
-                                  exp.iconData,
-                                  color: fgColor,
-                                  size: 20,
-                                ),
-                              ),
-                            ],
-                          ),
-                          
-                          const Spacer(),
-                          
-                          // Bottom Info
-                          Text(
-                            exp.name,
-                            style: GoogleFonts.outfit(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
-                              height: 1.1,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            exp.tagline,
-                            style: GoogleFonts.dmSans(
-                              fontSize: 13,
-                              color: Colors.white70,
-                              height: 1.4,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          BoxShadow(
+                            color: Color(0x14000000),
+                            blurRadius: 8,
+                            offset: Offset(0, 3),
                           ),
                         ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(32),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: colors.isDark
+                            ? fgColor.withValues(alpha: 0.25)
+                            : Colors.white.withValues(alpha: 0.4),
+                        width: 1.5,
                       ),
+                      borderRadius: BorderRadius.circular(32),
                     ),
-                  ],
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Parallax Photographic Background
+                        Image.network(
+                          _getZoneImage(exp.id),
+                          fit: BoxFit.cover,
+                          alignment: Alignment(pageOffset * 0.8, 0),
+                        ),
+                        
+                        // Gradient overlay to make text readable (Wonderous style)
+                        Positioned.fill(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.black.withValues(alpha: 0.8),
+                                  Colors.black.withValues(alpha: 0.15),
+                                  Colors.black.withValues(alpha: 0.85),
+                                ],
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                stops: const [0.0, 0.5, 1.0],
+                              ),
+                            ),
+                          ),
+                        ),
+                        
+                        // Content
+                        Padding(
+                          padding: const EdgeInsets.all(22),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Top Bar (Tag and Icon)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(999),
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withValues(alpha: 0.55),
+                                          borderRadius: BorderRadius.circular(999),
+                                          border: Border.all(color: fgColor.withValues(alpha: 0.6)),
+                                        ),
+                                        child: Text(
+                                          exp.featureTag.toUpperCase(),
+                                          style: GoogleFonts.dmSans(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 1.5,
+                                            color: fgColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(999),
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withValues(alpha: 0.45),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: fgColor.withValues(alpha: 0.5)),
+                                        ),
+                                        child: Icon(
+                                          exp.iconData,
+                                          color: fgColor,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              
+                              const Spacer(),
+                              
+                              // Bottom Info
+                              Text(
+                                exp.name,
+                                style: GoogleFonts.outfit(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  height: 1.1,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                exp.tagline,
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 13,
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                  height: 1.4,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -1401,7 +1457,7 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          ref.read(cartProvider.notifier).add(product.id);
+                          ref.read(cartProvider.notifier).add(product.id, product);
                           AppToast.showSuccess(context, 'Added "${product.name}" to cart');
                         },
                         style: ElevatedButton.styleFrom(

@@ -19,8 +19,8 @@ const List<ProductModel> kSampleProducts = [
       ProductVariant(id: 'v2', label: 'Grilled Chicken Supreme', price: 820),
     ],
     addons: [
-      ProductAddon(id: 'a1', name: 'Extra Guacamole', price: 150),
-      ProductAddon(id: 'a2', name: 'Extra Melted Cheese', price: 120),
+      ProductAddon(id: 'a1', name: 'Extra Guacamole', price: 150, maxAvailable: 3),
+      ProductAddon(id: 'a2', name: 'Extra Melted Cheese', price: 120, maxAvailable: 5),
     ],
   ),
   ProductModel(
@@ -52,7 +52,8 @@ const List<ProductModel> kSampleProducts = [
       ProductVariant(id: 'v2', label: 'Double Patty Beast', price: 1190),
     ],
     addons: [
-      ProductAddon(id: 'a1', name: 'Crispy Potato Wedges', price: 200),
+      ProductAddon(id: 'a1', name: 'Crispy Potato Wedges', price: 200, maxAvailable: 4),
+      ProductAddon(id: 'a2', name: 'Extra Cheddar Slice', price: 80, maxAvailable: 3),
     ],
   ),
   ProductModel(

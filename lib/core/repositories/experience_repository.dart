@@ -24,6 +24,7 @@ class ExperienceRepository {
         capacity: '25 Players',
         operatingHours: '10:00 AM – 2:00 AM',
         setupDetail: '4x PS5 Pro • 4K HDR • Darts',
+        imageUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop',
       ),
       ExperienceModel(
         id: 'partyroom',
@@ -42,6 +43,7 @@ class ExperienceRepository {
         capacity: '40 Guests',
         operatingHours: '11:00 AM – 3:00 AM',
         setupDetail: '4K Projector • Pro Sound System',
+        imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1974&auto=format&fit=crop',
       ),
       ExperienceModel(
         id: 'rooftop',
@@ -60,6 +62,7 @@ class ExperienceRepository {
         capacity: '50 Seated',
         operatingHours: '4:00 PM – 1:00 AM',
         setupDetail: 'Open-Air Sky Deck & Lounge',
+        imageUrl: 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?q=80&w=1974&auto=format&fit=crop',
       ),
       ExperienceModel(
         id: 'sportsbar',
@@ -78,6 +81,7 @@ class ExperienceRepository {
         capacity: '60 Seated',
         operatingHours: '12:00 PM – 2:00 AM',
         setupDetail: '10x 4K HD Displays • Full Bar',
+        imageUrl: 'https://images.unsplash.com/photo-1575444758702-4a6b9222336e?q=80&w=2070&auto=format&fit=crop',
       ),
       ExperienceModel(
         id: 'area51',
@@ -96,6 +100,7 @@ class ExperienceRepository {
         capacity: '20 Guests',
         operatingHours: '5:00 PM – 2:00 AM',
         setupDetail: 'Neon Outdoor Garden & TT',
+        imageUrl: 'https://images.unsplash.com/photo-1566737236500-c8ac43014a67?q=80&w=2070&auto=format&fit=crop',
       ),
       ExperienceModel(
         id: 'easyroom',
@@ -114,6 +119,7 @@ class ExperienceRepository {
         capacity: '12 Guests',
         operatingHours: '10:00 AM – 2:00 AM',
         setupDetail: 'Luxury Sofa Lounge & PS5',
+        imageUrl: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=2070&auto=format&fit=crop',
       ),
     ];
   }

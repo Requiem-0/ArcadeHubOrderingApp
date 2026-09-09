@@ -91,8 +91,8 @@ class FavouritesScreen extends ConsumerWidget {
                     return EmptyState(
                       iconData: Icons.favorite_border_rounded,
                       iconColor: const Color(0xFFFF3B5C),
-                      title: 'No Favourites Yet',
-                      subtitle: 'Tap the heart on any menu item or drink to save it here for quick reordering.',
+                      title: 'No favourites yet',
+                      subtitle: 'Tap the heart on any item to save it here.',
                       action: SizedBox(
                         width: 180,
                         child: PrimaryButton(
@@ -115,7 +115,8 @@ class FavouritesScreen extends ConsumerWidget {
                     itemCount: favProducts.length,
                     itemBuilder: (context, i) {
                       final p = favProducts[i];
-                      final qty = cart[p.id] ?? 0;
+                      final qty = ref.read(cartProvider.notifier).getProductQuantity(p.id);
+
                       return GestureDetector(
                         onTap: () => context.push('/product/${p.id}'),
                         child: Container(
@@ -123,8 +124,7 @@ class FavouritesScreen extends ConsumerWidget {
                             color: colors.card,
                             borderRadius:
                                 BorderRadius.circular(AppTheme.radiusCard),
-                            border:
-                                Border.all(color: colors.border),
+                            border: Border.all(color: colors.border),
                             boxShadow: colors.cardShadow,
                           ),
                           child: Column(
@@ -193,18 +193,20 @@ class FavouritesScreen extends ConsumerWidget {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      p.category.toUpperCase(),
-                                      style: AppTextStyles.label(
-                                          colors.textMuted),
-                                    ),
+                                    if (p.category.isNotEmpty && p.category.toLowerCase() != 'all') ...[
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        p.category.toUpperCase(),
+                                        style: AppTextStyles.label(
+                                            colors.textMuted),
+                                      ),
+                                    ],
                                     const SizedBox(height: 8),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        PriceText(price: p.price),
+                                        PriceText(price: p.effectivePrice, originalPrice: p.displayOriginalPrice),
                                         if (qty > 0)
                                           Container(
                                             padding: const EdgeInsets.symmetric(
@@ -224,7 +226,7 @@ class FavouritesScreen extends ConsumerWidget {
                                           GestureDetector(
                                             onTap: () => ref
                                                 .read(cartProvider.notifier)
-                                                .add(p.id),
+                                                .add(p.id, p),
                                             child: Container(
                                               width: 26,
                                               height: 26,

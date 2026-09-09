@@ -29,7 +29,7 @@ class AppBottomNavBar extends ConsumerWidget {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 28),
+        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 32),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(32),
           child: BackdropFilter(

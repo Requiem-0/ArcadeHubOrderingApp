@@ -1,4 +1,5 @@
 // lib/features/experiences/experience_detail_screen.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +11,7 @@ import '../../core/repositories/experience_repository.dart';
 import '../../core/repositories/service_repository.dart';
 import '../../core/repositories/pos_repository.dart';
 import '../../core/models/experience.dart';
+import '../../shared/widgets/price_text.dart';
 
 class ExperienceDetailScreen extends ConsumerWidget {
   final String experienceId;
@@ -28,7 +30,9 @@ class ExperienceDetailScreen extends ConsumerWidget {
         loading: () => Center(
           child: CircularProgressIndicator(color: colors.primaryRed),
         ),
-        error: (err, _) => Center(child: Text('Error: $err', style: TextStyle(color: colors.textPrimary))),
+        error: (err, _) => Center(
+          child: Text('Error: $err', style: TextStyle(color: colors.textPrimary)),
+        ),
         data: (experiences) {
           final exp = experiences.firstWhere(
             (e) => e.id == experienceId,
@@ -36,191 +40,250 @@ class ExperienceDetailScreen extends ConsumerWidget {
           );
 
           final fgColor = colors.resolveZoneForeground(exp.color);
-          final bgColor = colors.resolveZoneBackground(exp.color);
-          final borderColor = colors.resolveZoneBorder(exp.color);
+          final heroPhoto = exp.imageUrl ??
+              'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop';
 
           return CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // ── 1. Hero Header ─
+              // ── 1. Hero Photography Header ────────────────────────────
               SliverAppBar(
-                expandedHeight: 160,
+                expandedHeight: 250,
                 pinned: true,
                 backgroundColor: colors.scaffold,
                 surfaceTintColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                scrolledUnderElevation: 0,
                 elevation: 0,
+                forceElevated: false,
                 leading: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back_ios_new_rounded,
-                        color: colors.textPrimary, size: 18),
-                    style: IconButton.styleFrom(
-                      backgroundColor: colors.card,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusSM),
-                        side: BorderSide(color: colors.border),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: colors.isDark
+                              ? Colors.black.withValues(alpha: 0.5)
+                              : Colors.white.withValues(alpha: 0.90),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+                          border: Border.all(
+                            color: colors.isDark
+                                ? Colors.white.withValues(alpha: 0.15)
+                                : const Color(0xFFE2E8F0),
+                            width: 1,
+                          ),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x1A000000),
+                              blurRadius: 10,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: colors.isDark ? Colors.white : const Color(0xFF0F172A),
+                            size: 18,
+                          ),
+                          onPressed: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            } else {
+                              context.go('/home');
+                            }
+                          },
+                        ),
                       ),
                     ),
-                    onPressed: () {
-                      if (context.canPop()) {
-                        context.pop();
-                      } else {
-                        context.go('/home');
-                      }
-                    },
                   ),
                 ),
                 flexibleSpace: FlexibleSpaceBar(
-                  background: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          fgColor.withValues(alpha: colors.isDark ? 0.25 : 0.12),
-                          fgColor.withValues(alpha: colors.isDark ? 0.05 : 0.02),
-                          colors.scaffold,
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+                  collapseMode: CollapseMode.parallax,
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Real Zone Hero Photo
+                      Image.network(
+                        heroPhoto,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: colors.isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                          child: Center(
+                            child: Icon(exp.iconData, size: 64, color: fgColor),
+                          ),
+                        ),
                       ),
-                    ),
-                    child: SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.end,
+
+                      // Multi-stop Atmospheric Scrim Gradient that blends 100% seamlessly into colors.scaffold
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.black.withValues(alpha: 0.50),
+                              Colors.black.withValues(alpha: 0.20),
+                              Colors.black.withValues(alpha: 0.65),
+                              colors.scaffold.withValues(alpha: 0.92),
+                              colors.scaffold,
+                            ],
+                            stops: const [0.0, 0.28, 0.58, 0.88, 1.0],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                      ),
+
+                      // Solid bottom overlap strip to eliminate sub-pixel rasterization seams on Chrome
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: -1,
+                        height: 4,
+                        child: Container(
+                          color: colors.scaffold,
+                        ),
+                      ),
+
+                      // Floating Bottom Badge & Title Info
+                      Positioned(
+                        left: 20,
+                        right: 20,
+                        bottom: 12,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Row(
-                              children: [
-                                // Glassmorphic Dual-Shadow Icon Box
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: bgColor,
-                                    borderRadius: BorderRadius.circular(18),
-                                    border: Border.all(
-                                      color: borderColor,
-                                      width: 1.5,
-                                    ),
-                                    boxShadow: colors.isDark
-                                        ? [
-                                            BoxShadow(
-                                              color: fgColor.withValues(alpha: 0.25),
-                                              blurRadius: 12,
-                                              spreadRadius: 0,
-                                              offset: const Offset(0, 3),
-                                            ),
-                                          ]
-                                        : colors.cardShadow,
+                            // Glassmorphic Solid Icon Box
+                            Container(
+                              padding: const EdgeInsets.all(13),
+                              decoration: BoxDecoration(
+                                color: colors.isDark
+                                    ? const Color(0xFF1E293B).withValues(alpha: 0.9)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: colors.isDark
+                                      ? Colors.white.withValues(alpha: 0.2)
+                                      : const Color(0xFFE2E8F0),
+                                  width: 1.5,
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0x33000000),
+                                    blurRadius: 18,
+                                    offset: Offset(0, 6),
                                   ),
-                                  child: Hero(
-                                    tag: 'zone_icon_${exp.id}',
-                                    child: Icon(
-                                      exp.iconData,
+                                ],
+                              ),
+                              child: Hero(
+                                tag: 'zone_icon_${exp.id}',
+                                child: Icon(
+                                  exp.iconData,
+                                  color: fgColor,
+                                  size: 30,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+
+                            // Zone Name & Solid Contrast Tag
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Solid Saturated Pill Badge
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
                                       color: fgColor,
-                                      size: 28,
+                                      borderRadius: BorderRadius.circular(999),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Color(0x28000000),
+                                          blurRadius: 6,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Text(
+                                      'ZONE ${exp.indexNumber} • ${exp.featureTag.toUpperCase()}',
+                                      style: GoogleFonts.dmSans(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                        letterSpacing: 0.8,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '${exp.featureTag.toUpperCase()} • ZONE ${exp.indexNumber}',
-                                        style: GoogleFonts.dmSans(
-                                          fontSize: 10.5,
-                                          fontWeight: FontWeight.bold,
-                                          color: fgColor,
-                                          letterSpacing: 1.2,
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    exp.name,
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 27,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white,
+                                      letterSpacing: -0.5,
+                                      shadows: const [
+                                        Shadow(
+                                          color: Colors.black87,
+                                          blurRadius: 10,
+                                          offset: Offset(0, 2),
                                         ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        exp.name,
-                                        style: GoogleFonts.outfit(
-                                          fontSize: 26,
-                                          fontWeight: FontWeight.bold,
-                                          color: colors.textPrimary,
-                                        ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
 
               // ── 2. Content Body ─────────────────────────────────────
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    // Typographic Pull-Quote Hook
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 3.5,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: fgColor,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Text(
-                            exp.tagline,
-                            style: GoogleFonts.outfit(
-                              fontSize: 15.5,
-                              fontWeight: FontWeight.w600,
-                              color: colors.textPrimary,
-                              height: 1.35,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
                     // Section: About
                     Text(
                       'About ${exp.name}',
                       style: GoogleFonts.outfit(
-                        fontSize: 17,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: colors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      exp.description,
+                      '${exp.tagline}. ${exp.description}',
                       style: GoogleFonts.dmSans(
-                        fontSize: 13.5,
-                        color: colors.textMuted,
-                        height: 1.45,
+                        fontSize: 14,
+                        color: colors.isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF334155),
+                        height: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
 
-                    // Hardware & Venue Spec Tag
+                    // Venue Spec Tag
                     Align(
                       alignment: Alignment.centerLeft,
                       child: _SpecChip(
-                          label: exp.setupDetail, fgColor: fgColor, bgColor: bgColor, borderColor: borderColor),
+                        label: exp.setupDetail,
+                        fgColor: fgColor,
+                      ),
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 30),
 
-                    // Section: Dynamic Content (Stations vs Menu)
+                    // Section: Dynamic Content (Dining Menu vs Gaming/Lounge Stations)
                     if (exp.type == ExperienceType.dining)
                       _ZoneProductsList(zoneId: exp.id, fgColor: fgColor)
                     else
@@ -230,12 +293,12 @@ class ExperienceDetailScreen extends ConsumerWidget {
                           Text(
                             'Available Stations & Services',
                             style: GoogleFonts.outfit(
-                              fontSize: 17,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: colors.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 14),
                           servicesAsync.when(
                             loading: () => const Center(
                               child: CircularProgressIndicator(),
@@ -247,18 +310,18 @@ class ExperienceDetailScreen extends ConsumerWidget {
                             data: (services) {
                               if (services.isEmpty) {
                                 return Container(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: const EdgeInsets.all(18),
                                   decoration: BoxDecoration(
                                     color: colors.card,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(color: colors.border),
+                                    borderRadius: BorderRadius.circular(18),
+                                    border: Border.all(color: colors.borderSubtle),
                                     boxShadow: colors.cardShadow,
                                   ),
                                   child: Text(
                                     'No specific bookable stations listed right now. Walk-in seating is available!',
                                     style: GoogleFonts.dmSans(
                                         color: colors.textMuted,
-                                        fontSize: 13),
+                                        fontSize: 13.5),
                                   ),
                                 );
                               }
@@ -266,14 +329,14 @@ class ExperienceDetailScreen extends ConsumerWidget {
                               return Column(
                                 children: services.map((srv) {
                                   return Container(
-                                    margin: const EdgeInsets.only(bottom: 10),
-                                    padding: const EdgeInsets.fromLTRB(16, 12, 14, 12),
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
                                     decoration: BoxDecoration(
                                       color: colors.card,
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(18),
                                       border: Border.all(
-                                        color: fgColor.withValues(alpha: 0.35),
-                                        width: 1.2,
+                                        color: colors.borderSubtle,
+                                        width: 1,
                                       ),
                                       boxShadow: colors.cardShadow,
                                     ),
@@ -291,7 +354,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                                     child: Text(
                                                       srv.name,
                                                       style: GoogleFonts.outfit(
-                                                        fontSize: 15.5,
+                                                        fontSize: 16,
                                                         fontWeight: FontWeight.bold,
                                                         color: colors.textPrimary,
                                                       ),
@@ -301,25 +364,25 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                                     Text(
                                                       'Rs ${srv.price?.toInt()}',
                                                       style: GoogleFonts.outfit(
-                                                        fontSize: 15,
-                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: 15.5,
+                                                        fontWeight: FontWeight.w700,
                                                         color: fgColor,
                                                       ),
                                                     ),
                                                   ],
                                                 ],
                                               ),
-                                              const SizedBox(height: 2),
+                                              const SizedBox(height: 3),
                                               Text(
                                                 srv.description,
                                                 style: GoogleFonts.dmSans(
-                                                  fontSize: 12,
+                                                  fontSize: 12.5,
                                                   color: colors.textMuted,
-                                                  height: 1.3,
+                                                  height: 1.35,
                                                 ),
                                               ),
                                               if (srv.durationText != null) ...[
-                                                const SizedBox(height: 5),
+                                                const SizedBox(height: 6),
                                                 Row(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.center,
@@ -334,7 +397,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                                       srv.durationText!,
                                                       style: GoogleFonts.dmSans(
                                                         fontSize: 11.5,
-                                                        fontWeight: FontWeight.w600,
+                                                        fontWeight: FontWeight.bold,
                                                         color: fgColor,
                                                       ),
                                                     ),
@@ -345,7 +408,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                           ),
                                         ),
                                         if (srv.isBookable) ...[
-                                          const SizedBox(width: 12),
+                                          const SizedBox(width: 14),
                                           ElevatedButton(
                                             onPressed: () {
                                               context.push(
@@ -356,8 +419,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                               foregroundColor: Colors.white,
                                               elevation: 0,
                                               padding: const EdgeInsets.symmetric(
-                                                  horizontal: 16, vertical: 6),
-                                              minimumSize: const Size(0, 32),
+                                                  horizontal: 18, vertical: 8),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(20),
@@ -366,7 +428,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                             child: const Text(
                                               'Book',
                                               style: TextStyle(
-                                                fontSize: 12,
+                                                fontSize: 12.5,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -395,14 +457,10 @@ class ExperienceDetailScreen extends ConsumerWidget {
 class _SpecChip extends StatelessWidget {
   final String label;
   final Color fgColor;
-  final Color bgColor;
-  final Color borderColor;
 
   const _SpecChip({
     required this.label,
     required this.fgColor,
-    required this.bgColor,
-    required this.borderColor,
   });
 
   @override
@@ -410,28 +468,29 @@ class _SpecChip extends StatelessWidget {
     final colors = context.appColors;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
+        color: colors.card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colors.borderSubtle, width: 1),
+        boxShadow: colors.cardShadow,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 5,
-            height: 5,
+            width: 7,
+            height: 7,
             decoration: BoxDecoration(
               color: fgColor,
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           Text(
             label,
             style: GoogleFonts.dmSans(
-              fontSize: 11.5,
+              fontSize: 12.5,
               fontWeight: FontWeight.w600,
               color: colors.textPrimary,
             ),
@@ -462,32 +521,39 @@ class _ZoneProductsList extends ConsumerWidget {
             Text(
               'Food & Drinks Menu',
               style: GoogleFonts.outfit(
-                fontSize: 17,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: colors.textPrimary,
               ),
             ),
             GestureDetector(
               onTap: () => context.push('/food-menu'),
-              child: Row(
-                children: [
-                  Text(
-                    'Full Menu',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: fgColor,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: fgColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      'Full Menu',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: fgColor,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(Icons.arrow_forward_ios_rounded,
-                      size: 11, color: fgColor),
-                ],
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_forward_ios_rounded,
+                        size: 10, color: fgColor),
+                  ],
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         productsAsync.when(
           loading: () => Center(
             child: CircularProgressIndicator(color: fgColor),
@@ -500,11 +566,11 @@ class _ZoneProductsList extends ConsumerWidget {
             if (products.isEmpty) {
               return Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
                   color: colors.card,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: colors.border),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: colors.borderSubtle),
                   boxShadow: colors.cardShadow,
                 ),
                 child: Column(
@@ -516,17 +582,19 @@ class _ZoneProductsList extends ConsumerWidget {
                         fontSize: 13.5,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
                     ElevatedButton(
                       onPressed: () => context.push('/food-menu'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: fgColor,
                         foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text('Open Food & Drinks Menu',
+                      child: const Text('Open Menu',
                           style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ],
@@ -547,21 +615,24 @@ class _ZoneProductsList extends ConsumerWidget {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: colors.card,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(18),
                       border: Border.all(
-                        color: fgColor.withValues(alpha: 0.15),
+                        color: colors.borderSubtle,
+                        width: 1,
                       ),
                       boxShadow: colors.cardShadow,
                     ),
                     child: Row(
                       children: [
-                        // Image / Emoji
+                        // Image / Emoji with clean rounded framing
                         Container(
-                          width: 64,
-                          height: 64,
+                          width: 68,
+                          height: 68,
                           decoration: BoxDecoration(
-                            color: fgColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
+                            color: colors.isDark
+                                ? const Color(0xFF1E293B)
+                                : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(14),
                           ),
                           clipBehavior: Clip.antiAlias,
                           child: (product.imageUrl != null &&
@@ -569,7 +640,8 @@ class _ZoneProductsList extends ConsumerWidget {
                               ? Image.network(
                                   product.imageUrl!,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) => Center(
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Center(
                                     child: Text(product.emoji,
                                         style: const TextStyle(fontSize: 28)),
                                   ),
@@ -580,7 +652,8 @@ class _ZoneProductsList extends ConsumerWidget {
                                 ),
                         ),
                         const SizedBox(width: 14),
-                        // Details
+
+                        // Details Column
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -592,30 +665,78 @@ class _ZoneProductsList extends ConsumerWidget {
                                   fontWeight: FontWeight.bold,
                                   color: colors.textPrimary,
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                product.description,
-                                style: GoogleFonts.dmSans(
-                                  fontSize: 12,
-                                  color: colors.textMuted,
-                                  height: 1.3,
-                                ),
-                                maxLines: 2,
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
+                              if (product.category.isNotEmpty &&
+                                  product.category.toLowerCase() != 'all') ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  product.category,
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 11.5,
+                                    color: colors.textMuted,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ] else if (product.description.isNotEmpty) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  product.description,
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 11.5,
+                                    color: colors.textMuted,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                              if (product.hasDiscount && product.discountTag != null) ...[
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: colors.primaryRed.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    product.discountTag!,
+                                    style: GoogleFonts.dmSans(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: colors.primaryRed,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
                         const SizedBox(width: 12),
-                        // Price
-                        Text(
-                          'Rs ${product.price.toInt()}',
-                          style: GoogleFonts.outfit(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: fgColor,
-                          ),
+
+                        // Price & CTA pill
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            PriceText(
+                              price: product.effectivePrice,
+                              originalPrice: product.displayOriginalPrice,
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: fgColor.withValues(alpha: 0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 11,
+                                color: fgColor,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

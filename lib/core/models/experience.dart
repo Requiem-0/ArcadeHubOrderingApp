@@ -18,6 +18,7 @@ class ExperienceModel {
   final String capacity;
   final String operatingHours;
   final String setupDetail;
+  final String? imageUrl;
 
   const ExperienceModel({
     required this.id,
@@ -35,5 +36,6 @@ class ExperienceModel {
     this.capacity = 'Up to 20 Guests',
     this.operatingHours = '10:00 AM – 2:00 AM',
     this.setupDetail = 'Arcade & Gaming Setup',
+    this.imageUrl,
   });
 }

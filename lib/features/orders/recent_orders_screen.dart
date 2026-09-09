@@ -84,8 +84,8 @@ class RecentOrdersScreen extends ConsumerWidget {
                         return EmptyState(
                           iconData: Icons.receipt_long_rounded,
                           iconColor: colors.primaryRed,
-                          title: 'No Orders Yet',
-                          subtitle: 'Your active kitchen orders and past receipts will appear here.',
+                          title: 'No orders yet',
+                          subtitle: 'Your orders and receipts will appear here.',
                           action: SizedBox(
                             width: 180,
                             child: PrimaryButton(

@@ -40,24 +40,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final cart = ref.watch(cartProvider);
+    final items = cart.values.toList();
     final activeDiscount = AppConstants.isDiscountActiveNow();
 
-    final entries = cart.entries
-        .map((e) => (
-              product: kSampleProducts.firstWhere((p) => p.id == e.key,
-                  orElse: () => kSampleProducts.first),
-              qty: e.value
-            ))
-        .toList();
-
-    final subtotal =
-        entries.fold<double>(0, (sum, e) => sum + e.product.price * e.qty);
+    final subtotal = ref.watch(cartSubtotalProvider);
     final discountAmount = activeDiscount
         ? (subtotal * ((AppConstants.discountPercentage ?? 10) / 100)).roundToDouble()
         : 0.0;
     final taxable = subtotal - discountAmount;
-    final tax = (taxable * AppConstants.vatRate).roundToDouble();
-    final total = taxable + tax;
+    final tax = ref.watch(cartVatProvider);
+    final total = ref.watch(cartGrandTotalProvider);
 
     return Scaffold(
       backgroundColor: colors.scaffold,
@@ -85,7 +77,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Checkout Order',
+                    'Checkout',
                     style: GoogleFonts.outfit(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -103,7 +95,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 children: [
                   // Spot / Location Selection
                   Text(
-                    'ORDERING LOCATION / SPOT IN VENUE',
+                    'YOUR SPOT / TABLE',
                     style: GoogleFonts.dmSans(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -116,7 +108,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     controller: _spotCtrl,
                     style: TextStyle(color: colors.textPrimary),
                     decoration: InputDecoration(
-                      hintText: 'e.g. Counter Pickup, Rooftop Table 3...',
+                      hintText: 'e.g. Table 4, Counter...',
                       hintStyle: TextStyle(color: colors.textMuted),
                       filled: true,
                       fillColor: colors.card,
@@ -231,20 +223,37 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         ),
                         Divider(color: colors.border, height: 20),
 
-                        ...entries.map((e) => Padding(
-                              padding: const EdgeInsets.only(bottom: 6),
+                        ...items.map((item) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    '${e.product.name} × ${e.qty}',
-                                    style: GoogleFonts.dmSans(
-                                      fontSize: 13,
-                                      color: colors.textPrimary,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${item.displayName} × ${item.quantity}',
+                                          style: GoogleFonts.dmSans(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: colors.textPrimary,
+                                          ),
+                                        ),
+                                        if (item.addonsDescription != null)
+                                          Text(
+                                            '+ ${item.addonsDescription}',
+                                            style: GoogleFonts.dmSans(
+                                              fontSize: 11,
+                                              color: colors.textMuted,
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                   ),
                                   Text(
-                                    'NPR ${(e.product.price * e.qty).toInt()}',
+                                    'NPR ${item.totalPrice.toInt()}',
                                     style: GoogleFonts.dmSans(
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
@@ -308,12 +317,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               if (cart.isEmpty) return;
               setState(() => _loading = true);
               try {
-                final orderItemsPayload = entries
-                    .map((e) => {
-                          'productId': e.product.id,
-                          'name': e.product.name,
-                          'price': e.product.price,
-                          'qty': e.qty,
+                final orderItemsPayload = items
+                    .map((item) => {
+                          'productId': item.product.id,
+                          'name': item.displayName,
+                          'variantId': item.variant?.id,
+                          'variantLabel': item.variant?.label,
+                          'addons': item.addons,
+                          'price': item.unitPrice,
+                          'qty': item.quantity,
                         })
                     .toList();
 

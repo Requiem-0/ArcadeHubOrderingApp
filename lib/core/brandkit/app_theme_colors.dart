@@ -80,15 +80,16 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     redGlow: Color(0x1AD32F2F),
     cardShadow: [
       BoxShadow(
-        color: Color(0x140F172A),
-        blurRadius: 16,
-        spreadRadius: -2,
-        offset: Offset(0, 6),
+        color: Color(0x0F000000), // rgba(0,0,0,0.06) - pure neutral elevation
+        blurRadius: 14,
+        spreadRadius: 0,
+        offset: Offset(0, 5),
       ),
       BoxShadow(
-        color: Color(0x0A0F172A),
+        color: Color(0x08000000), // rgba(0,0,0,0.03) - subtle contact shadow
         blurRadius: 4,
-        offset: Offset(0, 2),
+        spreadRadius: 0,
+        offset: Offset(0, 1),
       ),
     ],
     isDark: false,
@@ -123,10 +124,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       case 0xFFFF1A1A:
       case 0xDC2626:
         return const Color(0xFFDC2626); // Red 600
-      case 0xF8FAFC: // Rooftop Restro (Silver / White)
+      case 0xF8FAFC: // Rooftop Restro (Sunset Amber / Coral)
       case 0xFFFFFF:
       case 0xE2E8F0:
-        return const Color(0xFF1E293B); // Slate 800
+        return const Color(0xFFEA580C); // Warm Sunset Coral / Amber 600
       default:
         return darkZoneColor;
     }
