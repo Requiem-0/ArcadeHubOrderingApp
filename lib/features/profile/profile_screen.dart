@@ -10,6 +10,7 @@ import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/repositories/auth_repository.dart';
 import '../../core/repositories/order_repository.dart';
 import '../../features/favourites/favourites_provider.dart';
+import '../../shared/widgets/app_network_image.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -325,12 +326,11 @@ class ProfileScreen extends ConsumerWidget {
               ),
               child: ClipOval(
                 child: (imageUrl != null && imageUrl.isNotEmpty)
-                    ? Image.network(
-                        imageUrl,
+                    ? AppNetworkImage(
+                        url: imageUrl,
                         width: 76,
                         height: 76,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Center(
+                        fallback: Center(
                           child: Text(
                             name.isNotEmpty ? name.substring(0, 1).toUpperCase() : 'U',
                             style: GoogleFonts.outfit(

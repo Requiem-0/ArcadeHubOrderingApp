@@ -15,6 +15,7 @@ import '../../features/catalogue/data/product_model.dart';
 import '../../features/catalogue/data/sample_products.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/price_text.dart';
+import '../../shared/widgets/app_network_image.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   final String productId;
@@ -151,19 +152,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         end: Alignment.bottomRight,
                       ),
                     ),
-                    child: (product.imageUrl != null && product.imageUrl!.isNotEmpty)
-                        ? Image.network(
-                            product.imageUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Center(
-                              child: Text(product.emoji,
-                                  style: const TextStyle(fontSize: 90)),
-                            ),
-                          )
-                        : Center(
-                            child: Text(product.emoji,
-                                style: const TextStyle(fontSize: 90)),
-                          ),
+                    child: AppNetworkImage(
+                      url: product.imageUrl,
+                      fallback: Text(product.emoji,
+                          style: const TextStyle(fontSize: 90)),
+                    ),
                   ),
                 ),
               ),

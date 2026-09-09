@@ -44,8 +44,8 @@ class AppNetworkImage extends StatelessWidget {
       height: height,
       alignment: alignment,
       fadeInDuration: const Duration(milliseconds: 220),
-      placeholder: (_, __) => _wrap(const AppLogoPlaceholder(pulsing: true)),
-      errorWidget: (_, __, ___) => _wrap(fallback ?? const AppLogoPlaceholder()),
+      placeholder: (_, _) => _wrap(const AppLogoPlaceholder(pulsing: true)),
+      errorWidget: (_, _, _) => _wrap(fallback ?? const AppLogoPlaceholder()),
     );
   }
 

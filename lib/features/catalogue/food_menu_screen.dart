@@ -10,6 +10,7 @@ import '../../features/favourites/favourites_provider.dart';
 import '../../shared/widgets/category_pill.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/price_text.dart';
+import '../../shared/widgets/app_network_image.dart';
 
 class FoodMenuScreen extends ConsumerStatefulWidget {
   const FoodMenuScreen({super.key});
@@ -241,19 +242,13 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                                             decoration: BoxDecoration(
                                               color: colors.primaryRed.withValues(alpha: 0.08),
                                             ),
-                                            child: (p.imageUrl != null && p.imageUrl!.isNotEmpty)
-                                                ? Image.network(
-                                                    p.imageUrl!,
-                                                    height: 115,
-                                                    width: double.infinity,
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (_, __, ___) => Center(
-                                                      child: Text(p.emoji, style: const TextStyle(fontSize: 48)),
-                                                    ),
-                                                  )
-                                                : Center(
-                                                    child: Text(p.emoji, style: const TextStyle(fontSize: 48)),
-                                                  ),
+                                            child: AppNetworkImage(
+                                              url: p.imageUrl,
+                                              height: 115,
+                                              width: double.infinity,
+                                              fallback: Text(p.emoji,
+                                                  style: const TextStyle(fontSize: 48)),
+                                            ),
                                           ),
                                         ),
                                         if (p.hasDiscount)

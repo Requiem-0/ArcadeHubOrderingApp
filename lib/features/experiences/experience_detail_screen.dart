@@ -12,6 +12,7 @@ import '../../core/repositories/service_repository.dart';
 import '../../core/repositories/pos_repository.dart';
 import '../../core/models/experience.dart';
 import '../../shared/widgets/price_text.dart';
+import '../../shared/widgets/app_network_image.dart';
 
 class ExperienceDetailScreen extends ConsumerWidget {
   final String experienceId;
@@ -106,10 +107,9 @@ class ExperienceDetailScreen extends ConsumerWidget {
                     fit: StackFit.expand,
                     children: [
                       // Real Zone Hero Photo
-                      Image.network(
-                        heroPhoto,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
+                      AppNetworkImage(
+                        url: heroPhoto,
+                        fallback: Container(
                           color: colors.isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
                           child: Center(
                             child: Icon(exp.iconData, size: 64, color: fgColor),
@@ -635,21 +635,11 @@ class _ZoneProductsList extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(14),
                           ),
                           clipBehavior: Clip.antiAlias,
-                          child: (product.imageUrl != null &&
-                                  product.imageUrl!.isNotEmpty)
-                              ? Image.network(
-                                  product.imageUrl!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Center(
-                                    child: Text(product.emoji,
-                                        style: const TextStyle(fontSize: 28)),
-                                  ),
-                                )
-                              : Center(
-                                  child: Text(product.emoji,
-                                      style: const TextStyle(fontSize: 28)),
-                                ),
+                          child: AppNetworkImage(
+                            url: product.imageUrl,
+                            fallback: Text(product.emoji,
+                                style: const TextStyle(fontSize: 28)),
+                          ),
                         ),
                         const SizedBox(width: 14),
 

@@ -14,6 +14,7 @@ import '../../core/utils/app_toast.dart';
 import '../../features/cart/cart_provider.dart';
 import '../../features/catalogue/data/product_model.dart';
 import '../../shared/widgets/app_drawer.dart';
+import '../../shared/widgets/app_network_image.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -790,9 +791,8 @@ class _FeaturedZoneCard extends StatelessWidget {
                       fit: StackFit.expand,
                       children: [
                         // Parallax Photographic Background
-                        Image.network(
-                          _getZoneImage(exp.id),
-                          fit: BoxFit.cover,
+                        AppNetworkImage(
+                          url: _getZoneImage(exp.id),
                           alignment: Alignment(pageOffset * 0.8, 0),
                         ),
                         

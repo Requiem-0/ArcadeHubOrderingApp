@@ -10,6 +10,7 @@ import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/repositories/auth_repository.dart';
 import '../../core/utils/app_toast.dart';
 import '../../shared/widgets/primary_button.dart';
+import '../../shared/widgets/app_network_image.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -219,12 +220,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               height: 96,
                             )
                           : (_currentImageUrl != null && _currentImageUrl!.isNotEmpty)
-                              ? Image.network(
-                                  _currentImageUrl!,
-                                  fit: BoxFit.cover,
+                              ? AppNetworkImage(
+                                  url: _currentImageUrl,
                                   width: 96,
                                   height: 96,
-                                  errorBuilder: (_, __, ___) => Center(
+                                  fallback: Center(
                                     child: Text(
                                       initials,
                                       style: AppTextStyles.headingL(Colors.white),

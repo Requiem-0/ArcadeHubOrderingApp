@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/brandkit/experiences.dart';
 import '../../core/repositories/auth_repository.dart';
+import 'app_network_image.dart';
 
 class ArcadeAppDrawer extends ConsumerWidget {
   const ArcadeAppDrawer({super.key});
@@ -172,12 +173,11 @@ class ArcadeAppDrawer extends ConsumerWidget {
                                   child: ClipOval(
                                     child: isLoggedIn
                                         ? (user.image != null && user.image!.isNotEmpty)
-                                            ? Image.network(
-                                                user.image!,
+                                            ? AppNetworkImage(
+                                                url: user.image,
                                                 width: 32,
                                                 height: 32,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) => Center(
+                                                fallback: Center(
                                                   child: Text(
                                                     user.name.isNotEmpty
                                                         ? user.name.substring(0, 1).toUpperCase()

@@ -15,6 +15,7 @@ import '../../shared/widgets/price_text.dart';
 
 import '../../core/repositories/pos_repository.dart';
 import '../../core/repositories/auth_repository.dart';
+import '../../shared/widgets/app_network_image.dart';
 
 class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
@@ -261,20 +262,14 @@ class _CartItemCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               color: colors.primaryRed.withValues(alpha: 0.12),
             ),
-            child: (item.product.imageUrl != null && item.product.imageUrl!.isNotEmpty)
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      item.product.imageUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Center(
-                        child: Text(item.product.emoji, style: const TextStyle(fontSize: 28)),
-                      ),
-                    ),
-                  )
-                : Center(
-                    child: Text(item.product.emoji, style: const TextStyle(fontSize: 28)),
-                  ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: AppNetworkImage(
+                url: item.product.imageUrl,
+                fallback: Text(item.product.emoji,
+                    style: const TextStyle(fontSize: 28)),
+              ),
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(

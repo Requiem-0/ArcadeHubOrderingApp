@@ -13,6 +13,7 @@ import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/primary_button.dart';
 import '../../shared/widgets/secondary_button.dart';
 import '../../shared/widgets/price_text.dart';
+import '../../shared/widgets/app_network_image.dart';
 
 class FavouritesScreen extends ConsumerWidget {
   const FavouritesScreen({super.key});
@@ -141,19 +142,13 @@ class FavouritesScreen extends ConsumerWidget {
                                       decoration: BoxDecoration(
                                         color: colors.primaryRed.withValues(alpha: 0.1),
                                       ),
-                                      child: (p.imageUrl != null && p.imageUrl!.isNotEmpty)
-                                          ? Image.network(
-                                              p.imageUrl!,
-                                              height: 110,
-                                              width: double.infinity,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (_, __, ___) => Center(
-                                                child: Text(p.emoji, style: const TextStyle(fontSize: 44)),
-                                              ),
-                                            )
-                                          : Center(
-                                              child: Text(p.emoji, style: const TextStyle(fontSize: 44)),
-                                            ),
+                                      child: AppNetworkImage(
+                                        url: p.imageUrl,
+                                        height: 110,
+                                        width: double.infinity,
+                                        fallback: Text(p.emoji,
+                                            style: const TextStyle(fontSize: 44)),
+                                      ),
                                     ),
                                   ),
                                   Positioned(
