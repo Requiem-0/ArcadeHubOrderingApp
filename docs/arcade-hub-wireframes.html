@@ -1,0 +1,926 @@
+<title>Arcade Hub Wireframes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #eceef2;
+    --surface: #f8f9fb;
+    --ink: #1a1d23;
+    --ink-2: #4a505b;
+    --ink-3: #7a808b;
+    --rule: #d3d7de;
+    --wire-line: #a9afb9;
+    --wire-fill: #e1e4ea;
+    --wire-dark: #3a3f48;
+    --phone: #ffffff;
+    --phone-edge: #c6cbd3;
+    --brand: #cc0000;
+    --live: #1f7a4d;
+    --live-bg: #dff1e7;
+    --ph: #9a6400;
+    --ph-bg: #f7ebd2;
+    --broken: #c01818;
+    --broken-bg: #f9dede;
+    --orphan: #5b4fa8;
+    --orphan-bg: #e7e4f6;
+    --hatch: rgba(26, 29, 35, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #121418;
+      --surface: #191c21;
+      --ink: #eceef2;
+      --ink-2: #b4bac4;
+      --ink-3: #858c97;
+      --rule: #2b2f37;
+      --wire-line: #4d535d;
+      --wire-fill: #262a31;
+      --wire-dark: #c9ced6;
+      --phone: #1e2127;
+      --phone-edge: #363b44;
+      --brand: #ff4a4a;
+      --live: #5fd39a;
+      --live-bg: #16322a;
+      --ph: #f0b95a;
+      --ph-bg: #362a14;
+      --broken: #ff7272;
+      --broken-bg: #3a1a1c;
+      --orphan: #b3a9f0;
+      --orphan-bg: #27233f;
+      --hatch: rgba(236, 238, 242, 0.07);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #121418;
+    --surface: #191c21;
+    --ink: #eceef2;
+    --ink-2: #b4bac4;
+    --ink-3: #858c97;
+    --rule: #2b2f37;
+    --wire-line: #4d535d;
+    --wire-fill: #262a31;
+    --wire-dark: #c9ced6;
+    --phone: #1e2127;
+    --phone-edge: #363b44;
+    --brand: #ff4a4a;
+    --live: #5fd39a;
+    --live-bg: #16322a;
+    --ph: #f0b95a;
+    --ph-bg: #362a14;
+    --broken: #ff7272;
+    --broken-bg: #3a1a1c;
+    --orphan: #b3a9f0;
+    --orphan-bg: #27233f;
+    --hatch: rgba(236, 238, 242, 0.07);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font: 15px/1.55 "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+  }
+  h1, h2, h3 { font-family: Outfit, "DM Sans", system-ui, sans-serif; text-wrap: balance; margin: 0; }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 0.86em; }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 4px; }
+
+  .page { max-width: 1240px; margin: 0 auto; padding: 40px 24px 80px; display: grid; gap: 56px; }
+
+  /* ── Masthead ───────────────────────────── */
+  .mast { display: grid; gap: 18px; }
+  .mast h1 { font-size: clamp(30px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; }
+  .mast h1 span { color: var(--brand); }
+  .mast p { max-width: 68ch; margin: 0; color: var(--ink-2); }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 22px; color: var(--ink-3); font-size: 13px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 99px; letter-spacing: 0.01em; white-space: nowrap; }
+  .tag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .t-live { color: var(--live); background: var(--live-bg); }
+  .t-ph { color: var(--ph); background: var(--ph-bg); }
+  .t-broken { color: var(--broken); background: var(--broken-bg); }
+  .t-orphan { color: var(--orphan); background: var(--orphan-bg); }
+  .legend small { color: var(--ink-3); font-size: 13px; }
+
+  .toc { display: flex; flex-wrap: wrap; gap: 8px; }
+  .toc a { text-decoration: none; font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 99px; background: var(--surface); border: 1px solid var(--rule); color: var(--ink-2); }
+  .toc a:hover { color: var(--ink); border-color: var(--wire-line); }
+
+  /* ── Sections ───────────────────────────── */
+  section, .screen { scroll-margin-top: 20px; }
+  section { display: grid; gap: 22px; }
+  .sec-head { display: grid; gap: 6px; border-bottom: 1px solid var(--rule); padding-bottom: 12px; }
+  .sec-head h2 { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+  .sec-head p { margin: 0; color: var(--ink-2); max-width: 72ch; }
+
+  /* ── App map ────────────────────────────── */
+  .map { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .map-col { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 16px; display: grid; gap: 10px; align-content: start; }
+  .map-col h3 { font-size: 15px; font-weight: 700; }
+  .map-col .kicker { font-size: 11.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+  .node { display: grid; gap: 2px; padding: 8px 10px; border-radius: 8px; border: 1px dashed var(--wire-line); font-size: 13.5px; }
+  .node b { font-weight: 700; }
+  .node .mono { color: var(--ink-3); }
+  .node .to { color: var(--ink-3); font-size: 12.5px; }
+  .node.bad { border: 1.5px solid var(--broken); }
+  .node.orph { border: 1.5px solid var(--orphan); }
+
+  /* ── Journeys ───────────────────────────── */
+  .journeys { display: grid; gap: 14px; }
+  .journey { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 16px 18px; display: grid; gap: 12px; }
+  .journey h3 { font-size: 16px; font-weight: 700; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .steps { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .step { font-size: 13px; padding: 6px 11px; border-radius: 8px; background: var(--wire-fill); color: var(--ink); }
+  .step.bad { background: var(--broken-bg); color: var(--broken); font-weight: 700; }
+  .arrow { color: var(--ink-3); font-size: 13px; }
+  .journey p { margin: 0; color: var(--ink-2); font-size: 14px; max-width: 80ch; }
+
+  /* ── Screen cards ───────────────────────── */
+  .screens { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr)); gap: 18px; }
+  .screen { background: var(--surface); border: 1px solid var(--rule); border-radius: 18px; padding: 18px; display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 620px) { .screen { grid-template-columns: 1fr; justify-items: center; } .notes { justify-self: stretch; } }
+
+  .notes { display: grid; gap: 10px; min-width: 0; }
+  .notes h3 { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+  .notes .route { color: var(--ink-3); }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .notes dl { margin: 0; display: grid; gap: 8px; }
+  .notes dt { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); }
+  .notes dd { margin: 2px 0 0; font-size: 14px; color: var(--ink-2); }
+  .notes ul { margin: 4px 0 0; padding-left: 18px; display: grid; gap: 3px; }
+  .issue { font-size: 13.5px; color: var(--broken); background: var(--broken-bg); border-radius: 8px; padding: 8px 10px; }
+  .issue.ph { color: var(--ph); background: var(--ph-bg); }
+  .issue.orph { color: var(--orphan); background: var(--orphan-bg); }
+
+  /* ── Wireframe phone ────────────────────── */
+  .phone { width: 220px; background: var(--phone); border: 1.5px solid var(--phone-edge); border-radius: 26px; padding: 10px 10px 8px; display: flex; flex-direction: column; gap: 6px; flex: none; min-height: 420px; position: relative; font-size: 9.5px; color: var(--ink-2); }
+  .phone.sheet { background: linear-gradient(var(--wire-fill) 0 34%, var(--phone) 34%); }
+  .notch { width: 60px; height: 5px; border-radius: 9px; background: var(--wire-fill); justify-self: center; margin-bottom: 2px; }
+  .bar { display: flex; align-items: center; gap: 6px; padding: 4px 2px; }
+  .bar .ttl { font-weight: 700; color: var(--ink); font-size: 10.5px; flex: 1; }
+  .ico { width: 16px; height: 16px; border-radius: 5px; border: 1.2px solid var(--wire-line); flex: none; }
+  .ico.round { border-radius: 50%; }
+  .ico.logo { background: #fff; border-color: var(--brand); }
+  .bx { border: 1.2px solid var(--wire-line); border-radius: 8px; padding: 6px; display: grid; gap: 4px; background: transparent; }
+  .bx.fill { background: var(--wire-fill); border-color: transparent; }
+  .bx.bad { border: 1.6px dashed var(--broken); }
+  .bx.phb { border: 1.6px dashed var(--ph); }
+  .lbl { font-weight: 700; color: var(--ink); font-size: 9.5px; }
+  .ln { height: 5px; border-radius: 3px; background: var(--wire-fill); }
+  .ln.d { background: var(--wire-line); }
+  .w30 { width: 30%; } .w45 { width: 45%; } .w60 { width: 60%; } .w75 { width: 75%; } .w90 { width: 90%; }
+  .img { border-radius: 7px; background: repeating-linear-gradient(45deg, var(--hatch) 0 5px, transparent 5px 10px), var(--wire-fill); display: grid; place-items: center; color: var(--ink-3); font-size: 9px; text-align: center; padding: 4px; }
+  .h30 { height: 30px; } .h44 { height: 44px; } .h60 { height: 60px; } .h80 { height: 80px; } .h100 { height: 100px; } .h120 { height: 120px; }
+  .btn { background: var(--wire-dark); color: var(--phone); border-radius: 99px; text-align: center; font-weight: 700; padding: 5px 8px; font-size: 9.5px; }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1.2px solid var(--wire-line); }
+  .btn.brand { background: var(--brand); color: #fff; }
+  .field { border: 1.2px solid var(--wire-line); border-radius: 6px; padding: 5px 6px; color: var(--ink-3); }
+  .row { display: flex; gap: 5px; align-items: center; }
+  .row > .grow { flex: 1; min-width: 0; }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .chips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .chip { border: 1.2px solid var(--wire-line); border-radius: 99px; padding: 1px 6px; font-size: 8.5px; }
+  .chip.on { background: var(--wire-dark); color: var(--phone); border-color: var(--wire-dark); }
+  .spacer { flex: 1; }
+  .tabbar { margin-top: auto; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1.2px solid var(--wire-fill); padding-top: 6px; text-align: center; font-size: 8.5px; color: var(--ink-3); }
+  .tabbar b { color: var(--ink); }
+  .fab { position: absolute; left: 10px; right: 10px; bottom: 10px; }
+  .scrim { position: absolute; inset: 0; border-radius: 25px; background: rgba(10, 12, 16, 0.35); }
+  .drawer { position: absolute; top: 0; bottom: 0; left: 0; width: 76%; background: var(--phone); border-right: 1.5px solid var(--phone-edge); border-radius: 25px 16px 16px 25px; padding: 12px 9px; display: grid; gap: 6px; align-content: start; }
+  .center { text-align: center; justify-items: center; }
+  .phone.center { align-items: center; justify-content: flex-start; }
+  .phone > * { flex: none; }
+  .phone > .spacer { flex: 1; }
+  .tiny { font-size: 8.5px; color: var(--ink-3); }
+
+  footer { color: var(--ink-3); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 16px; }
+
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="page">
+
+  <header class="mast">
+    <h1>Arcade Hub <span>wireframes</span></h1>
+    <p>Every screen in the customer ordering app as it is built today: what sits where, how you get to it, where it leads, and which parts run on real data. Wireframes are deliberately low fidelity so layout and flow stay in focus, not colour or imagery.</p>
+    <div class="meta">
+      <span>Flutter app · 23 screens and sheets</span>
+      <span>Brand red marks the logo and primary actions</span>
+      <span>Traced from the code on 15 September 2026</span>
+    </div>
+    <div class="legend">
+      <span class="tag t-live">Live data</span>
+      <span class="tag t-ph">Placeholder content</span>
+      <span class="tag t-broken">Broken or misleading</span>
+      <span class="tag t-orphan">Not linked from anywhere</span>
+      <small>Dashed outlines inside a wireframe mark the part the tag refers to.</small>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#map">App map</a>
+      <a href="#journeys">Key journeys</a>
+      <a href="#launch">Launch and sign-in</a>
+      <a href="#home-screen">Home screen</a>
+      <a href="#tabs">Bottom tabs</a>
+      <a href="#ordering">Menu and ordering</a>
+      <a href="#venue">Venue and zones</a>
+      <a href="#account">Account</a>
+    </nav>
+  </header>
+
+  <!-- ─────────────────────────── App map ─────────────────────────── -->
+  <section id="map">
+    <div class="sec-head">
+      <h2>App map</h2>
+      <p>The four bottom tabs are the spine. The side drawer on Home repeats most of them and adds zone shortcuts. Everything else is pushed on top of a tab.</p>
+    </div>
+    <div class="map">
+      <div class="map-col">
+        <span class="kicker">Before the app</span>
+        <h3>Launch and sign-in</h3>
+        <div class="node"><b>Splash</b><span class="mono">/splash</span><span class="to">Always goes to Home after 1.3 s</span></div>
+        <div class="node"><b>Login</b><span class="mono">/login</span><span class="to">Register, or Home on success</span></div>
+        <div class="node"><b>Register</b><span class="mono">/register</span><span class="to">Login</span></div>
+        <div class="node orph"><b>Forgot, Reset, Verify email</b><span class="mono">/forgot-password …</span><span class="to">Built but nothing opens them</span></div>
+      </div>
+      <div class="map-col">
+        <span class="kicker">Bottom tabs</span>
+        <h3>Home · Cart · Orders · Profile</h3>
+        <div class="node"><b>Home</b><span class="mono">/home</span><span class="to">Zone detail, drawer, floor plan, Google Maps</span></div>
+        <div class="node bad"><b>Cart</b><span class="mono">/cart</span><span class="to">Checkout button points at a missing route</span></div>
+        <div class="node"><b>Orders</b><span class="mono">/orders</span><span class="to">Order detail</span></div>
+        <div class="node"><b>Profile</b><span class="mono">/profile</span><span class="to">Edit profile, addresses, settings, support</span></div>
+      </div>
+      <div class="map-col">
+        <span class="kicker">Pushed screens</span>
+        <h3>Menu and ordering</h3>
+        <div class="node"><b>Food menu</b><span class="mono">/food-menu</span><span class="to">Product detail, Cart</span></div>
+        <div class="node"><b>Product detail</b><span class="mono">/product/:id</span><span class="to">Cart</span></div>
+        <div class="node bad"><b>Checkout</b><span class="mono">no route</span><span class="to">Unreachable today</span></div>
+        <div class="node"><b>Order success</b><span class="mono">/order-success</span><span class="to">Home</span></div>
+        <div class="node"><b>Order detail</b><span class="mono">/order/:id</span><span class="to">Back to Orders</span></div>
+      </div>
+      <div class="map-col">
+        <span class="kicker">Pushed screens</span>
+        <h3>Venue and account</h3>
+        <div class="node"><b>Zone detail</b><span class="mono">/experience/:id</span><span class="to">Service booking, Food menu, Product</span></div>
+        <div class="node bad"><b>Service booking</b><span class="mono">/service-booking</span><span class="to">Fake success, nothing is sent</span></div>
+        <div class="node"><b>Floor plan sheet</b><span class="mono">sheet over Home</span><span class="to">Opens from the map on Home</span></div>
+        <div class="node"><b>Favourites, Addresses, Settings, Contact, Edit profile, Change password</b><span class="mono">/favourites …</span><span class="to">Back to Profile</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── Journeys ─────────────────────────── -->
+  <section id="journeys">
+    <div class="sec-head">
+      <h2>Key journeys</h2>
+      <p>The paths a customer actually takes, in order. Red steps are where the journey stops working.</p>
+    </div>
+    <div class="journeys">
+      <div class="journey">
+        <h3>Order food at the table <span class="tag t-broken">Stops at checkout</span></h3>
+        <div class="steps">
+          <span class="step">Home</span><span class="arrow">→</span>
+          <span class="step">Drawer · Food &amp; Drinks Menu</span><span class="arrow">→</span>
+          <span class="step">Product detail · size, add-ons</span><span class="arrow">→</span>
+          <span class="step">Add to cart</span><span class="arrow">→</span>
+          <span class="step">Cart</span><span class="arrow">→</span>
+          <span class="step">Sign-in sheet if guest</span><span class="arrow">→</span>
+          <span class="step bad">Checkout · route missing</span><span class="arrow">→</span>
+          <span class="step">Order success</span>
+        </div>
+        <p>There is no direct way into the menu from the Home screen itself; customers reach it through the drawer, a zone page, or the empty-cart button. Checkout is built but the router has no path for it, so the button fails.</p>
+      </div>
+      <div class="journey">
+        <h3>Book a gaming session <span class="tag t-broken">Nothing reaches the venue</span></h3>
+        <div class="steps">
+          <span class="step">Home</span><span class="arrow">→</span>
+          <span class="step">Zone card or bento tile</span><span class="arrow">→</span>
+          <span class="step">Zone detail · Book</span><span class="arrow">→</span>
+          <span class="step">Service booking · accept terms</span><span class="arrow">→</span>
+          <span class="step bad">Confirm · waits 1 s, sends nothing</span><span class="arrow">→</span>
+          <span class="step">Order success · fake order</span>
+        </div>
+        <p>The customer ends on the order success screen, which shows a hardcoded order for nachos and mocktails rather than their booking.</p>
+      </div>
+      <div class="journey">
+        <h3>Find the venue <span class="tag t-live">Works</span></h3>
+        <div class="steps">
+          <span class="step">Home · scroll to Find us</span><span class="arrow">→</span>
+          <span class="step">Tap building or pin</span><span class="arrow">→</span>
+          <span class="step">4th floor plan sheet</span>
+        </div>
+        <p>Or “Get directions” on the same card opens Google Maps with the venue as the destination.</p>
+      </div>
+      <div class="journey">
+        <h3>Check a past order <span class="tag t-live">Works when signed in</span></h3>
+        <div class="steps">
+          <span class="step">Orders tab</span><span class="arrow">→</span>
+          <span class="step">Order card</span><span class="arrow">→</span>
+          <span class="step">Order detail · Placed, Kitchen, Served</span>
+        </div>
+        <p>Guests see a sign-in prompt on the Orders tab instead of a list.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── Launch ─────────────────────────── -->
+  <section id="launch">
+    <div class="sec-head">
+      <h2>Launch and sign-in</h2>
+      <p>No bottom tabs on these screens. The app never forces sign-in: everyone lands on Home, and sign-in is asked for only at checkout, booking, or from the drawer and Profile.</p>
+    </div>
+    <div class="screens">
+
+      <article class="screen">
+        <div class="phone center" style="justify-content:center">
+          <div class="bx fill" style="width:84px;height:84px;border-radius:22px;place-items:center;display:grid;border:2px solid var(--brand)"><span class="lbl" style="color:var(--brand)">Logo tile</span></div>
+          <div class="ln d w60" style="margin-top:10px"></div>
+          <div class="tiny">Order. Pickup. Enjoy.</div>
+          <div class="ico round" style="margin-top:14px"></div>
+        </div>
+        <div class="notes">
+          <h3>Splash</h3>
+          <code class="route">/splash</code>
+          <div class="tags"><span class="tag t-live">Branded</span></div>
+          <dl>
+            <div><dt>On screen</dt><dd>Logo in its lit marquee tile, “Arcade Hub”, tagline, spinner, over the near-black launch background.</dd></div>
+            <div><dt>Goes to</dt><dd>Home after 1.3 seconds, whether or not the customer is signed in.</dd></div>
+          </dl>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="bx fill center" style="border-radius:14px;width:62px;height:62px;align-self:center;border:1.6px solid var(--brand);margin-top:14px"></div>
+          <div class="ln d w75" style="align-self:center;margin-top:6px"></div>
+          <div class="ln w60" style="align-self:center"></div>
+          <div class="tiny" style="margin-top:8px">EMAIL OR PHONE</div>
+          <div class="field">user@example.com or 98…</div>
+          <div class="tiny">PASSWORD</div>
+          <div class="field">••••••••</div>
+          <div class="btn brand" style="margin-top:6px">Sign In</div>
+          <div class="tiny" style="text-align:center">Don’t have an account? <b>Register</b></div>
+        </div>
+        <div class="notes">
+          <h3>Login</h3>
+          <code class="route">/login</code>
+          <div class="tags"><span class="tag t-live">Live data</span><span class="tag t-orphan">No forgot password link</span></div>
+          <dl>
+            <div><dt>Reached from</dt><dd>Drawer, Profile, Orders tab when a guest, and the sign-in sheets at cart and booking.</dd></div>
+            <div><dt>Goes to</dt><dd>Home on success. Register from the footer link. A deactivated account gets a reactivate prompt.</dd></div>
+          </dl>
+          <div class="issue orph">There is no “Forgot password?” link, so the reset flow below can’t be reached.</div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="bx fill" style="border-radius:12px;width:52px;height:52px;align-self:center;border:1.6px solid var(--brand);margin-top:6px"></div>
+          <div class="ln d w60" style="align-self:center"></div>
+          <div class="tiny">FULL NAME</div><div class="field">&nbsp;</div>
+          <div class="tiny">EMAIL</div><div class="field">&nbsp;</div>
+          <div class="tiny">PHONE</div><div class="field">&nbsp;</div>
+          <div class="tiny">PASSWORD</div><div class="field">••••••••</div>
+          <div class="tiny">CONFIRM PASSWORD</div><div class="field">••••••••</div>
+          <div class="btn brand">Create Account</div>
+          <div class="tiny" style="text-align:center">Already have an account? <b>Sign in</b></div>
+        </div>
+        <div class="notes">
+          <h3>Register</h3>
+          <code class="route">/register</code>
+          <div class="tags"><span class="tag t-live">Live data</span></div>
+          <dl>
+            <div><dt>Reached from</dt><dd>Login.</dd></div>
+            <div><dt>Goes to</dt><dd>Login after creating the account.</dd></div>
+          </dl>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="bar"><div class="ico"></div><div class="ttl">Forgot Password</div></div>
+          <div class="ln w90"></div><div class="ln w60"></div>
+          <div class="tiny" style="margin-top:6px">EMAIL OR PHONE NUMBER</div>
+          <div class="field">name@example.com</div>
+          <div class="btn brand" style="margin-top:6px">Send Verification Code</div>
+          <div class="bx" style="margin-top:12px"><span class="lbl">Same template</span><span class="tiny">Reset Password · code, new password ×2</span><span class="tiny">Verify Email · email, code</span></div>
+        </div>
+        <div class="notes">
+          <h3>Forgot, reset and verify email</h3>
+          <code class="route">/forgot-password · /reset-password · /verify-email</code>
+          <div class="tags"><span class="tag t-orphan">Not linked from anywhere</span></div>
+          <dl>
+            <div><dt>On screen</dt><dd>One shared form screen with a title, a line of help text, the fields, and one button.</dd></div>
+            <div><dt>Flow</dt><dd>Forgot password → Reset password → Login. Verify email → Login.</dd></div>
+          </dl>
+          <div class="issue orph">The server supports reset and verification, and the screens exist, but no button in the app opens them.</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── Tabs ─────────────────────────── -->
+  <section id="tabs">
+    <div class="sec-head">
+      <h2>Bottom tabs</h2>
+      <p>Home, Cart, Orders and Profile share a bottom tab bar. The Cart tab shows a badge with the item count.</p>
+    </div>
+    <div class="screens">
+
+      <article class="screen" id="home-screen">
+        <div class="phone" style="min-height:560px">
+          <div class="notch"></div>
+          <div class="bar"><div class="ico logo"></div><div class="grow" style="flex:1"><div class="lbl">ARCADE HUB</div><div class="tiny">GAME HOUSE · RESTRO</div></div><div class="ico"></div></div>
+          <div class="img h80 bx phb">Zone slider · stock photos</div>
+          <div class="bx bad"><div class="row"><div class="grow"><span class="lbl">App-Exclusive</span><div class="ln w90"></div></div><span class="lbl">10% OFF</span></div></div>
+          <div class="lbl">Explore the Hub</div>
+          <div class="g3"><div class="img h30 bx phb"></div><div class="img h30 bx phb"></div><div class="img h30 bx phb"></div></div>
+          <div class="lbl">Bundle Deals</div>
+          <div class="bx"><span class="tiny">No bundles available</span></div>
+          <div class="lbl">Find us</div>
+          <div class="bx"><div class="img h60">Isometric block map</div><div class="row"><div class="grow"><div class="ln d w75"></div><div class="tiny" style="color:var(--brand)">4th floor</div></div><div class="btn brand">Directions</div></div></div>
+          <div class="tabbar"><b>Home</b><span>Cart</span><span>Orders</span><span>Profile</span></div>
+        </div>
+        <div class="notes">
+          <h3>Home</h3>
+          <code class="route">/home</code>
+          <div class="tags"><span class="tag t-ph">Zones</span><span class="tag t-broken">Promo card</span><span class="tag t-live">Find us map</span></div>
+          <dl>
+            <div><dt>Top to bottom</dt><dd>
+              <ul>
+                <li>Header: logo tile with a light sweep, name, hamburger for the drawer</li>
+                <li>Zone slider with photos, each opening its zone page</li>
+                <li>App-exclusive discount ticket</li>
+                <li>Explore the Hub: rotating grid of zone tiles</li>
+                <li>Bundle Deals: horizontal cards, or an empty state</li>
+                <li>Find us: 3D block map, tap the building for the floor plan</li>
+              </ul>
+            </dd></div>
+          </dl>
+          <div class="issue">The discount ticket promises 10% off from 10 AM to 4 PM, but no discount is configured, so checkout never applies it.</div>
+          <div class="issue ph">Zone photos and copy are invented, and no products appear anywhere on Home.</div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone" style="min-height:560px">
+          <div class="scrim"></div>
+          <div class="drawer">
+            <div class="row"><div class="ico logo"></div><div class="grow"><div class="lbl">Arcade Hub</div><div class="tiny">GAME HOUSE · RESTRO</div></div></div>
+            <div class="row bx"><div class="ico round"></div><div class="grow ln d"></div><span class="chip">Sign in</span></div>
+            <div class="tiny">VENUE EXPERIENCES</div>
+            <div class="g2">
+              <span class="chip">Play Room</span><span class="chip">Party Room</span>
+              <span class="chip">Sports Bar</span><span class="chip">Rooftop</span>
+              <span class="chip" style="border-style:dashed;border-color:var(--broken)">Area 51</span><span class="chip" style="border-style:dashed;border-color:var(--broken)">Easy Room</span>
+            </div>
+            <div class="tiny">EXPLORE &amp; ORDERING</div>
+            <div class="bx"><span class="lbl">Food &amp; Drinks Menu</span></div>
+            <div class="tiny">ACCOUNT &amp; ACTIVITY</div>
+            <div class="bx" style="gap:6px"><span>Saved Addresses</span><span>Contact &amp; Support</span><span>Recent Orders</span><span>Favourites &amp; Wishlist</span><span>Settings &amp; Theme</span></div>
+            <div class="row" style="margin-top:6px"><div class="ico round"></div><div class="grow"><div class="lbl">Arcade Hub Pokhara</div><div class="tiny">New Road, Pokhara</div></div></div>
+          </div>
+        </div>
+        <div class="notes">
+          <h3>Side drawer</h3>
+          <code class="route">opens over Home</code>
+          <div class="tags"><span class="tag t-live">Navigation</span><span class="tag t-ph">Zone list</span></div>
+          <dl>
+            <div><dt>Reached from</dt><dd>The hamburger on the Home header.</dd></div>
+            <div><dt>Goes to</dt><dd>Login or Profile from the user strip, any zone page, Food menu, Addresses, Contact, Orders, Favourites, Settings.</dd></div>
+          </dl>
+          <div class="issue">Area 51 and Easy Room don’t exist in the real venue layout but still appear as zones.</div>
+          <div class="issue ph">This is the only obvious route to the full menu from Home.</div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone" style="min-height:560px">
+          <div class="notch"></div>
+          <div class="bar"><div class="ttl">My Cart</div><div class="chip">3 items</div></div>
+          <div class="bx fill"><span class="lbl">Discount banner</span></div>
+          <div class="bx"><div class="row"><div class="img" style="width:38px;height:38px"></div><div class="grow"><div class="ln d w75"></div><div class="ln w45"></div></div><span class="chip">− 1 +</span></div></div>
+          <div class="bx"><div class="row"><div class="img" style="width:38px;height:38px"></div><div class="grow"><div class="ln d w60"></div><div class="ln w30"></div></div><span class="chip">− 2 +</span></div></div>
+          <div class="bx" style="gap:5px">
+            <div class="row"><span class="grow">Subtotal</span><span>NPR —</span></div>
+            <div class="row"><span class="grow">Govt VAT (13%)</span><span>NPR —</span></div>
+            <div class="row lbl"><span class="grow">Total</span><span>NPR —</span></div>
+          </div>
+          <div class="spacer"></div>
+          <div class="bx bad" style="padding:4px"><div class="btn brand">Checkout · NPR —</div></div>
+          <div class="tabbar"><span>Home</span><b>Cart</b><span>Orders</span><span>Profile</span></div>
+        </div>
+        <div class="notes">
+          <h3>Cart</h3>
+          <code class="route">/cart</code>
+          <div class="tags"><span class="tag t-broken">Checkout button</span></div>
+          <dl>
+            <div><dt>On screen</dt><dd>Item rows with quantity steppers, price summary with VAT, and a sticky checkout bar. Empty cart shows “Cart is empty” and Browse Menu.</dd></div>
+            <div><dt>Goes to</dt><dd>A sign-in sheet for guests (Sign In / Register, or Continue Browsing as Guest), then Checkout.</dd></div>
+          </dl>
+          <div class="issue">Checkout pushes <code>/checkout</code>, which the router never defines. The screen exists but can’t be opened.</div>
+          <div class="issue ph">The cart lives in memory and empties when the app closes.</div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone" style="min-height:560px">
+          <div class="notch"></div>
+          <div class="bar"><div class="ttl">Recent Orders</div></div>
+          <div class="g2"><div class="bx fill center"><span class="lbl">12</span><span class="tiny">orders placed</span></div><div class="bx fill center"><span class="lbl">NPR —</span><span class="tiny">total spent</span></div></div>
+          <div class="bx"><div class="row"><div class="grow"><div class="lbl">#AH-…</div><div class="tiny">Table 4 · 2 items</div></div><span class="chip on">Pending</span></div></div>
+          <div class="bx"><div class="row"><div class="grow"><div class="lbl">#AH-…</div><div class="tiny">Counter · 1 item</div></div><span class="chip">Completed</span></div></div>
+          <div class="bx"><div class="row"><div class="grow"><div class="lbl">#AH-…</div><div class="tiny">Table 2 · 3 items</div></div><span class="chip">Cancelled</span></div></div>
+          <div class="bx fill center" style="margin-top:8px"><span class="lbl">Guest Account</span><span class="tiny">shown instead when signed out</span><div class="btn" style="width:100%">Sign In / Register</div></div>
+          <div class="tabbar"><span>Home</span><span>Cart</span><b>Orders</b><span>Profile</span></div>
+        </div>
+        <div class="notes">
+          <h3>Orders</h3>
+          <code class="route">/orders</code>
+          <div class="tags"><span class="tag t-live">Live data</span></div>
+          <dl>
+            <div><dt>On screen</dt><dd>Two stat tiles, then order cards with a status pill. Separate states for guest, empty, and failed to load with Retry.</dd></div>
+            <div><dt>Goes to</dt><dd>Order detail.</dd></div>
+          </dl>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone" style="min-height:560px">
+          <div class="notch"></div>
+          <div class="bar"><div class="ttl">Profile</div><div class="ico"></div></div>
+          <div class="center" style="display:grid;gap:4px"><div class="ico round" style="width:52px;height:52px"></div><div class="ln d w45" style="align-self:center"></div><div class="ln w60" style="align-self:center"></div></div>
+          <div class="g2"><div class="bx"><span class="lbl">Wishlist</span><span class="tiny">Saved items</span></div><div class="bx"><span class="lbl">Orders</span><span class="tiny">Past &amp; active</span></div></div>
+          <div class="bx" style="gap:7px">
+            <div class="row"><div class="ico"></div><span class="grow">Saved Addresses</span></div>
+            <div class="row"><div class="ico"></div><span class="grow">Change Password</span></div>
+            <div class="row"><div class="ico"></div><span class="grow">Settings &amp; Theme</span></div>
+            <div class="row"><div class="ico"></div><span class="grow">Contact Support</span></div>
+          </div>
+          <div class="btn ghost" style="color:var(--brand)">Log Out</div>
+          <div class="tabbar"><span>Home</span><span>Cart</span><span>Orders</span><b>Profile</b></div>
+        </div>
+        <div class="notes">
+          <h3>Profile</h3>
+          <code class="route">/profile</code>
+          <div class="tags"><span class="tag t-live">Live data</span></div>
+          <dl>
+            <div><dt>On screen</dt><dd>Avatar with an edit badge, name and contact, two shortcut tiles, a settings list, and Log Out.</dd></div>
+            <div><dt>Goes to</dt><dd>Edit profile, Favourites, Orders, Addresses, Change password, Settings, Contact.</dd></div>
+          </dl>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── Ordering ─────────────────────────── -->
+  <section id="ordering">
+    <div class="sec-head">
+      <h2>Menu and ordering</h2>
+      <p>Products, prices, sizes and add-ons come live from the venue’s point-of-sale system. Everything after the cart is where the flow breaks.</p>
+    </div>
+    <div class="screens">
+
+      <article class="screen">
+        <div class="phone" style="min-height:520px">
+          <div class="notch"></div>
+          <div class="bar"><div class="ico"></div><div class="ttl">Menu</div><div class="ico"></div></div>
+          <div class="field">Search menu…</div>
+          <div class="chips"><span class="chip on">All</span><span class="chip">Drinks</span><span class="chip">Food</span><span class="chip">Snacks</span></div>
+          <div class="g2">
+            <div class="bx"><div class="img h44"></div><div class="ln d w75"></div><div class="row"><span class="grow tiny">NPR —</span><div class="ico round"></div></div></div>
+            <div class="bx"><div class="img h44"></div><div class="ln d w60"></div><div class="row"><span class="grow tiny">NPR —</span><div class="ico round"></div></div></div>
+            <div class="bx"><div class="img h44"></div><div class="ln d w75"></div><div class="row"><span class="grow tiny">NPR —</span><div class="ico round"></div></div></div>
+            <div class="bx"><div class="img h44"></div><div class="ln d w45"></div><div class="row"><span class="grow tiny">NPR —</span><div class="ico round"></div></div></div>
+          </div>
+        </div>
+        <div class="notes">
+          <h3>Food menu</h3>
+          <code class="route">/food-menu</code>
+          <div class="tags"><span class="tag t-live">Live data</span></div>
+          <dl>
+            <div><dt>Reached from</dt><dd>Drawer, zone pages (Open Menu), empty cart, empty favourites.</dd></div>
+            <div><dt>On screen</dt><dd>Search, category pills, and a two-column product grid with a heart and a quick-add button on each card.</dd></div>
+            <div><dt>Goes to</dt><dd>Product detail, Cart.</dd></div>
+          </dl>
+          <div class="issue ph">No product has a category in the point-of-sale system yet, so the pills can’t filter anything.</div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone" style="min-height:520px">
+          <div class="img h100">Product photo · heart</div>
+          <div class="row"><div class="grow"><div class="ln d w75"></div></div><span class="lbl">NPR —</span></div>
+          <div class="chips"><span class="chip">tag</span><span class="chip">tag</span></div>
+          <div class="ln w90"></div><div class="ln w75"></div>
+          <div class="lbl">Choose Size</div>
+          <div class="chips"><span class="chip on">Regular</span><span class="chip">Large</span></div>
+          <div class="lbl">Add-ons</div>
+          <div class="bx"><div class="row"><span class="grow">Extra cheese</span><span class="chip">− 0 +</span></div><div class="row"><span class="grow">Dip</span><span class="chip">− 1 +</span></div></div>
+          <div class="fab row"><span class="chip">− 1 +</span><div class="btn brand grow">Add to cart · NPR —</div></div>
+        </div>
+        <div class="notes">
+          <h3>Product detail</h3>
+          <code class="route">/product/:id</code>
+          <div class="tags"><span class="tag t-live">Live data</span></div>
+          <dl>
+            <div><dt>On screen</dt><dd>Hero photo with favourite heart, name and price, tags, description, size choice, add-ons with quantities, and a floating add-to-cart bar whose price updates live.</dd></div>
+            <div><dt>Goes to</dt><dd>Cart, through the View Cart action once something is added.</dd></div>
+          </dl>
+          <div class="issue ph">Favourites are held in memory and are lost when the app closes.</div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone" style="min-height:520px">
+          <div class="notch"></div>
+          <div class="bar"><div class="ico"></div><div class="ttl">Checkout</div></div>
+          <div class="tiny">YOUR SPOT / TABLE</div>
+          <div class="field">e.g. Table 4, Counter…</div>
+          <div class="tiny">PAYMENT METHOD</div>
+          <div class="bx" style="gap:5px">
+            <div class="row"><div class="ico round"></div><span class="grow">Cash / Card at Table</span></div>
+            <div class="row"><div class="ico round"></div><span class="grow">eSewa / Khalti QR</span></div>
+            <div class="row"><div class="ico round"></div><span class="grow">Fonepay QR</span></div>
+          </div>
+          <div class="bx" style="gap:5px">
+            <div class="ln d w60"></div><div class="ln w75"></div>
+            <div class="row"><span class="grow">Subtotal</span><span>—</span></div>
+            <div class="row"><span class="grow">Govt VAT (13%)</span><span>—</span></div>
+            <div class="row lbl"><span class="grow">Total Payable</span><span>—</span></div>
+          </div>
+          <div class="spacer"></div>
+          <div class="btn brand">Place Order</div>
+        </div>
+        <div class="notes">
+          <h3>Checkout</h3>
+          <code class="route">no route defined</code>
+          <div class="tags"><span class="tag t-broken">Unreachable</span><span class="tag t-live">Sends real orders</span></div>
+          <dl>
+            <div><dt>On screen</dt><dd>Where you’re sitting, how you’ll pay, a receipt, and Place Order.</dd></div>
+            <div><dt>Goes to</dt><dd>Order success.</dd></div>
+          </dl>
+          <div class="issue">The router has no path for this screen, so Cart can’t open it.</div>
+          <div class="issue ph">Payment options are labels only; nothing is charged, and every order is marked unpaid. If sending fails, the app invents an order and still shows success.</div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone center" style="min-height:520px;">
+          <div class="notch"></div>
+          <div class="ico round" style="width:56px;height:56px;margin-top:22px"></div>
+          <div class="lbl" style="font-size:11px">Order Placed Successfully!</div>
+          <div class="tiny">Order #AH-8092 · Order Placed</div>
+          <div class="bx bad" style="width:100%;text-align:left">
+            <div class="row"><span class="grow">Loaded Nachos × 1</span></div>
+            <div class="row"><span class="grow">Fewa Sunset Mocktail × 2</span></div>
+            <div class="row"><span class="grow tiny">Status</span><span class="tiny">Sent to Kitchen</span></div>
+          </div>
+          <div class="btn ghost" style="width:100%">Track / Share on WhatsApp</div>
+          <div class="spacer"></div>
+          <div class="btn brand" style="width:100%;margin-top:auto">Back to Arcade Hub Home</div>
+        </div>
+        <div class="notes">
+          <h3>Order success</h3>
+          <code class="route">/order-success</code>
+          <div class="tags"><span class="tag t-broken">Fixed fake order</span></div>
+          <dl>
+            <div><dt>Reached from</dt><dd>Checkout, and Service booking.</dd></div>
+            <div><dt>Goes to</dt><dd>Home.</dd></div>
+          </dl>
+          <div class="issue">Always shows order #AH-8092 with nachos and mocktails, whatever the customer ordered or booked.</div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone" style="min-height:520px">
+          <div class="notch"></div>
+          <div class="bar"><div class="ico"></div><div class="ttl">Order #AH-…</div><span class="chip on">Pending</span></div>
+          <div class="bx fill"><div class="row" style="justify-content:space-between"><span class="chip on">Placed</span><span class="tiny">—</span><span class="chip">Kitchen</span><span class="tiny">—</span><span class="chip">Served</span></div></div>
+          <div class="g2"><div class="bx"><span class="tiny">TABLE / SPOT</span><span class="lbl">Table 4</span></div><div class="bx"><span class="tiny">ORDER DATE</span><span class="lbl">Today</span></div></div>
+          <div class="tiny">ITEMIZED RECEIPT</div>
+          <div class="bx" style="gap:5px">
+            <div class="row"><span class="grow">Item × 1</span><span>—</span></div>
+            <div class="row"><span class="grow">Item × 2</span><span>—</span></div>
+            <div class="row lbl"><span class="grow">Total</span><span>—</span></div>
+          </div>
+        </div>
+        <div class="notes">
+          <h3>Order detail</h3>
+          <code class="route">/order/:id</code>
+          <div class="tags"><span class="tag t-live">Live data</span></div>
+          <dl>
+            <div><dt>Reached from</dt><dd>Orders tab.</dd></div>
+            <div><dt>On screen</dt><dd>A three-step tracker (Placed, Kitchen, Served or Cancelled), table and date, and the itemised receipt.</dd></div>
+          </dl>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── Venue ─────────────────────────── -->
+  <section id="venue">
+    <div class="sec-head">
+      <h2>Venue and zones</h2>
+      <p>The venue has four real zones on the 4th floor. The zone pages still carry invented descriptions from before the real layout was known.</p>
+    </div>
+    <div class="screens">
+
+      <article class="screen">
+        <div class="phone" style="min-height:540px">
+          <div class="img h120 bx phb">Zone hero photo<br>name · type badge</div>
+          <div class="lbl">About</div>
+          <div class="ln w90"></div><div class="ln w75"></div>
+          <div class="chips"><span class="chip">Capacity</span><span class="chip">Hours</span><span class="chip">Setup</span></div>
+          <div class="lbl">Services <span class="tiny">(gaming and lounge zones)</span></div>
+          <div class="bx"><div class="row"><div class="grow"><div class="ln d w75"></div><div class="tiny">NPR — · duration</div></div><span class="chip on">Book</span></div></div>
+          <div class="bx"><div class="row"><div class="grow"><div class="ln d w60"></div><div class="tiny">NPR — · duration</div></div><span class="chip on">Book</span></div></div>
+          <div class="lbl">Full Menu <span class="tiny">(dining zones)</span></div>
+          <div class="bx"><div class="row"><div class="img" style="width:30px;height:30px"></div><div class="grow ln d"></div><span class="chip">+</span></div></div>
+          <div class="btn">Open Menu</div>
+        </div>
+        <div class="notes">
+          <h3>Zone detail</h3>
+          <code class="route">/experience/:id</code>
+          <div class="tags"><span class="tag t-ph">Placeholder content</span></div>
+          <dl>
+            <div><dt>Reached from</dt><dd>Home slider and grid, drawer zone chips.</dd></div>
+            <div><dt>On screen</dt><dd>Photo header with the zone’s name and colour, About, venue specs, then either bookable services or that zone’s menu.</dd></div>
+            <div><dt>Goes to</dt><dd>Service booking, Product detail, Food menu.</dd></div>
+          </dl>
+          <div class="issue ph">Descriptions, capacities, hours and photos are invented, and every zone shows the same menu because products have no categories.</div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone" style="min-height:540px">
+          <div class="notch"></div>
+          <div class="bar"><div class="ico"></div><div class="ttl">Service Booking</div></div>
+          <div class="img h80"></div>
+          <div class="ln d w75"></div>
+          <div class="g2"><div class="bx phb"><span class="tiny">Base Price</span><span class="lbl">Standard Rate</span></div><div class="bx phb"><span class="tiny">Duration</span><span class="lbl">Standard Duration</span></div></div>
+          <div class="ln w90"></div><div class="ln w60"></div>
+          <div class="row" style="margin-top:6px"><div class="ico"></div><span class="grow tiny">I agree to the service rules and venue terms.</span></div>
+          <div class="spacer"></div>
+          <div class="bx bad" style="padding:4px"><div class="btn brand">Confirm Booking</div></div>
+        </div>
+        <div class="notes">
+          <h3>Service booking</h3>
+          <code class="route">/service-booking?serviceId=…</code>
+          <div class="tags"><span class="tag t-broken">Nothing is sent</span><span class="tag t-ph">Price and duration</span></div>
+          <dl>
+            <div><dt>Reached from</dt><dd>Book on a zone page.</dd></div>
+            <div><dt>Goes to</dt><dd>A sign-in sheet for guests, then Order success.</dd></div>
+          </dl>
+          <div class="issue">Confirm waits one second and shows success. No booking reaches the venue, and there’s no date or time picker.</div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone sheet" style="min-height:540px">
+          <div class="notch" style="margin-top:130px"></div>
+          <div class="row"><div class="ico logo"></div><div class="grow"><div class="lbl">Arcade Hub</div><div class="tiny" style="color:var(--brand)">4th floor</div></div></div>
+          <div class="bx" style="padding:6px;gap:4px">
+            <div class="g3" style="grid-template-columns:.9fr 2fr 2fr .9fr">
+              <div class="bx fill" style="grid-row:span 3;place-items:center;display:grid"><span class="tiny">Outdoor</span></div>
+              <div class="bx fill"><span class="tiny">Party</span></div>
+              <div class="bx fill"><span class="tiny">Play</span></div>
+              <div class="bx"><span class="tiny">WC · TT</span></div>
+              <div class="bx"><span class="tiny">Bar · Golf</span></div>
+              <div class="bx"><span class="tiny">Stairs · Counter</span></div>
+              <div class="bx"><span class="tiny">Lift</span></div>
+              <div class="bx fill" style="grid-column:span 2"><span class="tiny">Indoor Restro</span></div>
+            </div>
+          </div>
+          <div class="tiny">Take the stairs or the elevator up to the 4th floor. Pinch the plan to zoom in.</div>
+        </div>
+        <div class="notes">
+          <h3>Floor plan sheet</h3>
+          <code class="route">sheet over Home</code>
+          <div class="tags"><span class="tag t-live">From the client’s sketch</span></div>
+          <dl>
+            <div><dt>Reached from</dt><dd>Tapping the venue building or its pin in the Find us map.</dd></div>
+            <div><dt>On screen</dt><dd>A 3D cutaway of the 4th floor: Outdoor and Indoor Restro, Party Room, Play Room, round Sports Bar, mini golf, stairs, counter, washroom, table tennis, and the elevator. Pinch to zoom.</dd></div>
+          </dl>
+          <div class="issue ph">Doorways and the washroom wall are guesses. Rooms aren’t tappable yet.</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────── Account ─────────────────────────── -->
+  <section id="account">
+    <div class="sec-head">
+      <h2>Account</h2>
+      <p>Everything here saves to the server, apart from favourites.</p>
+    </div>
+    <div class="screens">
+
+      <article class="screen">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="bar"><div class="ico"></div><div class="ttl">Edit Profile</div></div>
+          <div class="ico round" style="width:54px;height:54px;align-self:center"></div>
+          <div class="tiny">FULL NAME</div><div class="field">e.g. Ren Gurung</div>
+          <div class="tiny">PHONE NUMBER</div><div class="field">e.g. 98…</div>
+          <div class="tiny">DELIVERY / HOME ADDRESS</div><div class="field">e.g. New Road, Pokhara</div>
+          <div class="spacer"></div>
+          <div class="btn brand">Save Profile Changes</div>
+        </div>
+        <div class="notes">
+          <h3>Edit profile</h3>
+          <code class="route">/edit-profile</code>
+          <div class="tags"><span class="tag t-live">Live data</span></div>
+          <dl><div><dt>On screen</dt><dd>Tap the avatar to pick a photo, then name, phone and address.</dd></div></dl>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="bar"><div class="ico"></div><div class="ttl">My Favourites</div></div>
+          <div class="g2">
+            <div class="bx"><div class="img h44"></div><div class="ln d w75"></div></div>
+            <div class="bx"><div class="img h44"></div><div class="ln d w60"></div></div>
+          </div>
+          <div class="bx fill center" style="margin-top:10px"><span class="lbl">No favourites yet</span><span class="tiny">Tap the heart on any item to save it here.</span><div class="btn">Browse Menu</div></div>
+        </div>
+        <div class="notes">
+          <h3>Favourites</h3>
+          <code class="route">/favourites</code>
+          <div class="tags"><span class="tag t-ph">Not saved</span></div>
+          <dl><div><dt>Reached from</dt><dd>Profile Wishlist tile, drawer.</dd></div></dl>
+          <div class="issue ph">Hearts are kept in memory only, so the list empties every time the app closes.</div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="bar"><div class="ico"></div><div class="ttl">Saved Addresses</div></div>
+          <div class="bx"><div class="row"><div class="ico round"></div><div class="grow"><div class="lbl">Home</div><div class="ln w75"></div></div><span class="chip on">Default</span></div></div>
+          <div class="bx"><div class="row"><div class="ico round"></div><div class="grow"><div class="lbl">Office</div><div class="ln w60"></div></div></div></div>
+          <div class="btn ghost">+ Add New Address</div>
+          <div class="bx fill" style="margin-top:8px"><span class="lbl">New Address</span><div class="img h44">Map pin</div><div class="btn ghost">Use my current location</div><div class="field">Label</div><div class="field">Street address</div><div class="btn brand">Save Address</div></div>
+        </div>
+        <div class="notes">
+          <h3>Saved addresses and add address</h3>
+          <code class="route">/addresses · /add-address</code>
+          <div class="tags"><span class="tag t-live">Live data</span></div>
+          <dl>
+            <div><dt>Reached from</dt><dd>Profile, drawer.</dd></div>
+            <div><dt>Note</dt><dd>Addresses are never used by checkout, which only asks for a table. Worth deciding whether delivery is in scope.</dd></div>
+          </dl>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="bar"><div class="ico"></div><div class="ttl">Settings</div></div>
+          <div class="bx"><div class="row"><span class="grow lbl">Dark Mode</span><span class="chip on">On</span></div></div>
+          <div class="bx" style="gap:7px"><span>Change Password</span><span style="color:var(--brand)">Deactivate Account</span><span style="color:var(--brand)">Delete Account</span></div>
+          <div class="bx fill" style="gap:4px"><div class="row"><span class="grow tiny">Version</span><span class="tiny">1.0.0</span></div><div class="row"><span class="grow tiny">App</span><span class="tiny">Arcade Hub</span></div></div>
+          <div class="bx fill" style="margin-top:10px"><span class="lbl">Change Password</span><div class="field">Current</div><div class="field">New</div><div class="field">Confirm</div><div class="btn brand">Update Password</div></div>
+        </div>
+        <div class="notes">
+          <h3>Settings and change password</h3>
+          <code class="route">/settings · /change-password</code>
+          <div class="tags"><span class="tag t-live">Live data</span></div>
+          <dl><div><dt>On screen</dt><dd>Theme toggle, password change, deactivate and delete with confirmation dialogs, and app info.</dd></div></dl>
+        </div>
+      </article>
+
+      <article class="screen">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="bar"><div class="ico"></div><div class="ttl">Contact Us</div></div>
+          <div class="g3"><div class="bx center"><div class="ico round"></div><span class="tiny">Call Us</span></div><div class="bx center"><div class="ico round"></div><span class="tiny">WhatsApp</span></div><div class="bx center"><div class="ico round"></div><span class="tiny">Email</span></div></div>
+          <div class="field">Your Name</div>
+          <div class="field">Email or Phone Number</div>
+          <div class="field" style="height:60px">How can we help you?</div>
+          <div class="bx bad" style="padding:4px"><div class="btn brand">Submit Inquiry</div></div>
+        </div>
+        <div class="notes">
+          <h3>Contact us</h3>
+          <code class="route">/contact</code>
+          <div class="tags"><span class="tag t-live">Call, WhatsApp, email</span><span class="tag t-broken">Inquiry form</span></div>
+          <dl><div><dt>Reached from</dt><dd>Profile, drawer.</dd></div></dl>
+          <div class="issue">The three buttons open the phone, WhatsApp and email apps. The inquiry form waits one second and says “Message sent”, but nothing is sent.</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer>
+    Traced from the Flutter source in <code>lib/</code>: routes from the router, labels and navigation from each screen. Wireframes show structure, not final styling or exact spacing.
+  </footer>
+</div>

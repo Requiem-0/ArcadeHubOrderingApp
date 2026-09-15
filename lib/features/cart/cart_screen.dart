@@ -105,7 +105,7 @@ class CartScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: colors.scaffold,
       body: SafeArea(
-        bottom: false,
+        bottom: false, 
         child: Column(
           children: [
             // Header
@@ -123,7 +123,7 @@ class CartScreen extends ConsumerWidget {
                           fontWeight: FontWeight.bold,
                           color: colors.textPrimary,
                         ),
-                      ),
+                      ),     
                       Text(
                         isEmpty
                             ? '0 items'

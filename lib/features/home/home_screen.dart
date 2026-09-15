@@ -16,6 +16,7 @@ import '../../features/catalogue/data/product_model.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../shared/widgets/app_network_image.dart';
 import '../../shared/widgets/app_logo.dart';
+import 'venue_map/venue_map.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -114,7 +115,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     // Brand Logo & Title
                     Row(
                       children: [
-                        const AppLogoPlate(size: 40, glow: false),
+                        const AppLogoPlate(size: 40, glow: false, animate: true),
                         AppSpacing.gapH12,
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -305,6 +306,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           );
                         },
                       ),
+
+                  // 5. Venue location
+                  AppSpacing.gapV32,
+                  _SectionHeader(
+                    title: 'Find us',
+                  ),
+                  const SizedBox(height: 16),
+                  const Padding(
+                    padding: AppSpacing.pagePadding,
+                    child: VenueMapCard(),
+                  ),
+                  AppSpacing.gapV32,
                 ],
               ),
             ),
