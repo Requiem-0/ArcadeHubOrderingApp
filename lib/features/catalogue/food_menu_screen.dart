@@ -11,6 +11,8 @@ import '../../shared/widgets/category_pill.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/price_text.dart';
 import '../../shared/widgets/app_network_image.dart';
+import '../../shared/widgets/view_cart_bar.dart';
+import '../../core/constants.dart';
 
 class FoodMenuScreen extends ConsumerStatefulWidget {
   const FoodMenuScreen({super.key});
@@ -40,12 +42,14 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final catalogAsync = ref.watch(catalogProvider);
-    final cart = ref.watch(cartProvider);
+    ref.watch(cartProvider); // rebuild when quantities change
     final favs = ref.watch(favouritesProvider);
-    final totalCartCount = ref.watch(cartCountProvider);
 
     return Scaffold(
       backgroundColor: colors.scaffold,
+      bottomNavigationBar: const ViewCartBar(
+        bottomInset: AppConstants.bottomNavHeight,
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -54,17 +58,14 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back, color: colors.textPrimary),
-                    onPressed: () {
-                      if (context.canPop()) {
-                        context.pop();
-                      } else {
-                        context.go('/home');
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 8),
+                  if (context.canPop()) ...[
+                    IconButton(
+                      icon: Icon(Icons.arrow_back, color: colors.textPrimary),
+                      onPressed: () => context.pop(),
+                    ),
+                    const SizedBox(width: 8),
+                  ] else
+                    const SizedBox(width: 4),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,32 +88,6 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                       ],
                     ),
                   ),
-                  Stack(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.shopping_cart_outlined, color: colors.textPrimary, size: 26),
-                        onPressed: () => context.push('/cart'),
-                      ),
-                      if (totalCartCount > 0)
-                        Positioned(
-                          right: 4,
-                          top: 4,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: colors.primaryRed,
-                              shape: BoxShape.circle,
-                            ),
-                            constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
-                            child: Text(
-                              '$totalCartCount',
-                              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
                 ],
               ),
             ),
@@ -121,7 +96,18 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
             Expanded(
               child: catalogAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, _) => Center(child: Text('Error: $err', style: TextStyle(color: colors.textPrimary))),
+                error: (_, _) => Center(
+                  child: EmptyState(
+                    iconData: Icons.wifi_off_rounded,
+                    iconColor: colors.primaryRed,
+                    title: 'Menu didn\'t load',
+                    subtitle: 'Check your internet connection and try again.',
+                    action: TextButton(
+                      onPressed: () => ref.invalidate(catalogProvider),
+                      child: Text('Try again', style: TextStyle(color: colors.primaryRed)),
+                    ),
+                  ),
+                ),
                 data: (products) {
                   final distinctCategories = products
                       .map((p) => p.category.trim())

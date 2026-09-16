@@ -33,9 +33,21 @@ class RecentOrdersScreen extends ConsumerWidget {
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(28, 20, 28, 0),
+              padding: const EdgeInsets.fromLTRB(12, 20, 28, 0),
               child: Row(
                 children: [
+                  IconButton(
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/profile');
+                      }
+                    },
+                    icon: Icon(Icons.arrow_back_ios_new_rounded,
+                        size: 18, color: colors.textPrimary),
+                  ),
+                  const SizedBox(width: 4),
                   Text(
                     'Recent Orders',
                     style: GoogleFonts.outfit(
@@ -90,7 +102,7 @@ class RecentOrdersScreen extends ConsumerWidget {
                             width: 180,
                             child: PrimaryButton(
                               label: 'Browse Menu',
-                              onPressed: () => context.go('/home'),
+                              onPressed: () => context.go('/food-menu'),
                             ),
                           ),
                         );

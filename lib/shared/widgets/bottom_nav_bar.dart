@@ -15,10 +15,14 @@ class AppBottomNavBar extends ConsumerWidget {
     required this.onTap,
   });
 
+  // Book and Cart sit side by side and both mean "go ahead and confirm", so
+  // they get shapes that can't be mistaken for each other: a calendar against
+  // a bag.
   static const _tabs = [
     _TabItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
+    _TabItem(icon: Icons.restaurant_menu_outlined, activeIcon: Icons.restaurant_menu_rounded, label: 'Menu'),
+    _TabItem(icon: Icons.event_available_outlined, activeIcon: Icons.event_available_rounded, label: 'Book'),
     _TabItem(icon: Icons.shopping_bag_outlined, activeIcon: Icons.shopping_bag_rounded, label: 'Cart', showBadge: true),
-    _TabItem(icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long_rounded, label: 'Orders'),
     _TabItem(icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Profile'),
   ];
 
@@ -29,7 +33,7 @@ class AppBottomNavBar extends ConsumerWidget {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 32),
+        padding: const EdgeInsets.only(left: 14, right: 14, bottom: 32),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(32),
           child: BackdropFilter(
@@ -69,7 +73,7 @@ class AppBottomNavBar extends ConsumerWidget {
                       ],
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List.generate(_tabs.length, (i) {
@@ -119,7 +123,7 @@ class _NavButton extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
           color: active
               ? (colors.isDark

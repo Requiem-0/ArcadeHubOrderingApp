@@ -100,17 +100,27 @@ class _AppLogoPlateState extends State<AppLogoPlate>
   // header does no per-frame work in the eight seconds between passes.
   static const _interval = Duration(seconds: 9);
 
-  late final AnimationController _entry = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 520),
-  );
-  late final AnimationController _sweep = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 900),
-  );
+  // Built in initState, not lazily: a plate with animate off never touches
+  // these while it lives, and a `late` field would then run its initialiser
+  // inside dispose(), creating a ticker on a widget already being torn down.
+  late final AnimationController _entry;
+  late final AnimationController _sweep;
   Timer? _sweepTimer;
 
   bool _motionStarted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _entry = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 520),
+    );
+    _sweep = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+  }
 
   @override
   void didChangeDependencies() {

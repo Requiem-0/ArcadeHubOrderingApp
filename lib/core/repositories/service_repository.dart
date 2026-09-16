@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../brandkit/experiences.dart';
 import '../models/service.dart';
 
 class ServiceRepository {
@@ -56,4 +57,15 @@ final serviceRepositoryProvider = Provider<ServiceRepository>((ref) {
 
 final servicesProvider = FutureProvider.family<List<ServiceModel>, String>((ref, experienceId) async {
   return ref.read(serviceRepositoryProvider).getServicesForExperience(experienceId);
+});
+
+/// Zones that actually have something to book, so the Book tab never offers a
+/// zone that dead-ends. The Sports Bar and Rooftop Restro have no services.
+final bookableZonesProvider = FutureProvider<List<ArcadeExperience>>((ref) async {
+  final repo = ref.read(serviceRepositoryProvider);
+  final found = await Future.wait(kArcadeExperiences.map((exp) async {
+    final services = await repo.getServicesForExperience(exp.id);
+    return services.any((s) => s.isBookable) ? exp : null;
+  }));
+  return found.nonNulls.toList();
 });

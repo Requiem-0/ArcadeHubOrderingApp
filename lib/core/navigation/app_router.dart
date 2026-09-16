@@ -22,6 +22,7 @@ import '../../features/profile/settings_screen.dart';
 import '../../features/orders/recent_orders_screen.dart';
 import '../../features/cart/cart_screen.dart';
 import '../../features/services/service_booking_screen.dart';
+import '../../features/services/book_screen.dart';
 import '../../features/address/saved_addresses_screen.dart';
 import '../../features/address/add_address_screen.dart';
 import '../../features/profile/contact_us_screen.dart';
@@ -36,7 +37,7 @@ class AppShell extends StatelessWidget {
 
   const AppShell({super.key, required this.child, required this.currentIndex});
 
-  static const _routes = ['/home', '/cart', '/orders', '/profile'];
+  static const _routes = ['/home', '/food-menu', '/book', '/cart', '/profile'];
 
   @override
   Widget build(BuildContext context) {
@@ -120,9 +121,8 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(path: '/service-booking', builder: (_, __) => const ServiceBookingScreen()),
-    GoRoute(path: '/food-menu', builder: (_, __) => const FoodMenuScreen()),
-
     GoRoute(path: '/favourites', builder: (_, __) => const FavouritesScreen()),
+    GoRoute(path: '/orders', builder: (_, __) => const RecentOrdersScreen()),
 
     // ── Profile & Orders Detail Routes ────────────────────────────
     GoRoute(path: '/edit-profile', builder: (_, __) => const EditProfileScreen()),
@@ -148,14 +148,15 @@ final appRouter = GoRouter(
     // ── Shell (bottom nav) ────────────────────────────────────────
     ShellRoute(
       builder: (context, state, child) {
-        final routes = ['/home', '/cart', '/orders', '/profile'];
+        final routes = ['/home', '/food-menu', '/book', '/cart', '/profile'];
         final idx = routes.indexWhere((r) => state.fullPath?.startsWith(r) ?? false);
         return AppShell(child: child, currentIndex: idx < 0 ? 0 : idx);
       },
       routes: [
         GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
+        GoRoute(path: '/food-menu', builder: (_, __) => const FoodMenuScreen()),
+        GoRoute(path: '/book', builder: (_, __) => const BookScreen()),
         GoRoute(path: '/cart', builder: (_, __) => const CartScreen()),
-        GoRoute(path: '/orders', builder: (_, __) => const RecentOrdersScreen()),
         GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
       ],
     ),

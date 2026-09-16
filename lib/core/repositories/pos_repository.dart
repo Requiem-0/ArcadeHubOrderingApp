@@ -11,7 +11,8 @@ class PosRepository {
 
   PosRepository(this._client);
 
-  /// Fetch full catalog (with graceful fallback to local sample data if offline)
+  /// Fetch the full catalog. Errors propagate rather than falling back to
+  /// sample data, so screens hide or show a retry instead of fake products.
   Future<List<ProductModel>> getCatalog({String? businessId}) async {
     final targetBizId = businessId ?? AppConstants.activeBusinessId;
     try {
@@ -26,8 +27,8 @@ class PosRepository {
           .map((p) => ProductModel.fromJson(p as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      dev.log('API catalog fetch error, fallback to local sample data: $e', name: 'PosRepository');
-      return kSampleProducts;
+      dev.log('API catalog fetch error: $e', name: 'PosRepository');
+      rethrow;
     }
   }
 

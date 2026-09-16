@@ -527,7 +527,7 @@ class _ZoneProductsList extends ConsumerWidget {
               ),
             ),
             GestureDetector(
-              onTap: () => context.push('/food-menu'),
+              onTap: () => context.go('/food-menu'),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                 decoration: BoxDecoration(
@@ -558,9 +558,19 @@ class _ZoneProductsList extends ConsumerWidget {
           loading: () => Center(
             child: CircularProgressIndicator(color: fgColor),
           ),
-          error: (err, _) => Text(
-            'Error loading menu: $err',
-            style: GoogleFonts.dmSans(color: AppColors.error),
+          error: (_, _) => Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'The menu didn\'t load. Check your connection.',
+                  style: GoogleFonts.dmSans(color: colors.textMuted),
+                ),
+              ),
+              TextButton(
+                onPressed: () => ref.invalidate(zoneProductsProvider(zoneId)),
+                child: Text('Try again', style: TextStyle(color: fgColor)),
+              ),
+            ],
           ),
           data: (products) {
             if (products.isEmpty) {
@@ -584,7 +594,7 @@ class _ZoneProductsList extends ConsumerWidget {
                     ),
                     const SizedBox(height: 14),
                     ElevatedButton(
-                      onPressed: () => context.push('/food-menu'),
+                      onPressed: () => context.go('/food-menu'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: fgColor,
                         foregroundColor: Colors.white,

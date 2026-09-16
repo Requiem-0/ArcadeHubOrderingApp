@@ -14,6 +14,42 @@ part 'venue_map_data.dart';
 const double _kVenueLat = 28.2210429;
 const double _kVenueLon = 83.9869353;
 
+/// Opens the same block map the home screen shows, for entry points that
+/// aren't on the home screen (the drawer, for one).
+Future<void> showVenueMap(BuildContext context) {
+  final colors = context.appColors;
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    backgroundColor: colors.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+    ),
+    builder: (_) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Find us',
+              style: GoogleFonts.outfit(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: colors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const VenueMapCard(),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 /// "Find us" card: an isometric miniature of the block around the venue with
 /// a directions action underneath.
 class VenueMapCard extends StatelessWidget {
@@ -84,7 +120,7 @@ class VenueMapCard extends StatelessWidget {
                 // Full width, so it stays on one line instead of breaking
                 // "New / Road" beside the button.
                 Text(
-                  'Corner of New Road and Pragati Marg',
+                  'Corner of Pragati Marg',
                   style: GoogleFonts.dmSans(
                     fontSize: 12,
                     color: colors.textMuted,

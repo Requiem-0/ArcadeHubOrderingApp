@@ -282,8 +282,7 @@ class _FloorPlanSheetState extends State<_FloorPlanSheet>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text(
-                'Take the stairs or the elevator up to the 4th floor. '
-                'Pinch the plan to zoom in.',
+                'Stairs or elevator to the 4th floor. Pinch to zoom.',
                 style: GoogleFonts.dmSans(
                   fontSize: 13,
                   height: 1.4,

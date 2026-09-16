@@ -4,11 +4,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/brandkit/experiences.dart';
 import '../../core/repositories/auth_repository.dart';
+import '../../features/home/venue_map/venue_floor_plan.dart';
+import '../../features/home/venue_map/venue_map.dart';
 import 'app_network_image.dart';
 import 'app_logo.dart';
+
+/// Same pin the home "Find us" map points at.
+const double _kVenueLat = 28.2210429;
+const double _kVenueLon = 83.9869353;
 
 class ArcadeAppDrawer extends ConsumerWidget {
   const ArcadeAppDrawer({super.key});
@@ -312,7 +319,61 @@ class ArcadeAppDrawer extends ConsumerWidget {
                     child: ListView(
                       physics: const BouncingScrollPhysics(),
                       children: [
-                        // Section 1: Venue Experiences (Jump to Zone)
+                        // Section 1: the customer's own activity
+                        _SectionTitle('YOUR ACTIVITY', color: colors.textMuted),
+                        _UnifiedNavRow(
+                          icon: Icons.receipt_long_rounded,
+                          iconColor: const Color(0xFFFFB703),
+                          label: 'Recent Orders',
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            Navigator.of(context).pop();
+                            context.push('/orders');
+                          },
+                        ),
+                        _UnifiedNavRow(
+                          icon: Icons.favorite_rounded,
+                          iconColor: const Color(0xFFFF3B5C),
+                          label: 'Favourites & Wishlist',
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            Navigator.of(context).pop();
+                            context.push('/favourites');
+                          },
+                        ),
+                        _UnifiedNavRow(
+                          icon: Icons.location_on_rounded,
+                          iconColor: const Color(0xFF00E5FF),
+                          label: 'Saved Addresses',
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            Navigator.of(context).pop();
+                            context.push('/addresses');
+                          },
+                        ),
+
+                        const SizedBox(height: 14),
+                        Divider(color: colors.border, height: 1),
+                        const SizedBox(height: 12),
+
+                        // Section 2: ordering
+                        _SectionTitle('ORDER', color: colors.textMuted),
+                        _UnifiedNavRow(
+                          icon: Icons.restaurant_menu_rounded,
+                          iconColor: const Color(0xFFFF7A00),
+                          label: 'Food & Drinks Menu',
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            Navigator.of(context).pop();
+                            context.go('/food-menu');
+                          },
+                        ),
+
+                        const SizedBox(height: 14),
+                        Divider(color: colors.border, height: 1),
+                        const SizedBox(height: 12),
+
+                        // Section 3: the zones, below the everyday actions
                         _SectionTitle('JUMP TO ZONE', color: colors.textMuted),
 
                         // 2x3 Quick-Jump Zone Capsule Grid
@@ -385,33 +446,59 @@ class ArcadeAppDrawer extends ConsumerWidget {
                           },
                         ),
 
+
                         const SizedBox(height: 14),
                         Divider(color: colors.border, height: 1),
                         const SizedBox(height: 12),
 
-                        // Section 2: Explore & Ordering
-                        _SectionTitle('EXPLORE & ORDER', color: colors.textMuted),
+                        // Section 4: getting here
+                        _SectionTitle('FIND US', color: colors.textMuted),
                         _UnifiedNavRow(
-                          icon: Icons.restaurant_menu_rounded,
-                          iconColor: const Color(0xFFFF7A00),
-                          label: 'Food & Drinks Menu',
-                          badge: 'ORDER',
+                          icon: Icons.location_city_rounded,
+                          iconColor: const Color(0xFFFFB703),
+                          label: 'Venue map',
                           onTap: () {
                             HapticFeedback.lightImpact();
-                            Navigator.of(context).pop();
-                            context.push('/food-menu');
+                            final navigator = Navigator.of(context);
+                            final sheetContext = navigator.context;
+                            navigator.pop();
+                            showVenueMap(sheetContext);
                           },
                         ),
                         _UnifiedNavRow(
-                          icon: Icons.location_on_rounded,
+                          icon: Icons.map_rounded,
                           iconColor: const Color(0xFF00E5FF),
-                          label: 'Saved Addresses',
+                          label: 'Floor plan',
                           onTap: () {
                             HapticFeedback.lightImpact();
-                            Navigator.of(context).pop();
-                            context.push('/addresses');
+                            final navigator = Navigator.of(context);
+                            final sheetContext = navigator.context;
+                            navigator.pop();
+                            showVenueFloorPlan(sheetContext);
                           },
                         ),
+                        _UnifiedNavRow(
+                          icon: Icons.directions_rounded,
+                          iconColor: const Color(0xFF4ADE80),
+                          label: 'Directions',
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            launchUrl(
+                              Uri.parse(
+                                'https://www.google.com/maps/dir/?api=1'
+                                '&destination=$_kVenueLat,$_kVenueLon',
+                              ),
+                              mode: LaunchMode.externalApplication,
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 14),
+                        Divider(color: colors.border, height: 1),
+                        const SizedBox(height: 12),
+
+                        // Section 5: help and settings
+                        _SectionTitle('HELP & SETTINGS', color: colors.textMuted),
                         _UnifiedNavRow(
                           icon: Icons.support_agent_rounded,
                           iconColor: const Color(0xFF38BDF8),
@@ -420,33 +507,6 @@ class ArcadeAppDrawer extends ConsumerWidget {
                             HapticFeedback.lightImpact();
                             Navigator.of(context).pop();
                             context.push('/contact');
-                          },
-                        ),
-
-                        const SizedBox(height: 14),
-                        Divider(color: colors.border, height: 1),
-                        const SizedBox(height: 12),
-
-                        // Section 3: Account & Activity (Bottom Nav / Profile)
-                        _SectionTitle('ACTIVITY & SETTINGS'),
-                        _UnifiedNavRow(
-                          icon: Icons.receipt_long_rounded,
-                          iconColor: const Color(0xFFFFB703),
-                          label: 'Recent Orders',
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            Navigator.of(context).pop();
-                            context.push('/orders');
-                          },
-                        ),
-                        _UnifiedNavRow(
-                          icon: Icons.favorite_rounded,
-                          iconColor: const Color(0xFFFF3B5C),
-                          label: 'Favourites & Wishlist',
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            Navigator.of(context).pop();
-                            context.push('/favourites');
                           },
                         ),
                         _UnifiedNavRow(
@@ -562,14 +622,12 @@ class _UnifiedNavRow extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String label;
-  final String? badge;
   final VoidCallback onTap;
 
   const _UnifiedNavRow({
     required this.icon,
     required this.iconColor,
     required this.label,
-    this.badge,
     required this.onTap,
   });
 
@@ -611,37 +669,18 @@ class _UnifiedNavRow extends StatelessWidget {
                 Expanded(
                   child: Row(
                     children: [
-                      Text(
-                        label,
-                        style: GoogleFonts.dmSans(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w600,
-                          color: colors.textPrimary,
+                      Flexible(
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.dmSans(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w600,
+                            color: colors.textPrimary,
+                          ),
                         ),
                       ),
-                      if (badge != null) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                          decoration: BoxDecoration(
-                            color: colors.primaryRed.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                              color: colors.primaryRed.withValues(alpha: 0.4),
-                              width: 0.8,
-                            ),
-                          ),
-                          child: Text(
-                            badge!,
-                            style: GoogleFonts.dmSans(
-                              fontSize: 8.5,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.5,
-                              color: colors.primaryRed,
-                            ),
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),

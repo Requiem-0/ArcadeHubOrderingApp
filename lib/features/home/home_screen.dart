@@ -9,10 +9,14 @@ import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/brandkit/app_spacing.dart';
 import '../../core/brandkit/experiences.dart';
+import '../../core/brandkit/zone_features.dart';
+import '../../core/constants.dart';
 import '../../core/repositories/pos_repository.dart';
 import '../../core/utils/app_toast.dart';
 import '../../features/cart/cart_provider.dart';
 import '../../features/catalogue/data/product_model.dart';
+import '../../features/orders/data/order_model.dart';
+import '../../core/repositories/order_repository.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../shared/widgets/app_network_image.dart';
 import '../../shared/widgets/app_logo.dart';
@@ -37,13 +41,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     _updateCountdown();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateCountdown());
+    if (_promoConfigured) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateCountdown());
+    }
     
     // Auto-slide carousel every 4 seconds
     _carouselTimer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (!mounted) return;
       if (_sliderCtrl.hasClients) {
-        final next = (_activeSlideIndex + 1) % 3;
+        final next = (_activeSlideIndex + 1) % kZoneFeatures.length;
         _sliderCtrl.animateToPage(
           next,
           duration: const Duration(milliseconds: 600),
@@ -61,10 +67,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
+  /// The promo card mirrors the discount the cart actually applies, so it only
+  /// shows once all three values are set in [AppConstants].
+  static bool get _promoConfigured =>
+      AppConstants.discountPercentage != null &&
+      AppConstants.discountStartHour != null &&
+      AppConstants.discountEndHour != null;
+
+  static String _hourLabel(int hour) {
+    final h = hour % 12 == 0 ? 12 : hour % 12;
+    return '$h ${hour < 12 ? 'AM' : 'PM'}';
+  }
+
   void _updateCountdown() {
+    if (!_promoConfigured) {
+      _remainingTime = Duration.zero;
+      _countLabel = '';
+      return;
+    }
     final now = DateTime.now();
-    final happyHourStart = DateTime(now.year, now.month, now.day, 16, 0);
-    final happyHourEnd = DateTime(now.year, now.month, now.day, 19, 0);
+    final happyHourStart =
+        DateTime(now.year, now.month, now.day, AppConstants.discountStartHour!);
+    final happyHourEnd =
+        DateTime(now.year, now.month, now.day, AppConstants.discountEndHour!);
 
     if (now.isBefore(happyHourStart)) {
       _remainingTime = happyHourStart.difference(now);
@@ -143,6 +168,65 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ],
                     ),
 
+                    // Cart at a glance, so browsing doesn't have to stop
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final count = ref.watch(cartCountProvider);
+                        return Tooltip(
+                          message: 'Cart',
+                          child: Material(
+                            color: colors.cardElevated,
+                            borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              onTap: () => context.go('/cart'),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: colors.border),
+                                ),
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Icon(Icons.shopping_bag_outlined,
+                                        size: 20, color: colors.textPrimary),
+                                    if (count > 0)
+                                      Positioned(
+                                        top: 6,
+                                        right: 4,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          constraints: const BoxConstraints(
+                                              minWidth: 16, minHeight: 16),
+                                          decoration: BoxDecoration(
+                                            color: colors.primaryRed,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Text(
+                                            '$count',
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.bold,
+                                              height: 1,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    AppSpacing.gapH8,
+
                     // Hamburger Drawer Button
                     Tooltip(
                       message: 'Open menu',
@@ -209,6 +293,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 children: [
                   AppSpacing.gapV16,
 
+                  // 0. Whatever is cooking right now
+                  const _ActiveOrderBanner(),
+
                   // 1. Featured Zones Slider (Hero Discovery)
                   SizedBox(
                     height: 280, // Reduced hero height
@@ -217,22 +304,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       clipBehavior: Clip.none,
                       onPageChanged: (i) =>
                           setState(() => _activeSlideIndex = i),
-                      itemCount: kArcadeExperiences.length,
-                      itemBuilder: (context, i) {
-                        final exp = kArcadeExperiences[i];
-                        return _FeaturedZoneCard(
-                          exp: exp,
-                          pageController: _sliderCtrl,
-                          index: i,
-                        );
-                      },
+                      itemCount: kZoneFeatures.length,
+                      itemBuilder: (context, i) => _FeaturedZoneCard(
+                        feature: kZoneFeatures[i],
+                        pageController: _sliderCtrl,
+                        index: i,
+                      ),
                     ),
                   ),
 
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(kArcadeExperiences.length, (i) {
+                    children: List.generate(kZoneFeatures.length, (i) {
                       final active = i == _activeSlideIndex;
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
@@ -250,64 +334,61 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     }),
                   ),
 
+                  // 2. Discount promo, only while a discount is configured
+                  if (_promoConfigured) ...[
+                    AppSpacing.gapV32,
+                    PromoTicketCard(
+                      title: 'App-Exclusive',
+                      subtitle:
+                          '${AppConstants.discountPercentage!.round()}% off app orders, '
+                          '${_hourLabel(AppConstants.discountStartHour!)}–'
+                          '${_hourLabel(AppConstants.discountEndHour!)}.',
+                      discountValue: '${AppConstants.discountPercentage!.round()}%',
+                      discountType: 'OFF',
+                      remainingTime: _remainingTime,
+                      countLabel: _countLabel,
+                    ),
+                  ],
+
+                  // 3. Menu, straight from the POS catalogue
+                  const _MenuSection(),
+
+                  // 4. Bundle deals, hidden until the POS has bundle items
+                  ...ref.watch(bundleProductsProvider).maybeWhen(
+                        data: (bundleProducts) => bundleProducts.isEmpty
+                            ? const <Widget>[]
+                            : [
+                                AppSpacing.gapV32,
+                                _SectionHeader(title: 'Bundles'),
+                                const SizedBox(height: 16),
+                                SizedBox(
+                                  height: 220,
+                                  child: ListView.separated(
+                                    scrollDirection: Axis.horizontal,
+                                    padding: AppSpacing.pagePadding,
+                                    itemCount: bundleProducts.length,
+                                    separatorBuilder: (_, _) =>
+                                        const SizedBox(width: AppSpacing.sm),
+                                    itemBuilder: (context, index) =>
+                                        _BundleCard(product: bundleProducts[index]),
+                                  ),
+                                ),
+                              ],
+                        orElse: () => const <Widget>[],
+                      ),
+
+                  // 5. Explore the Hub
                   AppSpacing.gapV32,
-
-                  // 2. Discount Promo Card
-                  PromoTicketCard(
-                    title: 'App-Exclusive',
-                    subtitle: 'Apply 10% off to any purchase from the app. Valid 10 AM - 4 PM today.',
-                    discountValue: '10%',
-                    discountType: 'OFF',
-                    remainingTime: _remainingTime,
-                    countLabel: _countLabel,
-                  ),
-
-                  AppSpacing.gapV24,
-
-                  // 2. Explore the Hub (Tightened Grid)
                   _SectionHeader(
-                    title: 'Explore the Hub',
+                    title: 'Zones',
                   ),
                   const SizedBox(height: 20),
-
                   Padding(
                     padding: AppSpacing.pagePadding,
                     child: const _RotatingBentoGrid(),
                   ),
 
-                  AppSpacing.gapV16,
-
-
-                  // 4. Bundle Deals Section (Filtered by Category 'Bundle')
-                  _SectionHeader(
-                    title: 'Bundle Deals',
-                  ),
-                  const SizedBox(height: 24),
-
-                  ref.watch(bundleProductsProvider).when(
-                        loading: () => _BundleSkeleton(),
-                        error: (_, __) => _buildNoBundlesPlaceholder(colors),
-                        data: (bundleProducts) {
-                          if (bundleProducts.isEmpty) {
-                            return _buildNoBundlesPlaceholder(colors);
-                          }
-
-                          return SizedBox(
-                            height: 220,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              padding: AppSpacing.pagePadding,
-                              itemCount: bundleProducts.length,
-                              separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
-                              itemBuilder: (context, index) {
-                                return _BundleCard(product: bundleProducts[index]);
-                              },
-                            ),
-                          );
-                        },
-                      ),
-
-                  // 5. Venue location
+                  // 6. Venue location
                   AppSpacing.gapV32,
                   _SectionHeader(
                     title: 'Find us',
@@ -327,53 +408,61 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ),
   );
 }
+}
 
-  Widget _buildNoBundlesPlaceholder(AppThemeColors colors) {
+/// Shows the newest order that is still open, and nothing at all otherwise.
+class _ActiveOrderBanner extends ConsumerWidget {
+  const _ActiveOrderBanner();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
+    final order = ref.watch(myOrdersProvider).maybeWhen(
+          data: (orders) => orders
+              .cast<OrderModel?>()
+              .firstWhere((o) => o!.status == OrderStatus.pending,
+                  orElse: () => null),
+          orElse: () => null,
+        );
+    if (order == null) return const SizedBox.shrink();
+
+    final label = order.invoice != null ? '#${order.invoice}' : '#${order.id}';
     return Padding(
-      padding: AppSpacing.pagePadding,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        decoration: BoxDecoration(
-          color: colors.card,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: colors.cardShadow,
-          border: Border.all(color: colors.border),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: colors.primaryRed.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.card_giftcard_rounded,
-                color: colors.primaryRed,
-                size: 30,
-              ),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: Material(
+        color: colors.primaryRed.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => context.push('/order/${order.id}', extra: order),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: colors.primaryRed.withValues(alpha: 0.4)),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'No Bundles Available',
-              style: GoogleFonts.outfit(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: colors.textPrimary,
-              ),
+            child: Row(
+              children: [
+                Icon(Icons.local_fire_department_rounded,
+                    size: 18, color: colors.primaryRed),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Order $label · Preparing',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded,
+                    size: 20, color: colors.primaryRed),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              'There are currently no active bundle deals. Check back soon for new combo offers!',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.dmSans(
-                fontSize: 12,
-                color: colors.textMuted,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -383,9 +472,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 /// Section Header Widget
 class _SectionHeader extends StatelessWidget {
   final String title;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   const _SectionHeader({
     required this.title,
+    this.actionLabel,
+    this.onAction,
   });
 
   @override
@@ -393,13 +486,185 @@ class _SectionHeader extends StatelessWidget {
     final colors = context.appColors;
     return Padding(
       padding: AppSpacing.pagePadding,
-      child: Text(
-        title,
-        style: GoogleFonts.outfit(
-          fontSize: 22,
-          fontWeight: FontWeight.w900,
-          color: colors.textPrimary,
-          letterSpacing: -0.5,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: GoogleFonts.outfit(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: colors.textPrimary,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ),
+          if (actionLabel != null)
+            TextButton(
+              onPressed: onAction,
+              style: TextButton.styleFrom(
+                foregroundColor: colors.primaryRed,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(0, 36),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    actionLabel!,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded, size: 18),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Horizontal strip of real menu items, with a way into the full menu.
+/// Bundles live in their own section and zero-priced items are skipped, so
+/// nothing appears here that a customer can't actually order. The whole
+/// section disappears while loading or when the catalogue has nothing to show.
+class _MenuSection extends ConsumerWidget {
+  const _MenuSection();
+
+  static const int _maxItems = 10;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final items = ref.watch(catalogProvider).maybeWhen(
+          data: (products) => products
+              .where((p) =>
+                  p.effectivePrice > 0 &&
+                  !p.category.trim().toLowerCase().startsWith('bundle'))
+              .take(_maxItems)
+              .toList(),
+          orElse: () => const <ProductModel>[],
+        );
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AppSpacing.gapV32,
+        _SectionHeader(
+          title: 'Menu',
+          actionLabel: 'See all',
+          onAction: () => context.push('/food-menu'),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 204,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: AppSpacing.pagePadding,
+            itemCount: items.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 12),
+            itemBuilder: (context, i) => _MenuItemCard(product: items[i]),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MenuItemCard extends ConsumerWidget {
+  final ProductModel product;
+
+  const _MenuItemCard({required this.product});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
+    final p = product;
+    return Material(
+      color: colors.card,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => context.push('/product/${p.id}'),
+        child: Container(
+          width: 148,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: colors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  height: 108,
+                  width: double.infinity,
+                  child: AppNetworkImage(
+                    url: p.imageUrl,
+                    height: 108,
+                    width: double.infinity,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                p.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.outfit(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.bold,
+                  color: colors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      AppConstants.formatPrice(p.effectivePrice),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.dmSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: colors.primaryRed,
+                      ),
+                    ),
+                  ),
+                  Semantics(
+                    button: true,
+                    label: 'Add ${p.name} to cart',
+                    child: GestureDetector(
+                      onTap: () {
+                        if (p.variants.isNotEmpty) {
+                          context.push('/product/${p.id}');
+                          return;
+                        }
+                        HapticFeedback.lightImpact();
+                        ref.read(cartProvider.notifier).add(p.id, p);
+                        AppToast.showSuccess(context, 'Added "${p.name}" to cart');
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: colors.primaryRed,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.add, color: Colors.white, size: 18),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -689,32 +954,23 @@ class _FeatureGridItemState extends State<_FeatureGridItem> with SingleTickerPro
   }
 }
 
+/// Carousel card for one [ZoneFeature]. The feature is the headline; the zone
+/// it belongs to is named on the card, and tapping opens that zone.
 class _FeaturedZoneCard extends StatelessWidget {
-  final ArcadeExperience exp;
+  final ZoneFeature feature;
   final PageController pageController;
   final int index;
 
   const _FeaturedZoneCard({
-    required this.exp,
+    required this.feature,
     required this.pageController,
     required this.index,
   });
 
-  String _getZoneImage(String id) {
-    switch (id) {
-      case 'playroom': return 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop';
-      case 'partyroom': return 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1974&auto=format&fit=crop';
-      case 'sportsbar': return 'https://images.unsplash.com/photo-1575444758702-4a6b9222336e?q=80&w=2070&auto=format&fit=crop';
-      case 'rooftop': return 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?q=80&w=1974&auto=format&fit=crop';
-      case 'area51': return 'https://images.unsplash.com/photo-1566737236500-c8ac43014a67?q=80&w=2070&auto=format&fit=crop';
-      case 'easyroom': return 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=2070&auto=format&fit=crop';
-      default: return 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final exp = feature.zone;
     final fgColor = colors.resolveZoneForeground(exp.color);
 
     return AnimatedBuilder(
@@ -782,7 +1038,7 @@ class _FeaturedZoneCard extends StatelessWidget {
                       children: [
                         // Parallax Photographic Background
                         AppNetworkImage(
-                          url: _getZoneImage(exp.id),
+                          url: feature.imageUrl,
                           alignment: Alignment(pageOffset * 0.8, 0),
                         ),
                         
@@ -826,7 +1082,7 @@ class _FeaturedZoneCard extends StatelessWidget {
                                           border: Border.all(color: fgColor.withValues(alpha: 0.6)),
                                         ),
                                         child: Text(
-                                          exp.featureTag.toUpperCase(),
+                                          exp.name.toUpperCase(),
                                           style: GoogleFonts.dmSans(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
@@ -849,7 +1105,7 @@ class _FeaturedZoneCard extends StatelessWidget {
                                           border: Border.all(color: fgColor.withValues(alpha: 0.5)),
                                         ),
                                         child: Icon(
-                                          exp.iconData,
+                                          feature.iconData,
                                           color: fgColor,
                                           size: 20,
                                         ),
@@ -863,7 +1119,9 @@ class _FeaturedZoneCard extends StatelessWidget {
                               
                               // Bottom Info
                               Text(
-                                exp.name,
+                                feature.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                                 style: GoogleFonts.outfit(
                                   fontSize: 30,
                                   fontWeight: FontWeight.w900,
@@ -873,7 +1131,7 @@ class _FeaturedZoneCard extends StatelessWidget {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                exp.tagline,
+                                feature.line,
                                 style: GoogleFonts.dmSans(
                                   fontSize: 13,
                                   color: Colors.white.withValues(alpha: 0.85),
@@ -882,6 +1140,20 @@ class _FeaturedZoneCard extends StatelessWidget {
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Text(
+                                    exp.name,
+                                    style: GoogleFonts.dmSans(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: fgColor,
+                                    ),
+                                  ),
+                                  Icon(Icons.chevron_right_rounded, size: 18, color: fgColor),
+                                ],
                               ),
                             ],
                           ),
@@ -1192,62 +1464,6 @@ class _DashedLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_DashedLinePainter oldDelegate) => oldDelegate.color != color;
-}
-
-
-/// Bundle Deal Skeleton Loader (shown while POS data loads)
-class _BundleSkeleton extends StatefulWidget {
-  @override
-  State<_BundleSkeleton> createState() => _BundleSkeletonState();
-}
-
-class _BundleSkeletonState extends State<_BundleSkeleton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _anim;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-    _anim = Tween<double>(begin: 0.3, end: 0.7).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    return AnimatedBuilder(
-      animation: _anim,
-      builder: (_, __) => SizedBox(
-        height: 220,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          padding: AppSpacing.pagePadding,
-          itemCount: 3,
-          separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
-          itemBuilder: (_, __) => Container(
-            width: 310,
-            decoration: BoxDecoration(
-              color: colors.card.withValues(alpha: _anim.value),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: colors.border),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 

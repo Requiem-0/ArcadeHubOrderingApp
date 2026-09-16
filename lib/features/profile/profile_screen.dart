@@ -136,7 +136,7 @@ class ProfileScreen extends ConsumerWidget {
                     accentColor: const Color(0xFFFF3B5C),
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      context.go('/favourites');
+                      context.push('/favourites');
                     },
                   ),
                 ),
@@ -151,7 +151,7 @@ class ProfileScreen extends ConsumerWidget {
                     accentColor: const Color(0xFFFFB703),
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      context.go('/orders');
+                      context.push('/orders');
                     },
                   ),
                 ),
