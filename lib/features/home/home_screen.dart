@@ -239,7 +239,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                   // 1. Featured Zones Slider (Hero Discovery)
                   SizedBox(
-                    height: 280, // Reduced hero height
+                    height: 220, // Short enough to scroll past quickly
                     child: PageView.builder(
                       controller: _sliderCtrl,
                       clipBehavior: Clip.none,
@@ -254,7 +254,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(kZoneFeatures.length, (i) {
@@ -279,11 +279,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   if (_promoConfigured) ...[
                     AppSpacing.gapV32,
                     PromoTicketCard(
-                      title: 'App-Exclusive',
+                      title: 'App orders',
                       subtitle:
-                          '${AppConstants.discountPercentage!.round()}% off app orders, '
                           '${_hourLabel(AppConstants.discountStartHour!)}–'
-                          '${_hourLabel(AppConstants.discountEndHour!)}.',
+                          '${_hourLabel(AppConstants.discountEndHour!)} daily',
                       discountValue: '${AppConstants.discountPercentage!.round()}%',
                       discountType: 'OFF',
                       remainingTime: _remainingTime,
@@ -1003,7 +1002,7 @@ class _FeaturedZoneCard extends StatelessWidget {
                         
                         // Content
                         Padding(
-                          padding: const EdgeInsets.all(22),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1061,10 +1060,10 @@ class _FeaturedZoneCard extends StatelessWidget {
                               // Bottom Info
                               Text(
                                 feature.title,
-                                maxLines: 2,
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: GoogleFonts.outfit(
-                                  fontSize: 30,
+                                  fontSize: 24,
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
                                   height: 1.1,
@@ -1076,13 +1075,13 @@ class _FeaturedZoneCard extends StatelessWidget {
                                 style: GoogleFonts.dmSans(
                                   fontSize: 13,
                                   color: Colors.white.withValues(alpha: 0.85),
-                                  height: 1.4,
+                                  height: 1.3,
                                   fontWeight: FontWeight.w500,
                                 ),
-                                maxLines: 2,
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 6),
                               Row(
                                 children: [
                                   Text(
@@ -1182,7 +1181,7 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                   : colors.cardShadow,
             ),
             child: ClipPath(
-              clipper: _TicketClipper(holeRadius: 16),
+              clipper: _TicketClipper(holeRadius: 10),
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -1208,8 +1207,8 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                     children: [
                       // Left Section: The Discount Badge
                       Container(
-                        width: 105,
-                        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
+                        width: 84,
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -1226,7 +1225,7 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                             Text(
                               widget.discountValue,
                               style: GoogleFonts.outfit(
-                                fontSize: 36,
+                                fontSize: 26,
                                 fontWeight: FontWeight.w900,
                                 height: 1,
                                 color: colors.textPrimary,
@@ -1263,7 +1262,7 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                       // Right Section: Info & Timer
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.fromLTRB(14, 10, 16, 10),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -1283,17 +1282,18 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                                   ),
                                 ],
                               ),
-                              AppSpacing.gapV8,
+                              const SizedBox(height: 3),
                               Text(
                                 widget.subtitle,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: GoogleFonts.dmSans(
-                                  fontSize: 13,
+                                  fontSize: 12.5,
                                   color: colors.textSecondary,
-                                  height: 1.4,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              AppSpacing.gapV16,
+                              const SizedBox(height: 6),
                               
                               // Sleek Timer HUD
                               Row(
@@ -1325,7 +1325,7 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                                   Text(
                                     _formatDuration(widget.remainingTime),
                                     style: GoogleFonts.outfit(
-                                      fontSize: 18,
+                                      fontSize: 15,
                                       fontWeight: FontWeight.w900,
                                       color: colors.textPrimary,
                                       letterSpacing: 1,

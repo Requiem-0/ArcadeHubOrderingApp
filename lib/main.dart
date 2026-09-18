@@ -40,6 +40,16 @@ class ArcadeHubApp extends ConsumerWidget {
       darkTheme: AppTheme.dark,
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
       routerConfig: appRouter,
+      // A hidden or minimised browser tab can hand the app a window only a
+      // pixel or two across, and every row on every screen then reports an
+      // overflow. No real screen is that small, so wait until it is usable.
+      builder: (context, child) {
+        final size = MediaQuery.sizeOf(context);
+        if (size.width < 200 || size.height < 200) {
+          return const SizedBox.shrink();
+        }
+        return child ?? const SizedBox.shrink();
+      },
     );
   }
 }
