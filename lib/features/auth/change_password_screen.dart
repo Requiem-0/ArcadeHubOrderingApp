@@ -190,7 +190,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                     ],
                     const SizedBox(height: 8),
                     PrimaryButton(
-                      label: 'Update Password',
+                      label: 'Update',
                       loading: _loading,
                       onPressed: _submit,
                     ),

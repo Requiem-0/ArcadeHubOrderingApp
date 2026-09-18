@@ -360,7 +360,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
           // ── Submit Button ──────────────────────────────────────────
           PrimaryButton(
-            label: 'Save Profile Changes',
+            label: 'Save',
             loading: _saving,
             onPressed: _handleSave,
           ),

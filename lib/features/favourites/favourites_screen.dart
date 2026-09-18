@@ -109,9 +109,9 @@ class FavouritesScreen extends ConsumerWidget {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 0.72,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 24,
+                      mainAxisExtent: 232,
                     ),
                     itemCount: favProducts.length,
                     itemBuilder: (context, i) {

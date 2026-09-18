@@ -17,7 +17,7 @@ class ExperienceRepository {
         subtitle: 'Arcade Games, VR & Gaming Zone',
         tagline: 'Immerse in retro classics, modern consoles & VR battles',
         description:
-            'State-of-the-art gaming experience with racing simulators, fighting cabinets, and private console stations.',
+            'PS5 gaming\nRacing\nFoosball and darts\nTable tennis',
         shortDesc: 'VR battles and racing sims',
         featureTag: 'VR & arcade',
         type: ExperienceType.gaming,
@@ -36,7 +36,7 @@ class ExperienceRepository {
         subtitle: 'Private Celebrations & Events',
         tagline: 'Host unforgettable birthdays, victory bashes & reunions',
         description:
-            'Soundproofed party hub equipped with surround sound, customizable ambient lighting, and dedicated service.',
+            'Private parties and birthdays\nKaraoke\nMovies',
         shortDesc: 'Soundproofed space for events',
         featureTag: 'Private VIP',
         type: ExperienceType.lounge,
@@ -55,7 +55,7 @@ class ExperienceRepository {
         subtitle: 'Scenic Dining & Sky Lounge',
         tagline: 'Panoramic Fewa Lake views, gourmet dining & chill beats',
         description:
-            'Open-air restro experience combining chef-crafted dishes, signature cocktails, and vibrant Pokhara sunsets.',
+            'Food and drinks\nIndoor seating\nOutdoor terrace',
         shortDesc: 'Sky dining over Fewa Lake',
         featureTag: 'Sunset views',
         type: ExperienceType.dining,
@@ -74,7 +74,7 @@ class ExperienceRepository {
         subtitle: 'Live Matches, Drinks & Bites',
         tagline: 'Cheer your team on giant HD projectors with icy craft drinks',
         description:
-            'High-energy sports venue serving cold draft beer, wings, sliders, and live match screenings on big screens.',
+            'Live matches on big screens\nDrinks at the bar',
         shortDesc: 'Big screens and craft beer',
         featureTag: 'Live match HD',
         type: ExperienceType.dining,
@@ -93,7 +93,7 @@ class ExperienceRepository {
         subtitle: 'Mystery Experience Room',
         tagline: 'Top-secret futuristic hangout & immersive lounge zone',
         description:
-            'Exclusive secret-theme chamber featuring laser visuals, futuristic chill pods, and mystery house specials.',
+            'Outdoor chill space\nTable tennis\nBeer pong',
         shortDesc: 'Mystery room and laser pods',
         featureTag: 'Sci-fi room',
         type: ExperienceType.gaming,
@@ -112,7 +112,7 @@ class ExperienceRepository {
         subtitle: 'Lounge & Chill Space',
         tagline: 'Relaxed sofa lounge, board games & smooth refreshers',
         description:
-            'Ultra-comfortable relaxed space designed for casual conversations, board gaming sessions, and light snacks.',
+            'Private room\nPS5\nKaraoke and movies',
         shortDesc: 'Sofa lounge and hot drinks',
         featureTag: 'Board games',
         type: ExperienceType.lounge,

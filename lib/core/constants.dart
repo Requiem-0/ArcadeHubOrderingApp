@@ -53,9 +53,9 @@ abstract final class AppConstants {
   static const double vatRate = 0.13; // 13% VAT
 
   // App Discount Config (X% OFF during A -> B hours)
-  static const double? discountPercentage = null;
-  static const int? discountStartHour = null;
-  static const int? discountEndHour = null;
+  static const double? discountPercentage = 10;
+  static const int? discountStartHour = 10;
+  static const int? discountEndHour = 4;
 
   // ── UI ────────────────────────────────────────────────────────
   static const double bottomNavHeight = 76.0;

@@ -1,6 +1,7 @@
 // lib/features/experiences/experience_detail_screen.dart
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,6 +14,16 @@ import '../../core/repositories/pos_repository.dart';
 import '../../core/models/experience.dart';
 import '../../shared/widgets/price_text.dart';
 import '../../shared/widgets/app_network_image.dart';
+import '../../core/constants.dart';
+import '../../core/utils/app_toast.dart';
+import '../../features/cart/cart_provider.dart';
+import '../../features/catalogue/data/product_model.dart';
+
+/// Text colour for something filled with a zone colour. Zone colours run from
+/// white (Rooftop) through yellow and green to red, so white text only works
+/// on the darker ones.
+Color _inkOn(Color fill) =>
+    fill.computeLuminance() > 0.45 ? const Color(0xFF0A0A0A) : Colors.white;
 
 class ExperienceDetailScreen extends ConsumerWidget {
   final String experienceId;
@@ -213,7 +224,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                       style: GoogleFonts.dmSans(
                                         fontSize: 10.5,
                                         fontWeight: FontWeight.w800,
-                                        color: Colors.white,
+                                        color: _inkOn(fgColor),
                                         letterSpacing: 0.8,
                                       ),
                                     ),
@@ -261,16 +272,44 @@ class ExperienceDetailScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      '${exp.tagline}. ${exp.description}',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 14,
-                        color: colors.isDark
-                            ? const Color(0xFF94A3B8)
-                            : const Color(0xFF334155),
-                        height: 1.5,
-                      ),
-                    ),
+                    // One line per thing to do there
+                    ...exp.description
+                        .split('\n')
+                        .where((line) => line.trim().isNotEmpty)
+                        .map(
+                          (line) => Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 7),
+                                  child: Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: fgColor,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    line.trim(),
+                                    style: GoogleFonts.dmSans(
+                                      fontSize: 14,
+                                      height: 1.45,
+                                      color: colors.isDark
+                                          ? const Color(0xFFCBD5E1)
+                                          : const Color(0xFF334155),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                     const SizedBox(height: 14),
 
                     // Venue Spec Tag
@@ -393,12 +432,18 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                                       color: fgColor,
                                                     ),
                                                     const SizedBox(width: 4),
-                                                    Text(
-                                                      srv.durationText!,
-                                                      style: GoogleFonts.dmSans(
-                                                        fontSize: 11.5,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: fgColor,
+                                                    Flexible(
+                                                      child: Text(
+                                                        srv.durationText!,
+                                                        maxLines: 1,
+                                                        overflow:
+                                                            TextOverflow.ellipsis,
+                                                        style: GoogleFonts.dmSans(
+                                                          fontSize: 11.5,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: fgColor,
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -416,7 +461,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: fgColor,
-                                              foregroundColor: Colors.white,
+                                              foregroundColor: _inkOn(fgColor),
                                               elevation: 0,
                                               padding: const EdgeInsets.symmetric(
                                                   horizontal: 18, vertical: 8),
@@ -443,6 +488,10 @@ class ExperienceDetailScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
+
+                    // The menu comes after the zone's own content
+                    const SizedBox(height: 34),
+                    _ZoneMenuStrips(zoneId: exp.id, accent: fgColor),
                   ]),
                 ),
               ),
@@ -487,12 +536,14 @@ class _SpecChip extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            label,
-            style: GoogleFonts.dmSans(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-              color: colors.textPrimary,
+          Flexible(
+            child: Text(
+              label,
+              style: GoogleFonts.dmSans(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: colors.textPrimary,
+              ),
             ),
           ),
         ],
@@ -519,7 +570,7 @@ class _ZoneProductsList extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Food & Drinks Menu',
+              zoneId == 'sportsbar' ? 'Drinks' : 'Food',
               style: GoogleFonts.outfit(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -586,7 +637,9 @@ class _ZoneProductsList extends ConsumerWidget {
                 child: Column(
                   children: [
                     Text(
-                      'Browse our full kitchen & bar selection',
+                      zoneId == 'sportsbar'
+                          ? 'No drinks on the menu yet.'
+                          : 'No food on the menu yet.',
                       style: GoogleFonts.dmSans(
                         color: colors.textMuted,
                         fontSize: 13.5,
@@ -597,7 +650,7 @@ class _ZoneProductsList extends ConsumerWidget {
                       onPressed: () => context.go('/food-menu'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: fgColor,
-                        foregroundColor: Colors.white,
+                        foregroundColor: _inkOn(fgColor),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         shape: RoundedRectangleBorder(
@@ -747,6 +800,234 @@ class _ZoneProductsList extends ConsumerWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+
+/// The menu under a zone's own content, as short swipeable strips so it never
+/// buries what the zone is about. The bar and restro pages already list their
+/// half of the menu above, so they only get the other half here.
+class _ZoneMenuStrips extends ConsumerWidget {
+  final String zoneId;
+  final Color accent;
+
+  const _ZoneMenuStrips({required this.zoneId, required this.accent});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
+    final showFood = zoneId != 'rooftop';
+    final showDrinks = zoneId != 'sportsbar';
+
+    List<ProductModel> load(String zone) => ref
+        .watch(zoneProductsProvider(zone))
+        .maybeWhen(
+          data: (items) => items.where((p) => p.effectivePrice > 0).toList(),
+          orElse: () => const <ProductModel>[],
+        );
+
+    final food = showFood ? load('rooftop') : const <ProductModel>[];
+    final drinks = showDrinks ? load('sportsbar') : const <ProductModel>[];
+    if (food.isEmpty && drinks.isEmpty) return const SizedBox.shrink();
+
+    final isDiningZone = zoneId == 'rooftop' || zoneId == 'sportsbar';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                isDiningZone ? 'Also on the menu' : 'Menu',
+                style: GoogleFonts.outfit(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: colors.textPrimary,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => context.go('/food-menu'),
+              style: TextButton.styleFrom(
+                foregroundColor: accent,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                minimumSize: const Size(0, 32),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'See all',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded, size: 18),
+                ],
+              ),
+            ),
+          ],
+        ),
+        if (food.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          _StripLabel(text: 'Food', color: colors.textMuted),
+          _ProductStrip(items: food),
+        ],
+        if (drinks.isNotEmpty) ...[
+          const SizedBox(height: 18),
+          _StripLabel(text: 'Drinks', color: colors.textMuted),
+          _ProductStrip(items: drinks),
+        ],
+      ],
+    );
+  }
+}
+
+class _StripLabel extends StatelessWidget {
+  final String text;
+  final Color color;
+
+  const _StripLabel({required this.text, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Text(
+        text.toUpperCase(),
+        style: GoogleFonts.dmSans(
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.4,
+          color: color,
+        ),
+      ),
+    );
+  }
+}
+
+class _ProductStrip extends StatelessWidget {
+  final List<ProductModel> items;
+
+  const _ProductStrip({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 168,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
+        itemCount: items.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 14),
+        itemBuilder: (context, i) => _StripCard(product: items[i]),
+      ),
+    );
+  }
+}
+
+class _StripCard extends ConsumerWidget {
+  final ProductModel product;
+
+  const _StripCard({required this.product});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
+    final p = product;
+    return Material(
+      color: colors.card,
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => context.push('/product/${p.id}'),
+        child: Container(
+          width: 124,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: colors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 84,
+                width: double.infinity,
+                child: AppNetworkImage(
+                  url: p.imageUrl,
+                  height: 84,
+                  width: double.infinity,
+                  fallback: Center(
+                    child: Text(p.emoji, style: const TextStyle(fontSize: 30)),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        p.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.outfit(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              AppConstants.formatPrice(p.effectivePrice),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.dmSans(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                          ),
+                          Material(
+                            color: colors.primaryRed,
+                            shape: const CircleBorder(),
+                            child: InkWell(
+                              customBorder: const CircleBorder(),
+                              onTap: () {
+                                if (p.variants.isNotEmpty) {
+                                  context.push('/product/${p.id}');
+                                  return;
+                                }
+                                HapticFeedback.lightImpact();
+                                ref.read(cartProvider.notifier).add(p.id, p);
+                                AppToast.showSuccess(
+                                    context, 'Added "${p.name}" to cart');
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.all(5),
+                                child: Icon(Icons.add,
+                                    size: 16, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -385,7 +385,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
               const SizedBox(height: 16),
 
               PrimaryButton(
-                label: 'SUBMIT INQUIRY →',
+                label: 'Send',
                 loading: _sending,
                 onPressed: _sendMessage,
               ),

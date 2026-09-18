@@ -168,65 +168,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ],
                     ),
 
-                    // Cart at a glance, so browsing doesn't have to stop
-                    Consumer(
-                      builder: (context, ref, _) {
-                        final count = ref.watch(cartCountProvider);
-                        return Tooltip(
-                          message: 'Cart',
-                          child: Material(
-                            color: colors.cardElevated,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              onTap: () => context.go('/cart'),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: colors.border),
-                                ),
-                                child: Stack(
-                                  clipBehavior: Clip.none,
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Icon(Icons.shopping_bag_outlined,
-                                        size: 20, color: colors.textPrimary),
-                                    if (count > 0)
-                                      Positioned(
-                                        top: 6,
-                                        right: 4,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          constraints: const BoxConstraints(
-                                              minWidth: 16, minHeight: 16),
-                                          decoration: BoxDecoration(
-                                            color: colors.primaryRed,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Text(
-                                            '$count',
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.bold,
-                                              height: 1,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    AppSpacing.gapH8,
-
                     // Hamburger Drawer Button
                     Tooltip(
                       message: 'Open menu',
@@ -368,7 +309,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     padding: AppSpacing.pagePadding,
                                     itemCount: bundleProducts.length,
                                     separatorBuilder: (_, _) =>
-                                        const SizedBox(width: AppSpacing.sm),
+                                        const SizedBox(width: 16),
                                     itemBuilder: (context, index) =>
                                         _BundleCard(product: bundleProducts[index]),
                                   ),
@@ -557,16 +498,16 @@ class _MenuSection extends ConsumerWidget {
         _SectionHeader(
           title: 'Menu',
           actionLabel: 'See all',
-          onAction: () => context.push('/food-menu'),
+          onAction: () => context.go('/food-menu'),
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 204,
+          height: 184,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: AppSpacing.pagePadding,
             itemCount: items.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 12),
+            separatorBuilder: (_, _) => const SizedBox(width: 16),
             itemBuilder: (context, i) => _MenuItemCard(product: items[i]),
           ),
         ),
@@ -591,7 +532,7 @@ class _MenuItemCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(18),
         onTap: () => context.push('/product/${p.id}'),
         child: Container(
-          width: 148,
+          width: 132,
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
@@ -603,11 +544,11 @@ class _MenuItemCard extends ConsumerWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: SizedBox(
-                  height: 108,
+                  height: 90,
                   width: double.infinity,
                   child: AppNetworkImage(
                     url: p.imageUrl,
-                    height: 108,
+                    height: 90,
                     width: double.infinity,
                   ),
                 ),
@@ -1525,7 +1466,7 @@ class _BundleCardState extends ConsumerState<_BundleCard> with SingleTickerProvi
           return Transform.scale(
             scale: _scale.value,
             child: Container(
-              width: 310,
+              width: 280,
               padding: const EdgeInsets.all(AppSpacing.md),
               decoration: BoxDecoration(
                 color: colors.card,

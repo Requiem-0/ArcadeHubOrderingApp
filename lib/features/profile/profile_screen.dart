@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/repositories/auth_repository.dart';
@@ -129,7 +128,7 @@ class ProfileScreen extends ConsumerWidget {
                 Expanded(
                   child: _buildBentoCard(
                     context: context,
-                    title: 'Wishlist',
+                    title: 'Favourites',
                     count: '$favCount',
                     subtitle: 'Saved items',
                     icon: Icons.favorite_rounded,
@@ -146,7 +145,7 @@ class ProfileScreen extends ConsumerWidget {
                     context: context,
                     title: 'Orders',
                     count: '$orderCount',
-                    subtitle: 'Past & active',
+                    subtitle: 'Past and active',
                     icon: Icons.receipt_long_rounded,
                     accentColor: const Color(0xFFFFB703),
                     onTap: () {
@@ -191,8 +190,8 @@ class ProfileScreen extends ConsumerWidget {
                       context: context,
                       icon: Icons.location_on_rounded,
                       iconColor: const Color(0xFF00E5FF),
-                      title: 'Saved Addresses',
-                      subtitle: 'Delivery locations & spot notes',
+                      title: 'Addresses',
+                      subtitle: 'Your saved places',
                       onTap: () {
                         HapticFeedback.lightImpact();
                         context.push('/addresses');
@@ -204,7 +203,7 @@ class ProfileScreen extends ConsumerWidget {
                       icon: Icons.lock_outline_rounded,
                       iconColor: const Color(0xFF00E676),
                       title: 'Change Password',
-                      subtitle: 'Update your account credentials',
+                      subtitle: 'Set a new password',
                       onTap: () {
                         HapticFeedback.lightImpact();
                         context.push('/change-password');
@@ -215,8 +214,8 @@ class ProfileScreen extends ConsumerWidget {
                       context: context,
                       icon: Icons.settings_rounded,
                       iconColor: const Color(0xFF9D4EDD),
-                      title: 'Settings & Theme',
-                      subtitle: 'Dark theme & preferences',
+                      title: 'Settings',
+                      subtitle: 'Theme and account',
                       onTap: () {
                         HapticFeedback.lightImpact();
                         context.push('/settings');
@@ -227,8 +226,8 @@ class ProfileScreen extends ConsumerWidget {
                       context: context,
                       icon: Icons.support_agent_rounded,
                       iconColor: const Color(0xFF38BDF8),
-                      title: 'Contact Support',
-                      subtitle: 'Direct WhatsApp & venue phone',
+                      title: 'Contact',
+                      subtitle: 'WhatsApp or call us',
                       onTap: () {
                         HapticFeedback.lightImpact();
                         context.push('/contact');

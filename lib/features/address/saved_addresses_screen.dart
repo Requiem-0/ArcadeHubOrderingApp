@@ -162,7 +162,7 @@ class SavedAddressesScreen extends ConsumerWidget {
                           )),
                       const SizedBox(height: 8),
                       SecondaryButton(
-                        label: '+ Add New Address',
+                        label: '+ Add address',
                         onPressed: () => context.push('/add-address'),
                       ),
                     ],

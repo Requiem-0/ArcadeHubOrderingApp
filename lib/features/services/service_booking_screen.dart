@@ -229,7 +229,7 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
         child: SafeArea(
           top: false,
           child: PrimaryButton(
-            label: 'Confirm Booking',
+            label: 'Confirm',
             loading: _loading,
             onPressed: _agreedToTerms
                 ? () async {
@@ -277,7 +277,7 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
                               ),
                               const SizedBox(height: 24),
                               PrimaryButton(
-                                label: 'Sign In / Register',
+                                label: 'Sign in',
                                 onPressed: () {
                                   Navigator.pop(ctx);
                                   context.push('/login');

@@ -167,10 +167,16 @@ class ProductModel {
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     final rawCategory = json['category'] ?? json['categories'];
     String categoryName = 'All';
-    if (rawCategory is Map) {
-      categoryName = rawCategory['name']?.toString() ?? 'All';
-    } else if (rawCategory is String && rawCategory.isNotEmpty) {
-      categoryName = rawCategory;
+    final firstCategory = rawCategory is List && rawCategory.isNotEmpty
+        ? rawCategory.first
+        : rawCategory;
+    if (firstCategory is Map) {
+      categoryName = firstCategory['name']?.toString() ??
+          firstCategory['_id']?.toString() ??
+          'All';
+    } else if (firstCategory is String && firstCategory.isNotEmpty) {
+      // Usually a category id; PosRepository swaps it for the name.
+      categoryName = firstCategory;
     }
 
     final rawTags = json['tags'];
@@ -255,6 +261,26 @@ class ProductModel {
   }
 
   String? get imageUrl => AppConstants.resolveImageUrl(image);
+
+  /// Same product filed under another category name.
+  ProductModel withCategory(String newCategory) => ProductModel(
+        id: id,
+        name: name,
+        emoji: emoji,
+        price: price,
+        originalPrice: originalPrice,
+        usesOfferPrice: usesOfferPrice,
+        offerPrice: offerPrice,
+        discounts: discounts,
+        prepTime: prepTime,
+        category: newCategory,
+        tags: tags,
+        description: description,
+        longDescription: longDescription,
+        image: image,
+        variants: variants,
+        addons: addons,
+      );
 
   /// Effective price to charge after applying offer price or item discounts
   double get effectivePrice {

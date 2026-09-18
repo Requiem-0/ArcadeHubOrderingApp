@@ -66,7 +66,7 @@ class CartScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               PrimaryButton(
-                label: 'Sign In / Register',
+                label: 'Sign in',
                 onPressed: () {
                   Navigator.pop(ctx);
                   context.push('/login');
@@ -444,7 +444,7 @@ class _CheckoutBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: PrimaryButton(
-          label: 'Proceed to Checkout — NPR ${total.toInt()}',
+          label: 'Checkout · NPR ${total.toInt()}',
           onPressed: onTap,
         ),
       ),

@@ -161,7 +161,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen>
               const Spacer(),
 
               PrimaryButton(
-                label: 'Back to Arcade Hub Home',
+                label: 'Back to Home',
                 onPressed: () => context.go('/home'),
               ),
             ],

@@ -324,7 +324,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                         _UnifiedNavRow(
                           icon: Icons.receipt_long_rounded,
                           iconColor: const Color(0xFFFFB703),
-                          label: 'Recent Orders',
+                          label: 'Orders',
                           onTap: () {
                             HapticFeedback.lightImpact();
                             Navigator.of(context).pop();
@@ -334,7 +334,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                         _UnifiedNavRow(
                           icon: Icons.favorite_rounded,
                           iconColor: const Color(0xFFFF3B5C),
-                          label: 'Favourites & Wishlist',
+                          label: 'Favourites',
                           onTap: () {
                             HapticFeedback.lightImpact();
                             Navigator.of(context).pop();
@@ -344,7 +344,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                         _UnifiedNavRow(
                           icon: Icons.location_on_rounded,
                           iconColor: const Color(0xFF00E5FF),
-                          label: 'Saved Addresses',
+                          label: 'Addresses',
                           onTap: () {
                             HapticFeedback.lightImpact();
                             Navigator.of(context).pop();
@@ -361,7 +361,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                         _UnifiedNavRow(
                           icon: Icons.restaurant_menu_rounded,
                           iconColor: const Color(0xFFFF7A00),
-                          label: 'Food & Drinks Menu',
+                          label: 'Menu',
                           onTap: () {
                             HapticFeedback.lightImpact();
                             Navigator.of(context).pop();
@@ -502,7 +502,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                         _UnifiedNavRow(
                           icon: Icons.support_agent_rounded,
                           iconColor: const Color(0xFF38BDF8),
-                          label: 'Contact & Support',
+                          label: 'Contact',
                           onTap: () {
                             HapticFeedback.lightImpact();
                             Navigator.of(context).pop();
@@ -512,7 +512,7 @@ class ArcadeAppDrawer extends ConsumerWidget {
                         _UnifiedNavRow(
                           icon: Icons.settings_rounded,
                           iconColor: const Color(0xFF9D4EDD),
-                          label: 'Settings & Theme',
+                          label: 'Settings',
                           onTap: () {
                             HapticFeedback.lightImpact();
                             Navigator.of(context).pop();

@@ -176,7 +176,7 @@ class _ZoneBooking extends ConsumerWidget {
               return ListView.separated(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 130),
                 itemCount: bookable.length + 1,
-                separatorBuilder: (_, _) => const SizedBox(height: 14),
+                separatorBuilder: (_, _) => const SizedBox(height: 20),
                 itemBuilder: (context, i) {
                   if (i == 0) {
                     return Padding(

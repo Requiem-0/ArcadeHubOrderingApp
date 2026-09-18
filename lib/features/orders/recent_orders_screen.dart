@@ -195,7 +195,7 @@ class RecentOrdersScreen extends ConsumerWidget {
       action: SizedBox(
         width: 200,
         child: PrimaryButton(
-          label: 'Sign In / Register',
+          label: 'Sign in',
           onPressed: () => context.push('/login'),
         ),
       ),

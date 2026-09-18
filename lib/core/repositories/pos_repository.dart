@@ -23,9 +23,18 @@ class PosRepository {
           ? response['products'] as List
           : (response is List ? response : []);
 
-      return rawList
+      final products = rawList
           .map((p) => ProductModel.fromJson(p as Map<String, dynamic>))
           .toList();
+
+      // Products carry their category as an id; the names ("Drinks") live in
+      // a separate list. Swap ids for names so menus can filter on them.
+      final categories = await getCategories(businessId: targetBizId);
+      final names = {for (final c in categories) c.id: c.name};
+      return [
+        for (final p in products)
+          names.containsKey(p.category) ? p.withCategory(names[p.category]!) : p,
+      ];
     } catch (e) {
       dev.log('API catalog fetch error: $e', name: 'PosRepository');
       rethrow;
@@ -152,51 +161,31 @@ class PosRepository {
     }
   }
 
-  /// Filter catalogue for a specific Experience Zone ID
+  /// Filter the catalogue for a zone page.
+  ///
+  /// The Sports Bar serves drinks and the Rooftop Restro serves everything
+  /// else, split on the item's POS category: any category with "drink" in its
+  /// name (Drinks, Soft Drinks, Hot Drinks...) goes to the bar. Bundles have
+  /// their own home section and stay out of both.
   Future<List<ProductModel>> getProductsForZone(String zoneId, {String? businessId}) async {
     final catalog = await getCatalog(businessId: businessId);
-    final key = zoneId.toLowerCase();
+    final menu = catalog.where((p) => !_isBundle(p)).toList();
 
-    final filtered = catalog.where((p) {
-      final cat = p.category.toLowerCase();
-      final tags = p.tags.map((t) => t.toLowerCase()).toList();
-
-      if (key == 'sportsbar') {
-        return cat.contains('bar') ||
-            cat.contains('drink') ||
-            cat.contains('beer') ||
-            cat.contains('munch') ||
-            cat.contains('burger') ||
-            tags.contains('sportsbar') ||
-            tags.contains('drink');
-      } else if (key == 'rooftop') {
-        return cat.contains('rooftop') ||
-            cat.contains('food') ||
-            cat.contains('pizza') ||
-            cat.contains('burger') ||
-            cat.contains('main') ||
-            cat.contains('munch') ||
-            tags.contains('rooftop') ||
-            tags.contains('chef special');
-      } else if (key == 'playroom') {
-        return cat.contains('snack') ||
-            cat.contains('gaming') ||
-            cat.contains('munch') ||
-            cat.contains('drink') ||
-            tags.contains('playroom');
-      }
-      return true;
-    }).toList();
-
-    // If specific zone tags are absent in POS, return all food & drinks
-    if (filtered.isEmpty && catalog.isNotEmpty) {
-      return catalog
-          .where((p) => !p.category.toLowerCase().contains('bundle'))
-          .toList();
+    switch (zoneId.toLowerCase()) {
+      case 'sportsbar':
+        return menu.where(_isDrink).toList();
+      case 'rooftop':
+        return menu.where((p) => !_isDrink(p)).toList();
+      default:
+        return menu;
     }
-
-    return filtered;
   }
+
+  static bool _isDrink(ProductModel p) =>
+      p.category.toLowerCase().contains('drink');
+
+  static bool _isBundle(ProductModel p) =>
+      p.category.trim().toLowerCase().startsWith('bundle');
 }
 
 final posRepositoryProvider = Provider<PosRepository>((ref) {

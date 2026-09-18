@@ -602,7 +602,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+              // Clear of the home indicator, and never flush to the screen edge
+              padding: EdgeInsets.fromLTRB(
+                  20, 14, 20, 28 + MediaQuery.viewPaddingOf(context).bottom),
               decoration: BoxDecoration(
                 color: colors.scaffold.withValues(alpha: 0.98),
                 border: Border(top: BorderSide(color: colors.borderSubtle)),
