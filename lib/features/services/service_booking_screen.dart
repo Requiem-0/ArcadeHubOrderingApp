@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/brandkit/experiences.dart';
 import '../../core/constants.dart';
@@ -167,7 +168,7 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
       backgroundColor: colors.scaffold,
       appBar: _bar(context, 'Book'),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+        padding: EdgeInsets.fromLTRB(context.gutter, 16, context.gutter, 28),
         children: [
           // What is being booked, in the zone's own colour.
           _SummaryCard(service: service, zone: zone, accent: accent),

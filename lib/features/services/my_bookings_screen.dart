@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/brandkit/experiences.dart';
 import '../../core/models/booking_request.dart';
@@ -88,7 +89,8 @@ class MyBookingsScreen extends ConsumerWidget {
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
+            padding:
+                EdgeInsets.fromLTRB(context.gutter, 16, context.gutter, 40),
             itemCount: requests.length + 1,
             separatorBuilder: (_, _) => const SizedBox(height: 16),
             itemBuilder: (context, i) {

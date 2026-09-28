@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/repositories/pos_repository.dart';
 import '../../features/cart/cart_provider.dart';
@@ -105,10 +106,15 @@ class FavouritesScreen extends ConsumerWidget {
                   }
 
                   return GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
+                    padding: EdgeInsets.fromLTRB(
+                        context.gutter + 4, 0, context.gutter + 4, 24),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: context.gridColumns(
+                        minCardWidth: 160,
+                        horizontalPadding: (context.gutter + 4) * 2,
+                        spacing: 20,
+                        max: 4,
+                      ),
                       crossAxisSpacing: 20,
                       mainAxisSpacing: 24,
                       mainAxisExtent: 232,

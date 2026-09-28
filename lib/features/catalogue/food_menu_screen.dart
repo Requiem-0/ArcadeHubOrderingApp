@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/brandkit/app_colors.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/constants.dart';
 import '../../core/repositories/pos_repository.dart';
@@ -210,10 +211,18 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                           ),
                         )
                       : GridView.builder(
-                          padding: const EdgeInsets.fromLTRB(28, 4, 28, 130),
+                          padding: EdgeInsets.fromLTRB(
+                              context.gutter + 8, 4, context.gutter + 8, 130),
                           gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            // Two cards on a phone, more once there is room,
+                            // without letting any card get cramped.
+                            crossAxisCount: context.gridColumns(
+                              minCardWidth: 150,
+                              horizontalPadding: (context.gutter + 8) * 2,
+                              spacing: 24,
+                              max: 4,
+                            ),
                             crossAxisSpacing: 24,
                             mainAxisSpacing: 30,
                             mainAxisExtent: 196,
