@@ -131,7 +131,7 @@ Work that is stopped or at risk until someone else moves. Nothing below can be c
 
 ## Release preparation
 
-- [ ] Point booking requests back at the venue's WhatsApp — `AppConstants.whatsappTestNumber` is set to a tester's number and must be `null`
+- [x] Booking requests go to the venue's WhatsApp (`AppConstants.whatsappTestNumber` is `null`; set it only while testing)
 - [ ] Remove remaining placeholder content — *B5*
 - [ ] Switch to the production business ID and verify
 - [ ] Permissions and app config

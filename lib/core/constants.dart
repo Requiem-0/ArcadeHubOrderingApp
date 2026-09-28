@@ -17,9 +17,13 @@ abstract final class AppConstants {
   static const int bookingOpenHour = 10;
   static const int bookingLastHour = 22;
 
-  // TESTING ONLY: booking requests go to this number instead of the venue.
-  // Set back to null before any build leaves the laptop.
-  static const String? whatsappTestNumber = '+9779816647410';
+  /// How far apart the offered times are. Any other time inside the hours can
+  /// still be asked for by hand.
+  static const int bookingSlotMinutes = 30;
+
+  // TESTING ONLY: set a number here and booking requests go to it instead of
+  // the venue. Must be null in anything that leaves the laptop.
+  static const String? whatsappTestNumber = null;
 
   /// Where booking requests are sent. The venue, unless a test number is set.
   static String get bookingWhatsapp => whatsappTestNumber ?? whatsappNumber;

@@ -812,28 +812,36 @@ class _DayCell extends StatelessWidget {
   }
 }
 
-/// Every hour the venue takes bookings, on the day in question.
+int _minutesOf(TimeOfDay t) => t.hour * 60 + t.minute;
+
+int get _openMinute => AppConstants.bookingOpenHour * 60;
+int get _lastMinute => AppConstants.bookingLastHour * 60;
+
+/// The times the venue offers, every half hour from open to close.
 List<TimeOfDay> openingSlots() => [
-      for (var h = AppConstants.bookingOpenHour;
-          h <= AppConstants.bookingLastHour;
-          h++)
-        TimeOfDay(hour: h, minute: 0),
+      for (var m = _openMinute;
+          m <= _lastMinute;
+          m += AppConstants.bookingSlotMinutes)
+        TimeOfDay(hour: m ~/ 60, minute: m % 60),
     ];
 
-/// Whether a slot can still be asked for: inside opening hours, and not
-/// already behind us if the day is today.
-bool slotIsBookable(TimeOfDay slot, DateTime day, {DateTime? now}) {
-  if (slot.hour < AppConstants.bookingOpenHour ||
-      slot.hour > AppConstants.bookingLastHour) {
-    return false;
-  }
-  final clock = now ?? DateTime.now();
-  if (!_sameDay(day, clock)) return true;
-  return slot.hour > clock.hour;
+/// Whether a time is inside opening hours at all, whatever the day.
+bool timeIsWithinHours(TimeOfDay time) {
+  final m = _minutesOf(time);
+  return m >= _openMinute && m <= _lastMinute;
 }
 
-/// The opening hours as pickable chips. Only what the venue is open for, so
-/// nothing is offered that would then be refused.
+/// Whether a time can still be asked for: inside opening hours, and not
+/// already behind us if the day is today.
+bool slotIsBookable(TimeOfDay slot, DateTime day, {DateTime? now}) {
+  if (!timeIsWithinHours(slot)) return false;
+  final clock = now ?? DateTime.now();
+  if (!_sameDay(day, clock)) return true;
+  return _minutesOf(slot) > _minutesOf(TimeOfDay.fromDateTime(clock));
+}
+
+/// The times on offer, plus a way to ask for any other time inside opening
+/// hours. Nothing outside the hours can be chosen, by chip or by clock.
 class _TimeSlots extends StatelessWidget {
   final DateTime? day;
   final TimeOfDay? selected;
@@ -850,12 +858,19 @@ class _TimeSlots extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final slots = openingSlots();
-    final on = day == null
-        ? slots
-        : [for (final s in slots) if (slotIsBookable(s, day!)) s];
 
-    if (on.isEmpty) {
+    // A time picked off the clock sits in the strip in its own place, rather
+    // than leaving nothing looking selected.
+    final all = openingSlots();
+    final chosen = selected;
+    if (chosen != null && !all.any((s) => _isSameTime(s, chosen))) {
+      all.add(chosen);
+      all.sort((a, b) => _minutesOf(a).compareTo(_minutesOf(b)));
+    }
+    final bookable =
+        day == null ? all : [for (final s in all) if (slotIsBookable(s, day!)) s];
+
+    if (bookable.isEmpty) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(14),
@@ -883,25 +898,70 @@ class _TimeSlots extends StatelessWidget {
       );
     }
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final slot in slots)
-          _SlotChip(
-            label: slot.format(context),
-            selected: selected?.hour == slot.hour,
-            enabled: on.contains(slot),
-            accent: accent,
-            onTap: () {
-              HapticFeedback.selectionClick();
-              onPick(slot);
-            },
-          ),
-      ],
+    // One scrolling line rather than a block of chips: half-hourly from open
+    // to close is a lot of times, and a wall of them buries the rest of the
+    // form. Built all at once so scrolling never lags.
+    return SizedBox(
+      height: 42,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final slot in all) ...[
+              _SlotChip(
+                label: slot.format(context),
+                selected: chosen != null && _isSameTime(slot, chosen),
+                enabled: bookable.contains(slot),
+                accent: accent,
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  onPick(slot);
+                },
+              ),
+              const SizedBox(width: 8),
+            ],
+            _SlotChip(
+              label: 'Other',
+              icon: Icons.access_time_rounded,
+              selected: false,
+              enabled: true,
+              accent: accent,
+              onTap: () => _pickByClock(context),
+            ),
+          ],
+        ),
+      ),
     );
   }
+
+  /// Any time at all, so long as the venue is open for it.
+  Future<void> _pickByClock(BuildContext context) async {
+    HapticFeedback.selectionClick();
+    final open = TimeOfDay(hour: AppConstants.bookingOpenHour, minute: 0);
+    final close = TimeOfDay(hour: AppConstants.bookingLastHour, minute: 0);
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: selected ?? open,
+    );
+    if (picked == null || !context.mounted) return;
+
+    if (!timeIsWithinHours(picked)) {
+      AppToast.showWarning(
+        context,
+        'Bookings run ${open.format(context)} to ${close.format(context)}.',
+      );
+      return;
+    }
+    if (day != null && !slotIsBookable(picked, day!)) {
+      AppToast.showWarning(context, 'That time has gone by today.');
+      return;
+    }
+    onPick(picked);
+  }
 }
+
+bool _isSameTime(TimeOfDay a, TimeOfDay b) =>
+    a.hour == b.hour && a.minute == b.minute;
 
 class _SlotChip extends StatelessWidget {
   final String label;
@@ -909,6 +969,7 @@ class _SlotChip extends StatelessWidget {
   final bool enabled;
   final Color accent;
   final VoidCallback onTap;
+  final IconData? icon;
 
   const _SlotChip({
     required this.label,
@@ -916,6 +977,7 @@ class _SlotChip extends StatelessWidget {
     required this.enabled,
     required this.accent,
     required this.onTap,
+    this.icon,
   });
 
   @override
@@ -944,17 +1006,26 @@ class _SlotChip extends StatelessWidget {
               width: selected ? 1.5 : 1,
             ),
           ),
-          child: Text(
-            label,
-            style: GoogleFonts.dmSans(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: selected
-                  ? ink
-                  : enabled
-                      ? colors.textPrimary
-                      : colors.borderSubtle,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 14, color: colors.textMuted),
+                const SizedBox(width: 5),
+              ],
+              Text(
+                label,
+                style: GoogleFonts.dmSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: selected
+                      ? ink
+                      : enabled
+                          ? colors.textPrimary
+                          : colors.borderSubtle,
+                ),
+              ),
+            ],
           ),
         ),
       ),

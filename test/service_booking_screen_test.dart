@@ -112,15 +112,21 @@ void main() {
   });
 
 
-  testWidgets('offers only the opening hours', (tester) async {
+  testWidgets('offers only the opening hours, every half hour',
+      (tester) async {
     await pumpBooking(tester, '/service-booking?serviceId=srv-ps5');
 
-    // 10 AM through 10 PM, and nothing outside it.
+    // 10 AM through 10 PM on the half hour, and nothing outside it.
     expect(find.text('10:00 AM'), findsOneWidget);
+    expect(find.text('10:30 AM'), findsOneWidget);
+    expect(find.text('9:30 PM'), findsOneWidget);
     expect(find.text('10:00 PM'), findsOneWidget);
     expect(find.text('9:00 AM'), findsNothing);
+    expect(find.text('10:30 PM'), findsNothing);
     expect(find.text('11:00 PM'), findsNothing);
     expect(find.text('2:00 AM'), findsNothing);
+    // Anything else inside the hours can still be asked for by hand.
+    expect(find.text('Other'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -128,22 +134,32 @@ void main() {
     final today = DateTime(2026, 10, 5);
     final tomorrow = DateTime(2026, 10, 6);
 
-    test('run from open to close on the hour', () {
+    test('run from open to close, every half hour', () {
       final slots = openingSlots();
-      expect(slots.first.hour, 10);
-      expect(slots.last.hour, 22);
-      expect(slots, hasLength(13));
-      expect(slots.every((s) => s.minute == 0), isTrue);
+      expect(slots.first, const TimeOfDay(hour: 10, minute: 0));
+      expect(slots[1], const TimeOfDay(hour: 10, minute: 30));
+      expect(slots.last, const TimeOfDay(hour: 22, minute: 0));
+      expect(slots, hasLength(25));
+      expect(slots.every((s) => s.minute == 0 || s.minute == 30), isTrue);
     });
 
-    test('a slot already gone today is not bookable', () {
+    test('any time inside the hours counts, not just the offered ones', () {
+      expect(timeIsWithinHours(const TimeOfDay(hour: 14, minute: 17)), isTrue);
+      expect(timeIsWithinHours(const TimeOfDay(hour: 22, minute: 0)), isTrue);
+      expect(timeIsWithinHours(const TimeOfDay(hour: 22, minute: 1)), isFalse);
+      expect(timeIsWithinHours(const TimeOfDay(hour: 9, minute: 59)), isFalse);
+    });
+
+    test('a time already gone today is not bookable, to the minute', () {
       final now = DateTime(2026, 10, 5, 15, 30);
 
       expect(slotIsBookable(const TimeOfDay(hour: 14, minute: 0), today,
           now: now), isFalse);
-      // The hour under way has started, so it is gone too.
-      expect(slotIsBookable(const TimeOfDay(hour: 15, minute: 0), today,
+      // Half past has just been reached, so it has gone.
+      expect(slotIsBookable(const TimeOfDay(hour: 15, minute: 30), today,
           now: now), isFalse);
+      expect(slotIsBookable(const TimeOfDay(hour: 15, minute: 31), today,
+          now: now), isTrue);
       expect(slotIsBookable(const TimeOfDay(hour: 16, minute: 0), today,
           now: now), isTrue);
     });
@@ -167,7 +183,7 @@ void main() {
     });
 
     test('nothing is left once the venue has closed', () {
-      final now = DateTime(2026, 10, 5, 22, 30);
+      final now = DateTime(2026, 10, 5, 22, 1);
       final left = [
         for (final s in openingSlots())
           if (slotIsBookable(s, today, now: now)) s,
