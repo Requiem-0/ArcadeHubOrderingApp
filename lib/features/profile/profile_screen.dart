@@ -188,6 +188,18 @@ class ProfileScreen extends ConsumerWidget {
                   children: [
                     _buildSettingsRow(
                       context: context,
+                      icon: Icons.event_available_rounded,
+                      iconColor: const Color(0xFFFF7A00),
+                      title: 'Bookings',
+                      subtitle: 'What you asked to book',
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        context.push('/bookings');
+                      },
+                    ),
+                    Divider(color: colors.border, height: 1),
+                    _buildSettingsRow(
+                      context: context,
                       icon: Icons.location_on_rounded,
                       iconColor: const Color(0xFF00E5FF),
                       title: 'Addresses',

@@ -23,6 +23,7 @@ import '../../features/orders/recent_orders_screen.dart';
 import '../../features/cart/cart_screen.dart';
 import '../../features/services/service_booking_screen.dart';
 import '../../features/services/book_screen.dart';
+import '../../features/services/my_bookings_screen.dart';
 import '../../features/address/saved_addresses_screen.dart';
 import '../../features/address/add_address_screen.dart';
 import '../../features/profile/contact_us_screen.dart';
@@ -123,6 +124,7 @@ final appRouter = GoRouter(
     GoRoute(path: '/service-booking', builder: (_, __) => const ServiceBookingScreen()),
     GoRoute(path: '/favourites', builder: (_, __) => const FavouritesScreen()),
     GoRoute(path: '/orders', builder: (_, __) => const RecentOrdersScreen()),
+    GoRoute(path: '/bookings', builder: (_, __) => const MyBookingsScreen()),
 
     // ── Profile & Orders Detail Routes ────────────────────────────
     GoRoute(path: '/edit-profile', builder: (_, __) => const EditProfileScreen()),

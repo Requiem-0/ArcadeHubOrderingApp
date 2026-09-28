@@ -12,6 +12,24 @@ abstract final class AppConstants {
   static const String whatsappNumber = '+9779805855494';
   static const String whatsappFormatted = '+977 9805855494';
 
+  /// When the venue takes bookings: the first and last hour a customer can
+  /// choose, on a 24-hour clock. 10 AM to 10 PM.
+  static const int bookingOpenHour = 10;
+  static const int bookingLastHour = 22;
+
+  // TESTING ONLY: booking requests go to this number instead of the venue.
+  // Set back to null before any build leaves the laptop.
+  static const String? whatsappTestNumber = '+9779816647410';
+
+  /// Where booking requests are sent. The venue, unless a test number is set.
+  static String get bookingWhatsapp => whatsappTestNumber ?? whatsappNumber;
+
+  /// The same number, spaced for reading out in an error message.
+  static String get bookingWhatsappFormatted {
+    final d = bookingWhatsapp.replaceAll(RegExp(r'[^0-9]'), '');
+    return d.startsWith('977') ? '+977 ${d.substring(3)}' : bookingWhatsapp;
+  }
+
   // One bool, three things switch: API host, image host, business id.
   // `true` for prod builds, `false` for dev/demo. Touches [apiBaseUrl],
   // [imageHostUrl], and [businessId] in one shot.

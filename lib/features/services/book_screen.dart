@@ -11,6 +11,7 @@ import '../../core/constants.dart';
 import '../../core/models/service.dart';
 import '../../core/repositories/service_repository.dart';
 import '../../shared/widgets/empty_state.dart';
+import 'my_bookings_screen.dart';
 
 /// Book tab: pick a zone, then a bookable service in it. The same booking
 /// form the zone pages push, reachable without digging into a zone first.
@@ -103,29 +104,28 @@ class _ZoneBooking extends ConsumerWidget {
       children: [
         // Title
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
-          child: Row(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  'Book',
-                  style: GoogleFonts.outfit(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -0.8,
-                    color: colors.textPrimary,
-                  ),
+              Text(
+                'Book',
+                style: GoogleFonts.outfit(
+                  fontSize: 28,
+                  height: 1.1,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.8,
+                  color: colors.textPrimary,
                 ),
               ),
-              if (zones.length > 1)
-                Text(
-                  'Pick a zone',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                    color: colors.textMuted,
-                  ),
+              const SizedBox(height: 2),
+              Text(
+                'Reserve a room or a console.',
+                style: GoogleFonts.dmSans(
+                  fontSize: 13,
+                  color: colors.textMuted,
                 ),
+              ),
             ],
           ),
         ),
@@ -150,7 +150,10 @@ class _ZoneBooking extends ConsumerWidget {
             ),
           ),
 
-        const SizedBox(height: 18),
+        const SizedBox(height: 20),
+
+        // Requests already sent, so the tab shows what is outstanding.
+        const PendingRequestsStrip(),
 
         Expanded(
           child: servicesAsync.when(
@@ -182,7 +185,7 @@ class _ZoneBooking extends ConsumerWidget {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 2),
                       child: Text(
-                        '${bookable.length} available in ${zone.name}',
+                        'IN ${zone.name.toUpperCase()} · ${bookable.length}',
                         style: GoogleFonts.dmSans(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w700,
@@ -429,9 +432,9 @@ class _ServiceCard extends StatelessWidget {
                             );
                           },
                           style: FilledButton.styleFrom(
-                            backgroundColor: colors.primaryRed,
+                            backgroundColor: accent,
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
+                              horizontal: 22,
                               vertical: 12,
                             ),
                             shape: RoundedRectangleBorder(
@@ -443,7 +446,10 @@ class _ServiceCard extends StatelessWidget {
                             style: GoogleFonts.dmSans(
                               fontSize: 13,
                               fontWeight: FontWeight.w800,
-                              color: Colors.white,
+                              // A pale zone colour needs dark ink on it.
+                              color: accent.computeLuminance() > 0.45
+                                  ? const Color(0xFF0A0A0A)
+                                  : Colors.white,
                             ),
                           ),
                         ),

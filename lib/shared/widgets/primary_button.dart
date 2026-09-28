@@ -111,9 +111,15 @@ class _PrimaryButtonState extends State<PrimaryButton>
                     widget.icon!,
                     const SizedBox(width: 8),
                   ],
-                  Text(
-                    widget.label,
-                    style: AppTextStyles.semibold(AppColors.onPrimary, size: 16),
+                  // A long label shrinks rather than pushing past the button.
+                  Flexible(
+                    child: Text(
+                      widget.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style:
+                          AppTextStyles.semibold(AppColors.onPrimary, size: 16),
+                    ),
                   ),
                 ],
               ],

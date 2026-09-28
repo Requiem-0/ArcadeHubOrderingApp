@@ -81,12 +81,15 @@ class AppBottomNavBar extends ConsumerWidget {
                     final active = currentIndex == i;
                     final badge = tab.showBadge && cartCount > 0 ? cartCount : 0;
 
-                    return _NavButton(
+                    final button = _NavButton(
                       tab: tab,
                       active: active,
                       badge: badge,
                       onTap: () => onTap(i),
                     );
+                    // Icons keep their size; on a narrow phone the active
+                    // tab's label is what gives way.
+                    return active ? Flexible(child: button) : button;
                   }),
                 ),
               ),
@@ -168,13 +171,18 @@ class _NavButton extends StatelessWidget {
             ),
             if (active) ...[
               const SizedBox(width: 6),
-              Text(
-                tab.label,
-                style: TextStyle(
-                  color: activeColor,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.2,
+              Flexible(
+                child: Text(
+                  tab.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.fade,
+                  softWrap: false,
+                  style: TextStyle(
+                    color: activeColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.2,
+                  ),
                 ),
               ),
             ]
