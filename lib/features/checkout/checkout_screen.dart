@@ -8,7 +8,6 @@ import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/constants.dart';
 import '../../features/cart/cart_provider.dart';
-import '../../features/catalogue/data/sample_products.dart';
 import '../../core/repositories/order_repository.dart';
 import '../../core/utils/app_toast.dart';
 import '../../shared/widgets/primary_button.dart';

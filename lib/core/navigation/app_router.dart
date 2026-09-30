@@ -12,7 +12,6 @@ import '../../features/experiences/experience_detail_screen.dart';
 
 import '../../features/catalogue/product_detail_screen.dart';
 import '../../features/catalogue/data/product_model.dart';
-import '../../features/catalogue/data/sample_products.dart';
 import '../../features/checkout/checkout_screen.dart';
 import '../../features/checkout/order_success_screen.dart';
 import '../../features/favourites/favourites_screen.dart';
@@ -106,6 +105,7 @@ final appRouter = GoRouter(
       ),
     ),
     GoRoute(path: '/change-password', builder: (_, __) => const ChangePasswordScreen()),
+    GoRoute(path: '/checkout', builder: (_, __) => const CheckoutScreen()),
     GoRoute(path: '/order-success', builder: (_, __) => const OrderSuccessScreen()),
 
     GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),

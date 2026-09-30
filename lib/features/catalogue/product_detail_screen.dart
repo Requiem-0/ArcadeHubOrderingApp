@@ -13,7 +13,7 @@ import '../../features/cart/cart_provider.dart';
 import '../../features/favourites/favourites_provider.dart';
 import '../../core/repositories/pos_repository.dart';
 import '../../features/catalogue/data/product_model.dart';
-import '../../features/catalogue/data/sample_products.dart';
+import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/price_text.dart';
 import '../../shared/widgets/app_network_image.dart';
@@ -39,24 +39,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   final Map<String, int> _addonQuantities = {};
   int _itemCount = 1;
 
-  ProductModel _resolvedProduct(WidgetRef ref) {
+  /// The product this page is for, or null while it is unknown. It used to
+  /// fall back to a sample item, which meant a customer could be shown, and
+  /// could order, something the venue does not sell.
+  ProductModel? _resolvedProduct(WidgetRef ref) {
     final catalogAsync = ref.watch(catalogProvider);
     return catalogAsync.maybeWhen(
-      data: (products) => products.firstWhere(
-        (p) => p.id == widget.productId,
-        orElse: () =>
-            widget.initialProduct ??
-            kSampleProducts.firstWhere(
-              (p) => p.id == widget.productId,
-              orElse: () => kSampleProducts.first,
-            ),
-      ),
-      orElse: () =>
-          widget.initialProduct ??
-          kSampleProducts.firstWhere(
-            (p) => p.id == widget.productId,
-            orElse: () => kSampleProducts.first,
-          ),
+      data: (products) {
+        for (final p in products) {
+          if (p.id == widget.productId) return p;
+        }
+        return widget.initialProduct;
+      },
+      orElse: () => widget.initialProduct,
     );
   }
 
@@ -77,10 +72,53 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     (sum, a) => sum + (a.price * (_addonQuantities[a.id] ?? 0)),
   );
 
+  /// Shown when the catalogue has not produced this item: still loading, or
+  /// the item is gone.
+  Widget _unavailable(BuildContext context) {
+    final colors = context.appColors;
+    final catalogAsync = ref.watch(catalogProvider);
+
+    return Scaffold(
+      backgroundColor: colors.scaffold,
+      appBar: AppBar(
+        backgroundColor: colors.scaffold,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/food-menu');
+            }
+          },
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              size: 20, color: colors.textPrimary),
+        ),
+      ),
+      body: catalogAsync.isLoading
+          ? Center(child: CircularProgressIndicator(color: colors.primaryRed))
+          : Center(
+              child: EmptyState(
+                iconData: Icons.remove_shopping_cart_rounded,
+                iconColor: colors.primaryRed,
+                title: 'Not on the menu',
+                subtitle: 'This item is not available right now.',
+                action: TextButton(
+                  onPressed: () => ref.invalidate(catalogProvider),
+                  child: Text('Try again',
+                      style: TextStyle(color: colors.primaryRed)),
+                ),
+              ),
+            ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final product = _resolvedProduct(ref);
+    if (product == null) return _unavailable(context);
     if (_selectedVariant == null && product.variants.isNotEmpty) {
       _selectedVariant = product.variants.first.id;
     }

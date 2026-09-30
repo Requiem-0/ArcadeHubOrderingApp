@@ -56,11 +56,11 @@ const List<ArcadeExperience> kArcadeExperiences = [
     description:
         'Play PS5, racing, foosball, table tennis, darts and more exciting games. Walk in solo or bring the whole crew.',
     shortDesc: 'PS5 · Racing · Foosball',
-    featureTag: 'Gaming Zone',
+    featureTag: 'Gaming',
     type: ExperienceType.gaming,
     capacity: '25 Players',
     operatingHours: '10:00 AM – 2:00 AM',
-    setupDetail: '4x PS5 Pro • 4K HDR • Darts',
+    setupDetail: 'PS5, racing, foosball and darts',
   ),
   ArcadeExperience(
     id: 'partyroom',
@@ -74,11 +74,11 @@ const List<ArcadeExperience> kArcadeExperiences = [
     description:
         'Perfect for private parties, karaoke, movies, birthdays, meetings and celebrations with your group.',
     shortDesc: 'Parties · Karaoke · Movies',
-    featureTag: 'Private VIP',
+    featureTag: 'Private room',
     type: ExperienceType.lounge,
     capacity: '40 Guests',
     operatingHours: '11:00 AM – 3:00 AM',
-    setupDetail: '4K Projector • Pro Sound System',
+    setupDetail: 'Karaoke and movies',
   ),
   ArcadeExperience(
     id: 'sportsbar',
@@ -92,11 +92,11 @@ const List<ArcadeExperience> kArcadeExperiences = [
     description:
         'Watch live sports on big screens everywhere — never miss a match. Football, cricket, cool drinks & great food.',
     shortDesc: 'Live sports · Big screens',
-    featureTag: 'Live HD',
+    featureTag: 'Live sports',
     type: ExperienceType.dining,
     capacity: '60 Seated',
     operatingHours: '12:00 PM – 2:00 AM',
-    setupDetail: '10x 4K HD Displays • Full Bar',
+    setupDetail: 'Big screens and a bar',
   ),
   ArcadeExperience(
     id: 'rooftop',
@@ -105,16 +105,16 @@ const List<ArcadeExperience> kArcadeExperiences = [
     icon: '🏙️',
     iconData: Icons.deck_rounded,
     color: Color(0xFFF8FAFC),
-    subtitle: 'City views · Relaxed dining',
-    tagline: 'City views · Relaxed dining',
+    subtitle: 'Food · Drinks · Terrace',
+    tagline: 'Food · Drinks · Terrace',
     description:
         'Enjoy delicious food with beautiful city and nature views in a relaxing rooftop setting with warm sky views.',
-    shortDesc: 'City views · Relaxed dining',
-    featureTag: 'Sky Lounge',
+    shortDesc: 'Food · Drinks · Terrace',
+    featureTag: 'Dining',
     type: ExperienceType.dining,
     capacity: '50 Seated',
     operatingHours: '4:00 PM – 1:00 AM',
-    setupDetail: 'Open-Air Sky Deck & Lounge',
+    setupDetail: 'Indoor seating and a terrace',
   ),
   ArcadeExperience(
     id: 'area51',
@@ -133,7 +133,7 @@ const List<ArcadeExperience> kArcadeExperiences = [
     type: ExperienceType.gaming,
     capacity: '20 Guests',
     operatingHours: '5:00 PM – 2:00 AM',
-    setupDetail: 'Neon Outdoor Garden & TT',
+    setupDetail: 'Ask at the counter',
   ),
   ArcadeExperience(
     id: 'easyroom',
@@ -153,6 +153,6 @@ const List<ArcadeExperience> kArcadeExperiences = [
     type: ExperienceType.lounge,
     capacity: '12 Guests',
     operatingHours: '10:00 AM – 2:00 AM',
-    setupDetail: 'Luxury Sofa Lounge & PS5',
+    setupDetail: 'Private room',
   ),
 ];

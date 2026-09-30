@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../network/api_client.dart';
 import '../constants.dart';
 import '../../features/catalogue/data/product_model.dart';
-import '../../features/catalogue/data/sample_products.dart';
 
 class PosRepository {
   final ApiClient _client;
@@ -76,7 +75,9 @@ class PosRepository {
           .map((p) => ProductModel.fromJson(p as Map<String, dynamic>))
           .toList();
     } catch (_) {
-      return kSampleProducts.where((p) => p.category == categoryId).toList();
+      // No sample food: a customer must never see, or order, an item the POS
+      // does not have. The screen shows its error state instead.
+      rethrow;
     }
   }
 
@@ -95,7 +96,7 @@ class PosRepository {
           .map((p) => ProductModel.fromJson(p as Map<String, dynamic>))
           .toList();
     } catch (_) {
-      return kSampleProducts.where((p) => p.tags.contains('Popular')).toList();
+      rethrow;
     }
   }
 
@@ -110,10 +111,8 @@ class PosRepository {
           : response;
       return ProductModel.fromJson(rawMap as Map<String, dynamic>);
     } catch (_) {
-      return kSampleProducts.firstWhere(
-        (p) => p.id == id,
-        orElse: () => kSampleProducts.first,
-      );
+      // This used to hand back an unrelated product for an unknown id.
+      rethrow;
     }
   }
 
@@ -129,12 +128,7 @@ class PosRepository {
           .map((p) => ProductModel.fromJson(p as Map<String, dynamic>))
           .toList();
     } catch (_) {
-      final query = keyword.toLowerCase();
-      return kSampleProducts
-          .where((p) =>
-              p.name.toLowerCase().contains(query) ||
-              p.description.toLowerCase().contains(query))
-          .toList();
+      rethrow;
     }
   }
 
