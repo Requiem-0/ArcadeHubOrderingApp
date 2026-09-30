@@ -123,12 +123,13 @@ const List<ArcadeExperience> kArcadeExperiences = [
     icon: '🛸',
     iconData: Icons.wb_twilight_rounded,
     color: Color(0xFFA855F7),
-    subtitle: 'Outdoor chill · TT · Beer pong',
-    tagline: 'Outdoor chill · TT · Beer pong',
-    description:
-        'A private outdoor space for groups to chill, play table tennis, beer pong, and have fun together under neon garden lights.',
-    shortDesc: 'Outdoor chill · TT · Beer pong',
-    featureTag: 'Outdoor Chill',
+    // Unconfirmed: the outdoor space, the table tennis, the beer pong and the
+    // neon garden were all ours.
+    subtitle: 'Area 51',
+    tagline: 'Area 51',
+    description: 'Ask at the counter.',
+    shortDesc: 'Area 51',
+    featureTag: 'Zone',
     type: ExperienceType.gaming,
     capacity: '20 Guests',
     operatingHours: '5:00 PM – 2:00 AM',
@@ -141,12 +142,14 @@ const List<ArcadeExperience> kArcadeExperiences = [
     icon: '🔵',
     iconData: Icons.weekend_rounded,
     color: Color(0xFF3B82F6),
-    subtitle: 'Cozy private · PS5 · Karaoke',
-    tagline: 'Cozy private · PS5 · Karaoke',
-    description:
-        'A cozy private room to play PS5, sing karaoke, watch movies or sports with food and drinks served right to your seat.',
-    shortDesc: 'Cozy private · PS5 · Karaoke',
-    featureTag: 'Private Lounge',
+    // Karaoke is in the Party Room, confirmed by the client. What the Easy
+    // Room actually offers is still unknown, so it says only what its name
+    // does.
+    subtitle: 'Private room',
+    tagline: 'Private room',
+    description: 'A private room for your group.',
+    shortDesc: 'Private room',
+    featureTag: 'Zone',
     type: ExperienceType.lounge,
     capacity: '12 Guests',
     operatingHours: '10:00 AM – 2:00 AM',

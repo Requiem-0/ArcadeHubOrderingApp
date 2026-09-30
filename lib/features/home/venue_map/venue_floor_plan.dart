@@ -49,6 +49,14 @@ const double _hallLeft = 3.5;
 /// The wall splitting the main hall from the service wing on the right.
 const double _wingLeft = 21.35;
 
+/// The Play Room's doorway onto the hall, at the right end of its front wall.
+const double _playRoomDoorLeft = 17.0;
+const double _playRoomDoorRight = 17.9;
+
+/// The Party Room's doorway, at the right end of its front wall.
+const double _partyRoomDoorLeft = 8.5;
+const double _partyRoomDoorRight = 9.5;
+
 /// The terrace pushes out past the hall's left edge; the plan starts here.
 const double _planLeft = -0.7;
 
@@ -56,8 +64,10 @@ const double _planLeft = -0.7;
 // The terrace grows wider outward and runs the building's full length (the
 // building is too short for the full 20% there).
 const Rect _terrace = Rect.fromLTRB(_planLeft, 0, _hallLeft, _planH);
-const Rect _partyRoom = Rect.fromLTRB(4.95, 0, 10.8, 3.75);
-const Rect _playRoom = Rect.fromLTRB(10.8, 0, 16.6, 3.75);
+// Both rooms run wall to wall along the back: the Party Room out to the
+// terrace wall, the Play Room across to the service wing.
+const Rect _partyRoom = Rect.fromLTRB(_hallLeft, 0, 10.8, 3.75);
+const Rect _playRoom = Rect.fromLTRB(10.8, 0, _wingLeft, 3.75);
 const double _restroTop = 9.18; // 20% deeper into the hall than sketched
 const Rect _indoorRestro = Rect.fromLTRB(
   _hallLeft,
@@ -66,7 +76,10 @@ const Rect _indoorRestro = Rect.fromLTRB(
   _planH,
 );
 const Rect _washroom = Rect.fromLTRB(_wingLeft, 0, _planW, 1.8);
-const Rect _stair = Rect.fromLTRB(10.75, 5.85, 13.9, 7.7);
+/// A tenth shorter than the mini golf course beside it, and starting level
+/// with it, so the two read as a pair.
+final Rect _stair =
+    Rect.fromLTRB(10.75, 5.85, 10.75 + _golf.width * 0.9, 7.7);
 const double _elevatorLeft = 24.2;
 const double _elevatorTop = 5.85;
 
@@ -78,18 +91,34 @@ const Rect _elevator = Rect.fromLTRB(
   25.5,
   _wingBottom,
 );
-const Rect _counter = Rect.fromLTRB(19.2, 5.5, 19.9, 7.3);
+/// Flat against the Indoor Restro's left wall, which leaves barely any room
+/// behind it — as the venue has it.
+const Rect _counter = Rect.fromLTRB(_hallLeft, 9.5, 4.2, 11.1);
 
-/// Mini golf, in the strip of hall between the Play Room and the stairs.
-const Rect _golf = Rect.fromLTRB(10.95, 4.2, 15.1, 5.45);
-const Offset _golfHole = Offset(14.55, 4.82);
+/// Mini golf, running from the stairs to the Play Room's doorway.
+const Rect _golf = Rect.fromLTRB(10.95, 4.2, _playRoomDoorRight, 5.45);
+const Offset _golfHole = Offset(17.35, 4.82);
 const double _golfBumperX = 13.65;
 
 const Offset _barCentre = Offset(7.25, 6.65);
 // 10% smaller than first drawn, per the client.
-const double _barRadius = 1.08; // centreline of the round counter
-const double _barZone = 1.75; // the green floor around it
+const double _barRadius = 1.08; // half the counter's square, centreline
+const double _barZone = 1.75; // half the green floor around it
 const double _barDepth = 0.38; // counter width and height
+
+/// The counter itself: square, as the venue has it.
+final Rect _bar = Rect.fromCenter(
+  center: _barCentre,
+  width: _barRadius * 2,
+  height: _barRadius * 2,
+);
+
+/// The floor it stands on.
+final Rect _barFloor = Rect.fromCenter(
+  center: _barCentre,
+  width: _barZone * 2,
+  height: _barZone * 2,
+);
 
 class _Wall {
   final double x0, y0, x1, y1, height;
@@ -113,14 +142,13 @@ const List<_Wall> _walls = [
   _Wall(_hallLeft, 7.1, _hallLeft, 11.1, _partition),
   _Wall(_hallLeft, 12.0, _hallLeft, _planH, _partition),
 
-  // Party Room and Play Room, each with a doorway onto the hall.
-  _Wall(4.95, 0, 4.95, 3.75, _partition),
+  // Party Room and Play Room, each with a doorway onto the hall. Their outer
+  // walls are the terrace wall and the wing wall, so only the divider between
+  // them is drawn here.
   _Wall(10.8, 0, 10.8, 3.75, _partition),
-  _Wall(16.6, 0, 16.6, 3.75, _partition),
-  _Wall(4.95, 3.75, 7.3, 3.75, _partition),
-  // The Play Room doorway sits at the right end, clear of the mini golf.
-  _Wall(8.3, 3.75, 15.4, 3.75, _partition),
-  _Wall(16.3, 3.75, 16.6, 3.75, _partition),
+  _Wall(_hallLeft, 3.75, _partyRoomDoorLeft, 3.75, _partition),
+  _Wall(_partyRoomDoorRight, 3.75, _playRoomDoorLeft, 3.75, _partition),
+  _Wall(_playRoomDoorRight, 3.75, _wingLeft, 3.75, _partition),
 
   // Indoor Restro, with two wide openings onto the hall.
   _Wall(_hallLeft, _restroTop, 8.0, _restroTop, _partition),
@@ -568,8 +596,8 @@ class _FloorPlanPainter extends CustomPainter {
         0.23,
       ),
       (
-        _disc(f, _barCentre, _barZone),
-        _disc(f, _barCentre, _barZone - 0.3),
+        _rect(f, _barFloor),
+        _rect(f, _barFloor.deflate(0.3)),
         _experience('sportsbar').color,
         0.31,
       ),
@@ -672,12 +700,12 @@ class _FloorPlanPainter extends CustomPainter {
     // edge rises over the floor just behind it and would clip them.
     zone(
       'partyroom',
-      const Offset(7.4, 1.45),
+      Offset(_partyRoom.center.dx, 1.45),
       maxWidth: _partyRoom.width - 1.1,
     );
     zone(
       'playroom',
-      const Offset(13.25, 1.45),
+      Offset(_playRoom.center.dx, 1.45),
       maxWidth: _playRoom.width - 1.1,
     );
     zone(
@@ -723,10 +751,10 @@ class _FloorPlanPainter extends CustomPainter {
       rise: 1 - t,
     );
 
-    note('Stairs', const Offset(15.1, 6.8));
+    note('Stairs', Offset(_stair.center.dx, 6.8));
     // Just in front of the counter: further forward, the Indoor Restro's wall
     // rises over it; further left, it runs into the Stairs label.
-    note('Counter', const Offset(19.3, 7.72), size: 0.55);
+    note('Counter', const Offset(5.0, 10.3), size: 0.55);
     // Low on the wing floor, left of the shaft: any higher and the shaft's
     // tall left wall rises over the end of the word.
     note('Elevator', const Offset(22.3, 6.62), size: 0.5);
@@ -818,7 +846,7 @@ class _FloorPlanPainter extends CustomPainter {
 
     const depth = 0.6;
     const steps = 8;
-    const well = _stair;
+    final well = _stair;
     final opening = _rect(f, well);
     Path face(List<Offset> pts) => Path()..addPolygon(pts, true);
 
@@ -1012,23 +1040,21 @@ class _FloorPlanPainter extends CustomPainter {
     canvas.drawPath(flag, Paint()..color = palette.flag.withValues(alpha: t));
   }
 
-  /// The round bar counter, built from short straight segments so it sorts
-  /// against the walls like everything else.
+  /// The square bar counter, one prism per side so it sorts against the walls
+  /// like everything else.
   List<_Prism> _barPrisms(double t) {
-    const segments = 28;
     final top = palette.zone(_experience('sportsbar').color);
-    Offset at(int i) =>
-        _barCentre +
-        Offset(
-              math.cos(i * 2 * math.pi / segments),
-              math.sin(i * 2 * math.pi / segments),
-            ) *
-            _barRadius;
+    final corners = [
+      _bar.topLeft,
+      _bar.topRight,
+      _bar.bottomRight,
+      _bar.bottomLeft,
+    ];
     return [
-      for (var i = 0; i < segments; i++)
+      for (var i = 0; i < corners.length; i++)
         _Prism.wall(
-          at(i),
-          at(i + 1),
+          corners[i],
+          corners[(i + 1) % corners.length],
           _barDepth,
           0,
           _barDepth * t,

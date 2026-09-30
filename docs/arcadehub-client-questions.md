@@ -18,7 +18,11 @@ Go through these six one at a time. Every row is something the app shows today w
 | Can it be booked? | | | | | | |
 | Photos supplied? | | | | | | |
 
-**★ Are Area 51 and Easy Room real?** We wrote both from nothing. If they don't exist, they come out of the app.
+**★ What happens in Area 51 and in the Easy Room?** You named both zones and gave us their colours, so they exist — but everything we wrote about what goes on inside them was invented and has now been stripped out. Both currently say nothing at all in the app.
+
+**Karaoke is in the Party Room** — confirmed. Is it anywhere else?
+
+**Is the Easy Room different from the Party Room?** As written they offered the same things, which is why we need to hear what each one is for.
 
 **★ The real opening hours.** We invented per-zone hours — Play Room 10 AM–2 AM, Sports Bar 5 PM–2 AM, Rooftop 12 PM–2 AM. Bookings currently stop at 10 PM, so a customer can read "open till 2 AM" and find they can't book past ten. One venue-wide pair, or a real pair per zone.
 

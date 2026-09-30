@@ -90,12 +90,14 @@ class ExperienceRepository {
         icon: '🛸',
         iconData: Icons.wb_twilight_rounded,
         color: Color(0xFFD500F9), // Purple
-        subtitle: 'Mystery Experience Room',
-        tagline: 'Top-secret futuristic hangout & immersive lounge zone',
-        description:
-            'Outdoor chill space\nTable tennis\nBeer pong',
-        shortDesc: 'Mystery room and laser pods',
-        featureTag: 'Sci-fi room',
+        // What happens in Area 51 is not confirmed. The mystery room, the
+        // laser pods and the sci-fi tag were ours; the zone says nothing
+        // rather than something invented.
+        subtitle: 'Area 51',
+        tagline: 'Area 51',
+        description: 'Ask at the counter.',
+        shortDesc: 'Area 51',
+        featureTag: 'Zone',
         type: ExperienceType.gaming,
         capacity: '20 Guests',
         operatingHours: '5:00 PM – 2:00 AM',
@@ -111,8 +113,9 @@ class ExperienceRepository {
         color: Color(0xFF00E5FF), // Blue
         subtitle: 'Lounge & Chill Space',
         tagline: 'Relaxed sofa lounge, board games & smooth refreshers',
-        description:
-            'Private room\nPS5\nKaraoke and movies',
+        // Karaoke belongs to the Party Room. Nothing else about this room
+        // is confirmed, so nothing else is claimed.
+        description: 'Private room',
         shortDesc: 'Sofa lounge and hot drinks',
         featureTag: 'Board games',
         type: ExperienceType.lounge,
