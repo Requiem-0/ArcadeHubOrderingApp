@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/constants.dart';
@@ -91,7 +92,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             // Content
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.symmetric(horizontal: context.gutter, vertical: 20),
                 children: [
                   // Spot / Location Selection
                   Text(

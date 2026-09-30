@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
 import '../../core/brandkit/app_theme_colors.dart';
@@ -78,7 +79,7 @@ class SavedAddressesScreen extends ConsumerWidget {
                   }
 
                   return ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: context.pagePadding,
                     children: [
                       ...locations.map((loc) => Padding(
                             padding: const EdgeInsets.only(bottom: 12),

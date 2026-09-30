@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/constants.dart';
@@ -156,7 +157,7 @@ class CartScreen extends ConsumerWidget {
                       ),
                     )
                   : ListView(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                      padding: EdgeInsets.fromLTRB(context.gutter, 0, context.gutter, 100),
                       children: [
                         // Discount Banner
                         if (activeDiscount)

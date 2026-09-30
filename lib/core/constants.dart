@@ -17,9 +17,9 @@ abstract final class AppConstants {
   static const int bookingOpenHour = 10;
   static const int bookingLastHour = 22;
 
-  /// How far apart the offered times are. Any other time inside the hours can
-  /// still be asked for by hand.
-  static const int bookingSlotMinutes = 30;
+  /// How fine the minutes go, so an arrival at 3:35 is as easy to pick as
+  /// one at 3:30.
+  static const int bookingSlotMinutes = 5;
 
   // TESTING ONLY: set a number here and booking requests go to it instead of
   // the venue. Must be null in anything that leaves the laptop.

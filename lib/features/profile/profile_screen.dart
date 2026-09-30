@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_theme.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/repositories/auth_repository.dart';
@@ -31,7 +32,7 @@ class ProfileScreen extends ConsumerWidget {
         bottom: false,
         child: ListView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 120),
+          padding: EdgeInsets.fromLTRB(context.gutter, 20, context.gutter, 120),
           children: [
             // ── Top Bar ─────────────────────────────────────────────
             Row(

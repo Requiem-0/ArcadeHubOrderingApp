@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_theme.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/utils/app_toast.dart';
@@ -106,7 +107,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+          padding: EdgeInsets.fromLTRB(context.gutter, 12, context.gutter, 40),
           physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -79,9 +79,23 @@ void main() {
     testWidgets('open the gutter as the window grows', (tester) async {
       late double phone;
       late double tablet;
+      late double desktop;
       await at(tester, 360, (c) => phone = c.gutter);
       await at(tester, 700, (c) => tablet = c.gutter);
-      expect(phone, lessThan(tablet));
+      await at(tester, 1400, (c) => desktop = c.gutter);
+
+      // 24 on a phone is the home screen's own padding, and every other
+      // screen takes its side padding from here so they line up.
+      expect(phone, 24);
+      expect(tablet, greaterThan(phone));
+      expect(desktop, greaterThan(tablet));
+    });
+
+    testWidgets('hand the same value out as page padding', (tester) async {
+      late EdgeInsets insets;
+      await at(tester, 360, (c) => insets = c.pagePadding);
+
+      expect(insets, const EdgeInsets.symmetric(horizontal: 24));
     });
   });
 

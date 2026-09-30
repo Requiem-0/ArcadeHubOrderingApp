@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
@@ -128,7 +129,7 @@ class OrderDetailScreen extends ConsumerWidget {
                 // ── Body Scroll ─────────────────────────────────────────
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
+                    padding: EdgeInsets.fromLTRB(context.gutter, 8, context.gutter, 40),
                     children: [
                       // ── Status Stepper ───────────────────────────────
                       _buildStatusTracker(colors, order),

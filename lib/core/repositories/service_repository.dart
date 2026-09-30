@@ -1,12 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../brandkit/experiences.dart';
+import '../brandkit/zone_features.dart';
 import '../models/service.dart';
+
+/// The photo a home-screen feature already uses, so the Book tab is not a
+/// second place to keep image URLs. Placeholder stock either way.
+String? _featurePhoto(String title) {
+  for (final f in kZoneFeatures) {
+    if (f.title == title) return f.imageUrl;
+  }
+  return null;
+}
 
 class ServiceRepository {
   // This data would eventually come from the backend.
-  static const List<ServiceModel> _all = [
+  static final List<ServiceModel> _all = [
     ServiceModel(
       id: 'srv-ps5',
+      imageUrl: _featurePhoto('PS5 Gaming'),
       experienceId: 'playroom',
       name: 'PS5 Console Rental',
       description: 'Overnight gaming pass with up to 4 controllers.',
@@ -17,6 +28,7 @@ class ServiceRepository {
     ),
     ServiceModel(
       id: 'srv-vr',
+      imageUrl: _featurePhoto('Racing'),
       experienceId: 'playroom',
       name: 'VR Battle Arena',
       description: '30-minute immersive virtual reality session.',
@@ -26,6 +38,7 @@ class ServiceRepository {
     ),
     ServiceModel(
       id: 'srv-ps5-area51',
+      imageUrl: _featurePhoto('PS5 Gaming'),
       experienceId: 'area51',
       name: 'VIP PS5 Station',
       description: 'Private PS5 gaming in the futuristic lounge.',
@@ -35,6 +48,7 @@ class ServiceRepository {
     ),
     ServiceModel(
       id: 'srv-party',
+      imageUrl: _featurePhoto('Private Parties'),
       experienceId: 'partyroom',
       name: 'Private Room Booking',
       description: 'Exclusive use of the party room for celebrations.',
@@ -87,13 +101,26 @@ final servicesProvider = FutureProvider.family<List<ServiceModel>, String>((ref,
   return ref.read(serviceRepositoryProvider).getServicesForExperience(experienceId);
 });
 
-/// Zones that actually have something to book, so the Book tab never offers a
-/// zone that dead-ends. The Sports Bar and Rooftop Restro have no services.
-final bookableZonesProvider = FutureProvider<List<ArcadeExperience>>((ref) async {
+/// A zone and what can be booked in it.
+class ZoneServices {
+  final ArcadeExperience zone;
+  final List<ServiceModel> services;
+
+  const ZoneServices({required this.zone, required this.services});
+}
+
+/// Everything bookable, grouped by zone, and only zones that have something —
+/// so the Book tab never shows a heading with nothing under it. The Sports Bar
+/// and Rooftop Restro have no services.
+final bookableServicesProvider =
+    FutureProvider<List<ZoneServices>>((ref) async {
   final repo = ref.read(serviceRepositoryProvider);
   final found = await Future.wait(kArcadeExperiences.map((exp) async {
-    final services = await repo.getServicesForExperience(exp.id);
-    return services.any((s) => s.isBookable) ? exp : null;
+    final services = [
+      for (final s in await repo.getServicesForExperience(exp.id))
+        if (s.isBookable) s,
+    ];
+    return services.isEmpty ? null : ZoneServices(zone: exp, services: services);
   }));
   return found.nonNulls.toList();
 });

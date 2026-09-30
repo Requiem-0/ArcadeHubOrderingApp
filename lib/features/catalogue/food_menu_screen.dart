@@ -179,7 +179,7 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                     height: 38,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                      padding: context.pagePadding,
                       itemCount: categories.length,
                       separatorBuilder: (_, _) => const SizedBox(width: 8),
                       itemBuilder: (context, i) => CategoryPill(
@@ -212,14 +212,14 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
                         )
                       : GridView.builder(
                           padding: EdgeInsets.fromLTRB(
-                              context.gutter + 8, 4, context.gutter + 8, 130),
+                              context.gutter, 4, context.gutter, 130),
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
                             // Two cards on a phone, more once there is room,
                             // without letting any card get cramped.
                             crossAxisCount: context.gridColumns(
                               minCardWidth: 150,
-                              horizontalPadding: (context.gutter + 8) * 2,
+                              horizontalPadding: context.gutter * 2,
                               spacing: 24,
                               max: 4,
                             ),

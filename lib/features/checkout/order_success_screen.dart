@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../shared/widgets/primary_button.dart';
@@ -43,7 +44,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen>
       backgroundColor: colors.scaffold,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 60, 20, 32),
+          padding: EdgeInsets.fromLTRB(context.gutter, 60, context.gutter, 32),
           child: Column(
             children: [
               ScaleTransition(

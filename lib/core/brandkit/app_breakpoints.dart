@@ -47,12 +47,16 @@ extension ResponsiveContext on BuildContext {
   /// True once there is room for more than a single phone column.
   bool get isRoomy => screenSize != ScreenSize.compact;
 
-  /// Side padding that opens up a little as the window grows.
+  /// Side padding for a page. The phone value is the home screen's, so every
+  /// screen lines up with it, and it opens up as the window grows.
   double get gutter => switch (screenSize) {
-        ScreenSize.compact => 20,
-        ScreenSize.medium => 28,
-        ScreenSize.expanded => 32,
+        ScreenSize.compact => 24,
+        ScreenSize.medium => 32,
+        ScreenSize.expanded => 40,
       };
+
+  /// The same, ready to drop into a scroll view.
+  EdgeInsets get pagePadding => EdgeInsets.symmetric(horizontal: gutter);
 
   /// How many columns fit without any card dropping below [minCardWidth].
   /// Always at least two, so a grid never collapses into a list.

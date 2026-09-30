@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_theme.dart';
 import '../../core/brandkit/app_theme_colors.dart';
@@ -259,7 +260,7 @@ class ExperienceDetailScreen extends ConsumerWidget {
 
               // ── 2. Content Body ─────────────────────────────────────
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+                padding: EdgeInsets.fromLTRB(context.gutter, 20, context.gutter, 40),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     // Section: About

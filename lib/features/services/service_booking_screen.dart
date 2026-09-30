@@ -206,7 +206,7 @@ class _ServiceBookingScreenState extends ConsumerState<ServiceBookingScreen> {
             ],
           ),
           const SizedBox(height: 10),
-          _TimeSlots(
+          _TimeWheel(
             day: _day,
             selected: _time,
             accent: accent,
@@ -817,7 +817,7 @@ int _minutesOf(TimeOfDay t) => t.hour * 60 + t.minute;
 int get _openMinute => AppConstants.bookingOpenHour * 60;
 int get _lastMinute => AppConstants.bookingLastHour * 60;
 
-/// The times the venue offers, every half hour from open to close.
+/// Every time the venue offers, from open to close.
 List<TimeOfDay> openingSlots() => [
       for (var m = _openMinute;
           m <= _lastMinute;
@@ -840,15 +840,16 @@ bool slotIsBookable(TimeOfDay slot, DateTime day, {DateTime? now}) {
   return _minutesOf(slot) > _minutesOf(TimeOfDay.fromDateTime(clock));
 }
 
-/// The times on offer, plus a way to ask for any other time inside opening
-/// hours. Nothing outside the hours can be chosen, by chip or by clock.
-class _TimeSlots extends StatelessWidget {
+/// Hour and minute, one flick each. Two short wheels rather than a grid of
+/// times or a dialog: any arrival inside opening hours is two gestures away,
+/// and nothing the venue is closed for is ever on the wheel.
+class _TimeWheel extends StatefulWidget {
   final DateTime? day;
   final TimeOfDay? selected;
   final Color accent;
   final ValueChanged<TimeOfDay> onPick;
 
-  const _TimeSlots({
+  const _TimeWheel({
     required this.day,
     required this.selected,
     required this.accent,
@@ -856,21 +857,108 @@ class _TimeSlots extends StatelessWidget {
   });
 
   @override
+  State<_TimeWheel> createState() => _TimeWheelState();
+}
+
+class _TimeWheelState extends State<_TimeWheel> {
+  static const double _itemExtent = 38;
+
+  final _hourController = FixedExtentScrollController();
+  final _minuteController = FixedExtentScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Land on a real time straight away, so choosing one is a correction
+    // rather than another step.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _settle());
+  }
+
+  @override
+  void didUpdateWidget(_TimeWheel old) {
+    super.didUpdateWidget(old);
+    if (old.day != widget.day || old.selected != widget.selected) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _settle());
+    }
+  }
+
+  @override
+  void dispose() {
+    _hourController.dispose();
+    _minuteController.dispose();
+    super.dispose();
+  }
+
+  /// All the times still on offer for the chosen day.
+  List<TimeOfDay> get _times => [
+        for (final t in openingSlots())
+          if (widget.day == null || slotIsBookable(t, widget.day!)) t,
+      ];
+
+  List<int> get _hours {
+    final seen = <int>[];
+    for (final t in _times) {
+      if (!seen.contains(t.hour)) seen.add(t.hour);
+    }
+    return seen;
+  }
+
+  List<int> _minutesFor(int hour) =>
+      [for (final t in _times) if (t.hour == hour) t.minute];
+
+  /// The time the wheels are showing, which is the chosen one when it is
+  /// still available, and the first one left otherwise.
+  TimeOfDay? get _showing {
+    final times = _times;
+    if (times.isEmpty) return null;
+    final chosen = widget.selected;
+    if (chosen != null && times.any((t) => _isSameTime(t, chosen))) {
+      return chosen;
+    }
+    return times.first;
+  }
+
+  /// Keeps the wheels, and the booking, on the same time.
+  void _settle() {
+    final showing = _showing;
+    if (showing == null || !mounted) return;
+    if (widget.selected == null || !_isSameTime(widget.selected!, showing)) {
+      widget.onPick(showing);
+    }
+    _scrollTo(_hourController, _hours.indexOf(showing.hour));
+    _scrollTo(_minuteController, _minutesFor(showing.hour).indexOf(showing.minute));
+  }
+
+  void _scrollTo(FixedExtentScrollController controller, int index) {
+    if (index < 0 || !controller.hasClients) return;
+    if (controller.selectedItem != index) controller.jumpToItem(index);
+  }
+
+  void _pickHour(int index) {
+    final hours = _hours;
+    if (index < 0 || index >= hours.length) return;
+    final hour = hours[index];
+    final minutes = _minutesFor(hour);
+    final wanted = widget.selected?.minute ?? 0;
+    // Keep the minute where the wheel left it when that hour still has it.
+    final minute = minutes.contains(wanted) ? wanted : minutes.first;
+    widget.onPick(TimeOfDay(hour: hour, minute: minute));
+  }
+
+  void _pickMinute(int index) {
+    final showing = _showing;
+    if (showing == null) return;
+    final minutes = _minutesFor(showing.hour);
+    if (index < 0 || index >= minutes.length) return;
+    widget.onPick(TimeOfDay(hour: showing.hour, minute: minutes[index]));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final showing = _showing;
 
-    // A time picked off the clock sits in the strip in its own place, rather
-    // than leaving nothing looking selected.
-    final all = openingSlots();
-    final chosen = selected;
-    if (chosen != null && !all.any((s) => _isSameTime(s, chosen))) {
-      all.add(chosen);
-      all.sort((a, b) => _minutesOf(a).compareTo(_minutesOf(b)));
-    }
-    final bookable =
-        day == null ? all : [for (final s in all) if (slotIsBookable(s, day!)) s];
-
-    if (bookable.isEmpty) {
+    if (showing == null) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(14),
@@ -898,142 +986,136 @@ class _TimeSlots extends StatelessWidget {
       );
     }
 
-    // One scrolling line rather than a block of chips: half-hourly from open
-    // to close is a lot of times, and a wall of them buries the rest of the
-    // form. Built all at once so scrolling never lags.
-    return SizedBox(
-      height: 42,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            for (final slot in all) ...[
-              _SlotChip(
-                label: slot.format(context),
-                selected: chosen != null && _isSameTime(slot, chosen),
-                enabled: bookable.contains(slot),
-                accent: accent,
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  onPick(slot);
-                },
-              ),
-              const SizedBox(width: 8),
-            ],
-            _SlotChip(
-              label: 'Other',
-              icon: Icons.access_time_rounded,
-              selected: false,
-              enabled: true,
-              accent: accent,
-              onTap: () => _pickByClock(context),
+    final hours = _hours;
+    final minutes = _minutesFor(showing.hour);
+
+    return Container(
+      height: _itemExtent * 3 + 16,
+      decoration: BoxDecoration(
+        color: colors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colors.border),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // The band marks what is chosen, so neither wheel needs a label.
+          Container(
+            height: _itemExtent,
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: widget.accent.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(color: widget.accent.withValues(alpha: 0.4)),
             ),
-          ],
-        ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: _Wheel(
+                  key: const Key('booking-hour-wheel'),
+                  controller: _hourController,
+                  count: hours.length,
+                  onChanged: _pickHour,
+                  align: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 10),
+                  labelAt: (i) => _hourLabel(context, hours[i]),
+                  selectedAt: (i) => hours[i] == showing.hour,
+                ),
+              ),
+              Text(
+                ':',
+                style: GoogleFonts.outfit(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
+                  color: colors.textMuted,
+                ),
+              ),
+              Expanded(
+                child: _Wheel(
+                  key: const Key('booking-minute-wheel'),
+                  controller: _minuteController,
+                  count: minutes.length,
+                  onChanged: _pickMinute,
+                  align: Alignment.centerLeft,
+                  padding: const EdgeInsets.only(left: 10),
+                  labelAt: (i) => minutes[i].toString().padLeft(2, '0'),
+                  selectedAt: (i) => minutes[i] == showing.minute,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  /// Any time at all, so long as the venue is open for it.
-  Future<void> _pickByClock(BuildContext context) async {
-    HapticFeedback.selectionClick();
-    final open = TimeOfDay(hour: AppConstants.bookingOpenHour, minute: 0);
-    final close = TimeOfDay(hour: AppConstants.bookingLastHour, minute: 0);
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: selected ?? open,
-    );
-    if (picked == null || !context.mounted) return;
+  /// "3 PM" rather than "15", with the meridiem on the hour so no third wheel
+  /// is needed.
+  String _hourLabel(BuildContext context, int hour) =>
+      TimeOfDay(hour: hour, minute: 0).format(context).replaceFirst(':00', '');
+}
 
-    if (!timeIsWithinHours(picked)) {
-      AppToast.showWarning(
-        context,
-        'Bookings run ${open.format(context)} to ${close.format(context)}.',
-      );
-      return;
-    }
-    if (day != null && !slotIsBookable(picked, day!)) {
-      AppToast.showWarning(context, 'That time has gone by today.');
-      return;
-    }
-    onPick(picked);
+/// One column of the time wheel.
+class _Wheel extends StatelessWidget {
+  final FixedExtentScrollController controller;
+  final int count;
+  final ValueChanged<int> onChanged;
+  final String Function(int index) labelAt;
+  final bool Function(int index) selectedAt;
+  final Alignment align;
+  final EdgeInsets padding;
+
+  const _Wheel({
+    super.key,
+    required this.controller,
+    required this.count,
+    required this.onChanged,
+    required this.labelAt,
+    required this.selectedAt,
+    required this.align,
+    required this.padding,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return ListWheelScrollView.useDelegate(
+      controller: controller,
+      itemExtent: _TimeWheelState._itemExtent,
+      physics: const FixedExtentScrollPhysics(),
+      diameterRatio: 1.6,
+      perspective: 0.004,
+      overAndUnderCenterOpacity: 0.45,
+      onSelectedItemChanged: onChanged,
+      childDelegate: ListWheelChildBuilderDelegate(
+        childCount: count,
+        builder: (context, i) {
+          if (i < 0 || i >= count) return null;
+          final on = selectedAt(i);
+          return Container(
+            alignment: align,
+            padding: padding,
+            child: Text(
+              labelAt(i),
+              maxLines: 1,
+              style: GoogleFonts.outfit(
+                fontSize: on ? 19 : 17,
+                fontWeight: on ? FontWeight.w900 : FontWeight.w700,
+                color: on ? colors.textPrimary : colors.textSecondary,
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 
 bool _isSameTime(TimeOfDay a, TimeOfDay b) =>
     a.hour == b.hour && a.minute == b.minute;
 
-class _SlotChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final bool enabled;
-  final Color accent;
-  final VoidCallback onTap;
-  final IconData? icon;
-
-  const _SlotChip({
-    required this.label,
-    required this.selected,
-    required this.enabled,
-    required this.accent,
-    required this.onTap,
-    this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final ink = accent.computeLuminance() > 0.45
-        ? const Color(0xFF0A0A0A)
-        : Colors.white;
-
-    return Material(
-      color: selected ? accent : colors.card,
-      borderRadius: BorderRadius.circular(11),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(11),
-        onTap: enabled ? onTap : null,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(11),
-            border: Border.all(
-              color: selected
-                  ? accent
-                  : enabled
-                      ? colors.border
-                      : colors.borderSubtle,
-              width: selected ? 1.5 : 1,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 14, color: colors.textMuted),
-                const SizedBox(width: 5),
-              ],
-              Text(
-                label,
-                style: GoogleFonts.dmSans(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: selected
-                      ? ink
-                      : enabled
-                          ? colors.textPrimary
-                          : colors.borderSubtle,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Minus / count / plus, sized to sit beside the time field./// Minus / count / plus, sized to sit beside the time field.
 class _PeopleStepper extends StatelessWidget {
   final int value;
   final Color accent;

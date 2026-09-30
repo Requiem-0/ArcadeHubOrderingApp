@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_theme_colors.dart';
 import '../../core/brandkit/app_spacing.dart';
@@ -305,7 +306,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   height: 220,
                                   child: ListView.separated(
                                     scrollDirection: Axis.horizontal,
-                                    padding: AppSpacing.pagePadding,
+                                    padding: context.pagePadding,
                                     itemCount: bundleProducts.length,
                                     separatorBuilder: (_, _) =>
                                         const SizedBox(width: 16),
@@ -324,7 +325,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   const SizedBox(height: 20),
                   Padding(
-                    padding: AppSpacing.pagePadding,
+                    padding: context.pagePadding,
                     child: const _RotatingBentoGrid(),
                   ),
 
@@ -334,9 +335,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     title: 'Find us',
                   ),
                   const SizedBox(height: 16),
-                  const Padding(
-                    padding: AppSpacing.pagePadding,
-                    child: VenueMapCard(),
+                  Padding(
+                    padding: context.pagePadding,
+                    child: const VenueMapCard(),
                   ),
                   AppSpacing.gapV32,
                 ],
@@ -425,7 +426,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Padding(
-      padding: AppSpacing.pagePadding,
+      padding: context.pagePadding,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -504,7 +505,7 @@ class _MenuSection extends ConsumerWidget {
           height: 184,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: AppSpacing.pagePadding,
+            padding: context.pagePadding,
             itemCount: items.length,
             separatorBuilder: (_, _) => const SizedBox(width: 16),
             itemBuilder: (context, i) => _MenuItemCard(product: items[i]),
@@ -1166,7 +1167,7 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
       animation: _ctrl,
       builder: (context, child) {
         return Padding(
-          padding: AppSpacing.pagePadding,
+          padding: context.pagePadding,
           child: Container(
             decoration: BoxDecoration(
               boxShadow: colors.isDark
@@ -1271,13 +1272,17 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                                 children: [
                                   Icon(Icons.local_activity_rounded, size: 14, color: widget.brandColor),
                                   const SizedBox(width: 6),
-                                  Text(
-                                    widget.title.toUpperCase(),
-                                    style: GoogleFonts.dmSans(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 1.5,
-                                      color: widget.brandColor,
+                                  Flexible(
+                                    child: Text(
+                                      widget.title.toUpperCase(),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.dmSans(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: 1.5,
+                                        color: widget.brandColor,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -1313,22 +1318,33 @@ class _PromoTicketCardState extends State<PromoTicketCard> with SingleTickerProv
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  Text(
-                                    widget.countLabel.toUpperCase(),
-                                    style: GoogleFonts.dmSans(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: colors.textMuted,
+                                  Flexible(
+                                    child: Text(
+                                      widget.countLabel.toUpperCase(),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.dmSans(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: colors.textMuted,
+                                      ),
                                     ),
                                   ),
                                   const Spacer(),
-                                  Text(
-                                    _formatDuration(widget.remainingTime),
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w900,
-                                      color: colors.textPrimary,
-                                      letterSpacing: 1,
+                                  // The countdown is the point of the card, so
+                                  // it shrinks last and only if it has to.
+                                  Flexible(
+                                    child: Text(
+                                      _formatDuration(widget.remainingTime),
+                                      maxLines: 1,
+                                      softWrap: false,
+                                      overflow: TextOverflow.fade,
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w900,
+                                        color: colors.textPrimary,
+                                        letterSpacing: 1,
+                                      ),
                                     ),
                                   ),
                                 ],

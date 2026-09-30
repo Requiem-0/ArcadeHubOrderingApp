@@ -8,6 +8,10 @@ class ServiceModel {
   final String? rules;
   final bool isBookable;
 
+  /// The photo shown on the Book tab. Placeholder stock until the venue sends
+  /// its own; null falls back to the zone's icon.
+  final String? imageUrl;
+
   const ServiceModel({
     required this.id,
     required this.experienceId,
@@ -17,5 +21,6 @@ class ServiceModel {
     this.durationText,
     this.rules,
     this.isBookable = false,
+    this.imageUrl,
   });
 }

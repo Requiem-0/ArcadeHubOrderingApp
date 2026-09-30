@@ -25,8 +25,11 @@ void main() {
     await tester.pumpWidget(ProviderScope(
       child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
     ));
-    // The repository fakes a short delay before the service arrives.
+    // The repository fakes a short delay before the service arrives, and the
+    // wheel settles on a time one frame after it is first laid out.
     await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump();
+    await tester.pump();
   }
 
   testWidgets('names the service being booked', (tester) async {
@@ -34,8 +37,9 @@ void main() {
 
     expect(find.text('PS5 Console Rental'), findsOneWidget);
     expect(find.text('Request on WhatsApp'), findsOneWidget);
-    // Nothing is chosen yet, so the footer names neither a date nor a time.
-    expect(find.textContaining(' · '), findsNothing);
+    // The wheel opens on the first time available, so only the date is
+    // still missing from the footer.
+    expect(find.textContaining('10:00 AM · 2 people'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -112,21 +116,46 @@ void main() {
   });
 
 
-  testWidgets('offers only the opening hours, every half hour',
-      (tester) async {
+  testWidgets('offers hour and minute as two wheels', (tester) async {
     await pumpBooking(tester, '/service-booking?serviceId=srv-ps5');
 
-    // 10 AM through 10 PM on the half hour, and nothing outside it.
-    expect(find.text('10:00 AM'), findsOneWidget);
-    expect(find.text('10:30 AM'), findsOneWidget);
-    expect(find.text('9:30 PM'), findsOneWidget);
-    expect(find.text('10:00 PM'), findsOneWidget);
-    expect(find.text('9:00 AM'), findsNothing);
-    expect(find.text('10:30 PM'), findsNothing);
-    expect(find.text('11:00 PM'), findsNothing);
-    expect(find.text('2:00 AM'), findsNothing);
-    // Anything else inside the hours can still be asked for by hand.
-    expect(find.text('Other'), findsOneWidget);
+    expect(find.byKey(const Key('booking-hour-wheel')), findsOneWidget);
+    expect(find.byKey(const Key('booking-minute-wheel')), findsOneWidget);
+    // Hours read as "10 AM", not 10:00, and stop at closing time.
+    expect(find.text('10 AM'), findsOneWidget);
+    expect(find.text('11 PM'), findsNothing);
+    expect(find.text('9 AM'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('minutes go finer than the half hour', (tester) async {
+    await pumpBooking(tester, '/service-booking?serviceId=srv-ps5');
+
+    // Five-minute steps, so 3:35 is as reachable as 3:30. Only the rows near
+    // the middle of the wheel are built, so this checks the next ones along.
+    expect(find.text('00'), findsOneWidget);
+    expect(find.text('05'), findsOneWidget);
+    expect(find.text('10'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('turning the minute wheel changes the booking', (tester) async {
+    await pumpBooking(tester, '/service-booking?serviceId=srv-ps5');
+
+    await tester.drag(
+      find.byKey(const Key('booking-minute-wheel')),
+      const Offset(0, -90),
+    );
+    // The wheel snaps to a row, then the booking and the footer follow.
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+
+    // Where it lands depends on the snap, so this checks the footer moved off
+    // the opening time and still reads as a booking. Matching on the footer
+    // only, since the header also prints the opening hours.
+    expect(find.textContaining('10:00 AM · 2 people'), findsNothing);
+    expect(find.textContaining('· 2 people'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -134,13 +163,14 @@ void main() {
     final today = DateTime(2026, 10, 5);
     final tomorrow = DateTime(2026, 10, 6);
 
-    test('run from open to close, every half hour', () {
+    test('run from open to close in five-minute steps', () {
       final slots = openingSlots();
       expect(slots.first, const TimeOfDay(hour: 10, minute: 0));
-      expect(slots[1], const TimeOfDay(hour: 10, minute: 30));
+      expect(slots[1], const TimeOfDay(hour: 10, minute: 5));
       expect(slots.last, const TimeOfDay(hour: 22, minute: 0));
-      expect(slots, hasLength(25));
-      expect(slots.every((s) => s.minute == 0 || s.minute == 30), isTrue);
+      // Twelve hours of five-minute steps, plus the closing time itself.
+      expect(slots, hasLength(145));
+      expect(slots.every((s) => s.minute % 5 == 0), isTrue);
     });
 
     test('any time inside the hours counts, not just the offered ones', () {

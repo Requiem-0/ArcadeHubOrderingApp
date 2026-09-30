@@ -107,11 +107,11 @@ class FavouritesScreen extends ConsumerWidget {
 
                   return GridView.builder(
                     padding: EdgeInsets.fromLTRB(
-                        context.gutter + 4, 0, context.gutter + 4, 24),
+                        context.gutter, 0, context.gutter, 24),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: context.gridColumns(
                         minCardWidth: 160,
-                        horizontalPadding: (context.gutter + 4) * 2,
+                        horizontalPadding: context.gutter * 2,
                         spacing: 20,
                         max: 4,
                       ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
 import '../../core/brandkit/app_theme.dart';
@@ -48,13 +49,17 @@ class RecentOrdersScreen extends ConsumerWidget {
                         size: 18, color: colors.textPrimary),
                   ),
                   const SizedBox(width: 4),
-                  Text(
-                    'Recent Orders',
-                    style: GoogleFonts.outfit(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.5,
-                      color: colors.textPrimary,
+                  Expanded(
+                    child: Text(
+                      'Recent Orders',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.outfit(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                        color: colors.textPrimary,
+                      ),
                     ),
                   ),
                 ],
@@ -113,7 +118,7 @@ class RecentOrdersScreen extends ConsumerWidget {
 
                       return ListView(
                         physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(28, 0, 28, 120),
+                        padding: EdgeInsets.fromLTRB(context.gutter, 0, context.gutter, 120),
                         children: [
                           // Summary card
                           Container(
@@ -152,15 +157,19 @@ class RecentOrdersScreen extends ConsumerWidget {
                                 const SizedBox(height: 12),
                                 Row(
                                   children: [
-                                    _StatItem(
-                                      value: '${orders.length}',
-                                      label: 'orders placed',
+                                    Expanded(
+                                      child: _StatItem(
+                                        value: '${orders.length}',
+                                        label: 'orders placed',
+                                      ),
                                     ),
-                                    const SizedBox(width: 32),
-                                    _StatItem(
-                                      value:
-                                          '${AppConstants.currencySymbol} ${totalSpent.toStringAsFixed(0)}',
-                                      label: 'total spent',
+                                    const SizedBox(width: 20),
+                                    Expanded(
+                                      child: _StatItem(
+                                        value:
+                                            '${AppConstants.currencySymbol} ${totalSpent.toStringAsFixed(0)}',
+                                        label: 'total spent',
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -237,6 +246,16 @@ class _OrderCard extends StatelessWidget {
   final OrderModel order;
   const _OrderCard({required this.order});
 
+  /// What to call this order on screen. The POS invoice number if there is
+  /// one, else the tail of the id — the whole 24-character id is unreadable
+  /// and leaves no room for the date and status beside it.
+  String get _reference {
+    final invoice = order.invoice;
+    if (invoice != null) return '#$invoice';
+    final id = order.id;
+    return id.length <= 6 ? '#$id' : '#${id.substring(id.length - 6)}';
+  }
+
   Color get _statusColor {
     switch (order.status) {
       case OrderStatus.completed:
@@ -274,15 +293,18 @@ class _OrderCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(order.id,
-                        style: GoogleFonts.dmSans(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: colors.textPrimary,
-                        )),
-                    const Spacer(),
-                    Text(order.date,
-                        style: AppTextStyles.bodyS(colors.textMuted)),
+                    // Reference and status share the top line; the date sits
+                    // under them, where it has the width to read in full.
+                    Expanded(
+                      child: Text(_reference,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.dmSans(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: colors.textPrimary,
+                          )),
+                    ),
                     const SizedBox(width: 8),
                     Container(
                       padding:
@@ -301,18 +323,31 @@ class _OrderCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 3),
+                Text(order.date,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.bodyS(colors.textMuted)),
                 const SizedBox(height: 10),
                 ...order.items.take(3).map((item) => Padding(
                       padding: const EdgeInsets.only(bottom: 2),
                       child: Row(
                         children: [
-                          Text('${item.name} × ${item.qty}',
-                              style: AppTextStyles.bodyM(colors.textPrimary)),
+                          Flexible(
+                            child: Text('${item.name} × ${item.qty}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.bodyM(colors.textPrimary)),
+                          ),
                           if (item.variant != null) ...[
                             const SizedBox(width: 4),
-                            Text('(${item.variant})',
-                                style:
-                                    AppTextStyles.bodyXS(colors.textMuted)),
+                            Flexible(
+                              child: Text('(${item.variant})',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style:
+                                      AppTextStyles.bodyXS(colors.textMuted)),
+                            ),
                           ],
                         ],
                       ),
@@ -324,17 +359,28 @@ class _OrderCard extends StatelessWidget {
                 Divider(color: colors.border, height: 1),
                 const SizedBox(height: 10),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '${AppConstants.currencySymbol} ${order.total.toStringAsFixed(0)}',
-                      style: AppTextStyles.bold(colors.textPrimary, size: 18),
+                    Expanded(
+                      child: Text(
+                        '${AppConstants.currencySymbol} ${order.total.toStringAsFixed(0)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.bold(colors.textPrimary, size: 18),
+                      ),
                     ),
+                    const SizedBox(width: 10),
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          'View Receipt',
-                          style: AppTextStyles.semibold(colors.textMuted, size: 13),
+                        Flexible(
+                          child: Text(
+                            'View Receipt',
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.fade,
+                            style:
+                                AppTextStyles.semibold(colors.textMuted, size: 13),
+                          ),
                         ),
                         const SizedBox(width: 4),
                         Icon(Icons.arrow_forward_ios_rounded, size: 12, color: colors.textMuted),
