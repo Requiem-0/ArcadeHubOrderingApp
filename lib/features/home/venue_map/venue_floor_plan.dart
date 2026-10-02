@@ -63,7 +63,29 @@ const double _planLeft = -0.7;
 // Both restro areas are drawn 20% larger than the sketch, per the client.
 // The terrace grows wider outward and runs the building's full length (the
 // building is too short for the full 20% there).
+/// The whole outdoor strip, which the decking and the parapet rail follow.
 const Rect _terrace = Rect.fromLTRB(_planLeft, 0, _hallLeft, _planH);
+
+/// It is three zones down its length: Area 51 at the back, the Outdoor
+/// Restro in the middle, the Hookah Bar at the front.
+const double _area51Bottom = 3.4;
+const double _hookahTop = 9.8;
+const Rect _area51 = Rect.fromLTRB(_planLeft, 0, _hallLeft, _area51Bottom);
+const Rect _outdoorRestro =
+    Rect.fromLTRB(_planLeft, _area51Bottom, _hallLeft, _hookahTop);
+const Rect _hookah = Rect.fromLTRB(_planLeft, _hookahTop, _hallLeft, _planH);
+
+/// The Hookah Bar has no zone of its own in the app, and the venue calls it
+/// black.
+const Color _hookahColour = Color(0xFF14141A);
+
+/// How far the wing runs past the elevator.
+const double _easyRoomBottom = 10.5;
+
+/// The Easy Room: the full width of the wing, directly beyond the elevator.
+/// You reach it by passing the side of the shaft.
+const Rect _easyRoom =
+    Rect.fromLTRB(_wingLeft, _wingBottom, _planW, _easyRoomBottom);
 // Both rooms run wall to wall along the back: the Party Room out to the
 // terrace wall, the Play Room across to the service wing.
 const Rect _partyRoom = Rect.fromLTRB(_hallLeft, 0, 10.8, 3.75);
@@ -91,13 +113,16 @@ const Rect _elevator = Rect.fromLTRB(
   25.5,
   _wingBottom,
 );
-/// Flat against the Indoor Restro's left wall, which leaves barely any room
-/// behind it — as the venue has it.
-const Rect _counter = Rect.fromLTRB(_hallLeft, 9.5, 4.2, 11.1);
+/// Square to the Indoor Restro's front wall, running out into the hall. It
+/// ends on the wall's centre line, so it meets the wall squarely instead of
+/// poking out the far side of it into the Restro.
+const Rect _counter = Rect.fromLTRB(19.44, 7.38, 20.24, _restroTop);
 
-/// Mini golf, running from the stairs to the Play Room's doorway.
-const Rect _golf = Rect.fromLTRB(10.95, 4.2, _playRoomDoorRight, 5.45);
-const Offset _golfHole = Offset(17.35, 4.82);
+/// Mini golf, running from the stairs to just short of the Play Room's
+/// doorway. It stops before the door rather than running into it, and sits a
+/// little further off the wall so it reads as lying in the hall.
+const Rect _golf = Rect.fromLTRB(10.95, 4.4, _playRoomDoorLeft - 0.2, 5.65);
+const Offset _golfHole = Offset(16.2, 5.02);
 const double _golfBumperX = 13.65;
 
 const Offset _barCentre = Offset(7.25, 6.65);
@@ -134,13 +159,14 @@ const List<_Wall> _walls = [
   // like a model's cutaway so the rooms show. The terrace wall stays at
   // partition height so it doesn't hide the terrace behind it.
   _Wall(_hallLeft, 0, _planW, 0, _tall),
-  _Wall(_planW, 0, _planW, _wingBottom, _low),
-  _Wall(_wingLeft, _wingBottom, _planW, _wingBottom, _low),
+  _Wall(_planW, 0, _planW, _easyRoomBottom, _low),
+  _Wall(_wingLeft, _easyRoomBottom, _planW, _easyRoomBottom, _low),
   _Wall(_wingLeft, _wingBottom, _wingLeft, _planH, _low),
   _Wall(_hallLeft, _planH, _wingLeft, _planH, _low),
+  _Wall(_planLeft, _area51Bottom, _hallLeft, _area51Bottom, _low),
+  _Wall(_planLeft, _hookahTop, _hallLeft, _hookahTop, _low),
   _Wall(_hallLeft, 0, _hallLeft, 6.2, _partition),
-  _Wall(_hallLeft, 7.1, _hallLeft, 11.1, _partition),
-  _Wall(_hallLeft, 12.0, _hallLeft, _planH, _partition),
+  _Wall(_hallLeft, 7.1, _hallLeft, _hookahTop, _partition),
 
   // Party Room and Play Room, each with a doorway onto the hall. Their outer
   // walls are the terrace wall and the wing wall, so only the divider between
@@ -160,6 +186,9 @@ const List<_Wall> _walls = [
   _Wall(_wingLeft, 4.9, _wingLeft, _wingBottom, _partition),
   _Wall(18.8, 4.2, _wingLeft, 4.2, _partition),
   _Wall(18.55, 4.9, _wingLeft, 4.9, _partition),
+
+  // Easy Room's front wall, broken beside the shaft where you walk in.
+  _Wall(_wingLeft, _wingBottom, 25.4, _wingBottom, _partition),
 
   // Washroom.
   _Wall(_wingLeft, 1.8, 22.3, 1.8, _partition),
@@ -527,8 +556,8 @@ class _FloorPlanPainter extends CustomPainter {
     final outline = <Offset>[
       const Offset(_planLeft, 0),
       const Offset(_planW, 0),
-      const Offset(_planW, _wingBottom),
-      const Offset(_wingLeft, _wingBottom),
+      const Offset(_planW, _easyRoomBottom),
+      const Offset(_wingLeft, _easyRoomBottom),
       const Offset(_wingLeft, _planH),
       const Offset(_planLeft, _planH),
     ];
@@ -601,7 +630,24 @@ class _FloorPlanPainter extends CustomPainter {
         _experience('sportsbar').color,
         0.31,
       ),
-      (_rect(f, _terrace), _rect(f, _terrace.deflate(0.34)), restro, 0.39),
+      (
+        _rect(f, _area51),
+        _rect(f, _area51.deflate(0.28)),
+        _experience('area51').color,
+        0.35,
+      ),
+      (
+        _rect(f, _outdoorRestro),
+        _rect(f, _outdoorRestro.deflate(0.28)),
+        restro,
+        0.39,
+      ),
+      (
+        _rect(f, _hookah),
+        _rect(f, _hookah.deflate(0.28)),
+        _hookahColour,
+        0.43,
+      ),
       (
         _rect(f, _indoorRestro),
         _rect(f, _indoorRestro.deflate(0.34)),
@@ -629,11 +675,46 @@ class _FloorPlanPainter extends CustomPainter {
       );
     }
 
+    _paintEasyRoomFloor(canvas, f);
+
     // The washroom isn't a zone; a quiet neutral wash marks it apart.
     final t = _phase(0.45, 0.8);
     canvas.drawPath(
       _rect(f, _washroom),
       Paint()..color = palette.amenity.withValues(alpha: 0.16 * t),
+    );
+  }
+
+  /// The Easy Room's floor, washed with a gradient rather than the flat tint
+  /// the other zones use.
+  void _paintEasyRoomFloor(Canvas canvas, _PlanFrame f) {
+    final t = _phase(0.47, 0.87);
+    if (t == 0) return;
+
+    final colour = _experience('easyroom').color;
+    final from = palette.zone(colour);
+    final to = palette.zone(_experience('area51').color);
+    final floor = _rect(f, _easyRoom);
+    final tint = palette.tintFor(colour) * t;
+
+    canvas.drawPath(
+      floor,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            from.withValues(alpha: tint * 1.5),
+            to.withValues(alpha: tint * 0.7),
+          ],
+        ).createShader(floor.getBounds()),
+    );
+    canvas.drawPath(
+      _rect(f, _easyRoom.deflate(0.24)),
+      Paint()
+        ..color = palette.zoneInk(colour).withValues(alpha: 0.55 * t)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.1,
     );
   }
 
@@ -714,14 +795,26 @@ class _FloorPlanPainter extends CustomPainter {
       text: 'Indoor Restro',
       maxWidth: 12,
     );
+    zone(
+      'area51',
+      Offset(_area51.center.dx, _area51.center.dy),
+      size: 0.8,
+      maxWidth: 3.4,
+    );
+    zone(
+      'easyroom',
+      Offset(_easyRoom.center.dx, _easyRoom.center.dy),
+      size: 0.62,
+      maxWidth: 2.4,
+    );
     // Along the terrace's length, reading up it, so the name fits the strip.
     zone(
       'rooftop',
-      const Offset(1.4, 6.6),
+      Offset(1.4, _outdoorRestro.center.dy),
       text: 'Outdoor Restro',
       icon: false,
-      size: 1.0,
-      maxWidth: 11,
+      size: 0.85,
+      maxWidth: _outdoorRestro.height - 1.2,
       angle: -math.pi / 2,
     );
     // Behind the bar rather than on it, with its icon in the middle of the ring.
@@ -743,7 +836,7 @@ class _FloorPlanPainter extends CustomPainter {
     _floorText(
       canvas,
       f,
-      centre: const Offset(12.25, 4.83),
+      centre: Offset(12.25, _golf.center.dy),
       text: 'Mini Golf',
       colour: const Color(0xFFF2FAF4).withValues(alpha: 0.95 * t),
       size: 0.46,
@@ -751,10 +844,19 @@ class _FloorPlanPainter extends CustomPainter {
       rise: 1 - t,
     );
 
+    note(
+      'Hookah Bar',
+      Offset(_hookah.center.dx, _hookah.center.dy),
+      size: 0.6,
+    );
     note('Stairs', Offset(_stair.center.dx, 6.8));
     // Just in front of the counter: further forward, the Indoor Restro's wall
     // rises over it; further left, it runs into the Stairs label.
-    note('Counter', const Offset(5.0, 10.3), size: 0.55);
+    // Just in front of the counter: further forward, the Indoor Restro's wall
+    // rises over it; further left, it runs into the Stairs label.
+    // Out on the open hall floor, well clear of the counter: any nearer and
+    // the counter's own block paints over the word.
+    note('Counter', const Offset(18.0, 8.35), size: 0.65);
     // Low on the wing floor, left of the shaft: any higher and the shaft's
     // tall left wall rises over the end of the word.
     note('Elevator', const Offset(22.3, 6.62), size: 0.5);
@@ -933,7 +1035,9 @@ class _FloorPlanPainter extends CustomPainter {
           w.height * rise,
         ),
       ..._barPrisms(fixtures),
-      _Prism.box(_counter, 0, 0.45 * fixtures),
+      // The same height as the partition it runs into, so their tops line up
+      // and the counter does not look like a block sitting on the wall.
+      _Prism.box(_counter, 0, _partition * fixtures),
       ..._golfPrisms(fixtures),
       ..._elevatorPrisms(fixtures),
     ]..sort((p, q) => _depth(p.base).compareTo(_depth(q.base)));

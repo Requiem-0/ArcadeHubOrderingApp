@@ -10,8 +10,13 @@ enum ToastType { success, error, info, warning }
 class AppToast {
   AppToast._();
 
-  static void showSuccess(BuildContext context, String message, {Duration duration = const Duration(seconds: 3)}) {
-    show(context, message, type: ToastType.success, duration: duration);
+  static void showSuccess(BuildContext context, String message,
+      {Duration duration = const Duration(seconds: 3),
+      double bottomInset = 0}) {
+    show(context, message,
+        type: ToastType.success,
+        duration: duration,
+        bottomInset: bottomInset);
   }
 
   static void showError(BuildContext context, String message, {Duration duration = const Duration(seconds: 4)}) {
@@ -31,6 +36,10 @@ class AppToast {
     String message, {
     ToastType type = ToastType.info,
     Duration duration = const Duration(seconds: 3),
+
+    /// Room to leave underneath, for a screen whose own bottom bar floats in
+    /// a Stack and so is invisible to the messenger.
+    double bottomInset = 0,
   }) {
     if (!context.mounted) return;
 
@@ -52,7 +61,7 @@ class AppToast {
         elevation: 0,
         backgroundColor: Colors.transparent,
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+        margin: EdgeInsets.fromLTRB(20, 0, 20, 24 + bottomInset),
         padding: EdgeInsets.zero,
         content: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

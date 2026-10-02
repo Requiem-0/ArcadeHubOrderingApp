@@ -13,6 +13,7 @@ import '../../features/cart/cart_provider.dart';
 import '../../features/favourites/favourites_provider.dart';
 import '../../core/repositories/pos_repository.dart';
 import '../../features/catalogue/data/product_model.dart';
+import '../../core/utils/app_toast.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/price_text.dart';
@@ -71,6 +72,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     0.0,
     (sum, a) => sum + (a.price * (_addonQuantities[a.id] ?? 0)),
   );
+
+  /// Roughly how tall this screen's floating bottom bar is, so a toast can
+  /// clear it instead of landing on the Add button.
+  static const double _bottomBarInset = 148;
 
   /// Shown when the catalogue has not produced this item: still loading, or
   /// the item is gone.
@@ -692,22 +697,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                   addons: Map.from(_addonQuantities),
                                   quantity: _itemCount,
                                 );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Added ${selectedVarObj != null ? "${product.name} (${selectedVarObj.label})" : product.name} to cart!',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                backgroundColor: AppColors.success,
-                                duration: const Duration(seconds: 2),
-                                action: SnackBarAction(
-                                  label: 'VIEW CART',
-                                  textColor: Colors.white,
-                                  onPressed: () => context.push('/cart'),
-                                ),
-                              ),
+                            // The app's own toast, lifted clear of this
+                            // screen's floating bottom bar. The bar below
+                            // already offers "View cart", so the toast does
+                            // not repeat it.
+                            AppToast.showSuccess(
+                              context,
+                              selectedVarObj != null
+                                  ? 'Added ${product.name} (${selectedVarObj.label})'
+                                  : 'Added ${product.name}',
+                              bottomInset: _bottomBarInset,
                             );
                           },
                           child: Container(

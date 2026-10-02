@@ -29,21 +29,28 @@ Future<void> showVenueMap(BuildContext context) {
     builder: (_) => SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Find us',
-              style: GoogleFonts.outfit(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: colors.textPrimary,
+        child: SizedBox(
+          // Most of the screen, so the block is worth pinching around.
+          height: MediaQuery.sizeOf(context).height * 0.72,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Find us',
+                style: GoogleFonts.outfit(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: colors.textPrimary,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            const VenueMapCard(),
-          ],
+              const SizedBox(height: 12),
+              // The sheet is where the map gets room: full width, the place
+              // names, and the turn and recentre controls.
+              const Expanded(child: _VenueMapCanvas(detailed: true)),
+              const SizedBox(height: 12),
+              const _VenueAddress(),
+            ],
+          ),
         ),
       ),
     ),
@@ -54,13 +61,6 @@ Future<void> showVenueMap(BuildContext context) {
 /// a directions action underneath.
 class VenueMapCard extends StatelessWidget {
   const VenueMapCard({super.key});
-
-  Future<void> _openDirections() async {
-    final uri = Uri.parse(
-      'https://www.google.com/maps/dir/?api=1&destination=$_kVenueLat,$_kVenueLon',
-    );
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,55 +81,142 @@ class VenueMapCard extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(6, 10, 6, 0),
             child: _VenueMapCanvas(),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 4, 14, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'New Road, Pokhara',
-                            style: GoogleFonts.outfit(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: colors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '4th floor',
-                            style: GoogleFonts.dmSans(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: colors.primaryRed,
-                            ),
-                          ),
-                        ],
-                      ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(18, 4, 14, 16),
+            child: _VenueAddress(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Where the venue is and how to get there. Shared by the home card and the
+/// full-screen sheet, so the two cannot drift apart.
+class _VenueAddress extends StatelessWidget {
+  const _VenueAddress();
+
+  Future<void> _openDirections() async {
+    final uri = Uri.parse(
+      'https://www.google.com/maps/dir/?api=1&destination=$_kVenueLat,$_kVenueLon',
+    );
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'New Road, Pokhara',
+                    style: GoogleFonts.outfit(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: colors.textPrimary,
                     ),
-                    const SizedBox(width: 12),
-                    _DirectionsButton(onTap: _openDirections, colors: colors),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                // Full width, so it stays on one line instead of breaking
-                // "New / Road" beside the button.
-                Text(
-                  'Corner of Pragati Marg',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 12,
-                    color: colors.textMuted,
                   ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '4th floor',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: colors.primaryRed,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            _DirectionsButton(onTap: _openDirections, colors: colors),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Full width, so it stays on one line instead of breaking
+        // "New / Road" beside the button.
+        Text(
+          'Corner of Pragati Marg',
+          style: GoogleFonts.dmSans(fontSize: 12, color: colors.textMuted),
+        ),
+      ],
+    );
+  }
+}
+
+/// A small control on the map: turn the block, or put it back on the venue
+/// after a pinch has wandered off.
+class _MapChip extends StatelessWidget {
+  final IconData icon;
+
+  /// Dropped on the card, where there is room for the icon and nothing else.
+  final String? label;
+
+  /// What the icon means, for the card, where the word is not written beside
+  /// it: a press and hold says it, and a screen reader reads it.
+  final String tooltip;
+
+  final VoidCallback onTap;
+
+  const _MapChip({
+    required this.icon,
+    this.label,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: colors.card.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(999),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: onTap,
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: label == null ? 7 : 10,
+              vertical: 6,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: colors.border),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: label == null ? 15 : 13,
+                  color: colors.textSecondary,
                 ),
+                if (label != null) ...[
+                  const SizedBox(width: 5),
+                  Text(
+                    label!,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -156,8 +243,10 @@ class _DirectionsButton extends StatelessWidget {
             children: [
               const Icon(Icons.near_me_rounded, size: 16, color: Colors.white),
               const SizedBox(width: 6),
+              // The arrow already says "get": the word earns nothing, and the
+              // address beside it needs the width more than this button does.
               Text(
-                'Get directions',
+                'Directions',
                 style: GoogleFonts.dmSans(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -173,14 +262,68 @@ class _DirectionsButton extends StatelessWidget {
 }
 
 class _VenueMapCanvas extends StatefulWidget {
-  const _VenueMapCanvas();
+  /// How much the map says. The card is close in on the venue and carries the
+  /// two names people steer by; the full sheet, which has the room, shows
+  /// every name, the street names, and the controls that go with them.
+  final bool detailed;
+
+  const _VenueMapCanvas({this.detailed = false});
 
   @override
   State<_VenueMapCanvas> createState() => _VenueMapCanvasState();
 }
 
 class _VenueMapCanvasState extends State<_VenueMapCanvas>
-    with SingleTickerProviderStateMixin {
+        // Two controllers now: the block rising, and the block turning.
+        with
+        TickerProviderStateMixin {
+  /// How close in the block is drawn, against a frame that would fit the whole
+  /// tile. This belongs to the drawing, not to the viewer: magnifying the
+  /// finished map blew the pin and the place names up with it, which is what
+  /// made the card look like a poster. Drawn at this scale instead, the
+  /// buildings come closer while the labels stay the size they were.
+  double get _frameZoom => widget.detailed ? 2.4 : 3.4;
+
+  final TransformationController _zoom = TransformationController();
+  bool _framed = false;
+
+  /// A quarter turn at a time, so each tap brings a different side of the
+  /// buildings — and the parking — toward the camera.
+  static const double _quarter = math.pi / 2;
+  late final AnimationController _spin = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420),
+  );
+  double _turnFrom = 0;
+  double _turnTo = 0;
+
+  double get _turn =>
+      _turnFrom +
+      (_turnTo - _turnFrom) * Curves.easeInOut.transform(_spin.value);
+
+  void _turnBlock() {
+    _turnFrom = _turn;
+    _turnTo = _turnFrom + _quarter;
+    _spin
+      ..value = 0
+      ..forward();
+  }
+
+  /// Slides the drawing so the venue's roof sits where it should in the
+  /// window, at the scale it was drawn. The map is bigger than the window, so
+  /// this is a pan, not a zoom — and panning leaves the labels alone.
+  void _frameOnVenue(_Frame frame, Size viewport) {
+    final roof = frame.venueRoof();
+    // Low and right of centre on the card: at this distance that is what
+    // leaves room for Bhat-Bhateni off the venue's back corner and Mantra
+    // Thakali across the parking. The sheet simply centres.
+    final target = widget.detailed
+        ? Offset(viewport.width * 0.48, viewport.height * 0.52)
+        : Offset(viewport.width * 0.53, viewport.height * 0.64);
+    _zoom.value = Matrix4.identity()
+      ..translateByDouble(target.dx - roof.dx, target.dy - roof.dy, 0, 1);
+  }
+
   // The block rises once, when the card first scrolls into view. It sits far
   // below the fold, so starting on mount would finish before anyone sees it.
   late final AnimationController _rise = AnimationController(
@@ -224,6 +367,8 @@ class _VenueMapCanvasState extends State<_VenueMapCanvas>
   void dispose() {
     _position?.removeListener(_maybeStart);
     _rise.dispose();
+    _spin.dispose();
+    _zoom.dispose();
     super.dispose();
   }
 
@@ -233,72 +378,153 @@ class _VenueMapCanvasState extends State<_VenueMapCanvas>
     final palette = colors.isDark ? _MapPalette.dark : _MapPalette.light;
 
     return LayoutBuilder(
-      builder: (context, constraints) {
-        final frame = _Frame.fit(constraints.maxWidth);
+      builder: (context, constraints) => AnimatedBuilder(
+        animation: _spin,
+        builder: (context, _) =>
+            _buildMap(context, constraints, colors, palette),
+      ),
+    );
+  }
 
-        return GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTapUp: (details) {
-            if (frame.hitsVenue(details.localPosition)) {
-              showVenueFloorPlan(context);
-            }
-          },
-          child: SizedBox(
-            width: frame.width,
-            height: frame.height,
-            child: AnimatedBuilder(
-              animation: _rise,
-              builder: (context, _) {
-                final t = _rise.value;
-                final pin = frame.venuePin(t);
-                // The label lands last, once the venue has finished rising.
-                final pinIn = Curves.easeOutBack.transform(
-                  ((t - 0.62) / 0.38).clamp(0.0, 1.0),
-                );
+  Widget _buildMap(
+    BuildContext context,
+    BoxConstraints constraints,
+    AppThemeColors colors,
+    _MapPalette palette,
+  ) {
+    final frame = _Frame.fit(
+      constraints.maxWidth,
+      turn: _turn,
+      zoom: _frameZoom,
+    );
+    // The window the drawing is seen through: the sheet hands the canvas a
+    // height, while on the card it keeps the proportions it used to have.
+    final viewport = Size(
+      constraints.maxWidth,
+      constraints.maxHeight.isFinite
+          ? constraints.maxHeight
+          : constraints.maxWidth * 0.64,
+    );
+    if (!_framed) {
+      _framed = true;
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _frameOnVenue(frame, viewport),
+      );
+    }
 
-                return Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned.fill(
-                      child: CustomPaint(
-                        painter: _VenueMapPainter(
-                          frame: frame,
-                          palette: palette,
-                          progress: t,
-                        ),
-                      ),
+    final map = GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTapUp: (details) {
+        if (frame.hitsVenue(details.localPosition)) {
+          showVenueFloorPlan(context);
+        }
+      },
+      child: SizedBox(
+        width: frame.width,
+        height: frame.height,
+        child: AnimatedBuilder(
+          animation: _rise,
+          builder: (context, _) {
+            final t = _rise.value;
+            final pin = frame.venuePin(t);
+            // The label lands last, once the venue has finished rising.
+            final pinIn = Curves.easeOutBack.transform(
+              ((t - 0.62) / 0.38).clamp(0.0, 1.0),
+            );
+
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: _VenueMapPainter(
+                      frame: frame,
+                      palette: palette,
+                      progress: t,
+                      landmarkCount: widget.detailed ? _kLandmarks.length : 2,
+                      roadNames: widget.detailed,
                     ),
-                    Positioned(
-                      left: pin.dx,
-                      top: pin.dy,
-                      child: FractionalTranslation(
-                        // Set right of the stem: centred, the pill covers the
-                        // Bhat-Bhateni label at the back of the tile.
-                        translation: const Offset(-0.3, -1.0),
-                        child: Opacity(
-                          opacity: pinIn.clamp(0.0, 1.0),
-                          child: Transform.scale(
-                            scale: 0.7 + 0.3 * pinIn,
-                            alignment: Alignment.bottomCenter,
-                            child: Semantics(
-                              button: true,
-                              label: 'Show the Arcade Hub floor plan',
-                              child: GestureDetector(
-                                onTap: () => showVenueFloorPlan(context),
-                                child: _VenuePin(colors: colors),
-                              ),
-                            ),
+                  ),
+                ),
+                Positioned(
+                  left: pin.dx,
+                  top: pin.dy,
+                  child: FractionalTranslation(
+                    // Set left of the stem: the card is close in now, and
+                    // hung to the right the pill sits straight over Mantra
+                    // Thakali on the far side of the parking.
+                    translation: const Offset(-1.0, -1.0),
+                    child: Opacity(
+                      opacity: pinIn.clamp(0.0, 1.0),
+                      child: Transform.scale(
+                        scale: 0.7 + 0.3 * pinIn,
+                        alignment: Alignment.bottomCenter,
+                        child: Semantics(
+                          button: true,
+                          label: 'Show the Arcade Hub floor plan',
+                          child: GestureDetector(
+                            onTap: () => showVenueFloorPlan(context),
+                            child: _VenuePin(colors: colors),
                           ),
                         ),
                       ),
                     ),
-                  ],
-                );
-              },
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+
+    return SizedBox(
+      height: viewport.height,
+      child: Stack(
+        children: [
+          ClipRect(
+            child: InteractiveViewer(
+              transformationController: _zoom,
+              // The drawing is bigger than the window and is panned around
+              // inside it, so it must keep its own size rather than be squeezed
+              // into the viewport.
+              constrained: false,
+              // Out far enough to take in the whole tile, even turned on its
+              // corner; in far enough to read the parking bays. The map is
+              // already drawn close in, so pinching out has further to go.
+              minScale: 0.8 / _frameZoom,
+              maxScale: 8,
+              // Room to drag the far corners of the block into view.
+              boundaryMargin: const EdgeInsets.all(80),
+              child: map,
             ),
           ),
-        );
-      },
+          // Both controls on the card as well — it is the only way to see the
+          // parking from the other side, and to get back after a pinch — but
+          // the card has room for the icons alone.
+          Positioned(
+            right: 6,
+            bottom: 6,
+            child: Row(
+              children: [
+                _MapChip(
+                  icon: Icons.rotate_right_rounded,
+                  label: widget.detailed ? 'Rotate' : null,
+                  tooltip: 'Rotate the map',
+                  onTap: _turnBlock,
+                ),
+                const SizedBox(width: 6),
+                _MapChip(
+                  icon: Icons.my_location_rounded,
+                  label: widget.detailed ? 'Recentre' : null,
+                  tooltip: 'Back to Arcade Hub',
+                  onTap: () => _frameOnVenue(frame, viewport),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -376,14 +602,29 @@ class _Road {
   const _Road(this.kind, this.width, this.pts);
 }
 
+/// Flat ground that is not a road: the parking apron beside the venue. Not
+/// from OpenStreetMap — the venue told us it is there.
+class _Ground {
+  final int kind; // 0 parking
+  final List<double> pts;
+  const _Ground(this.kind, this.pts);
+}
+
 class _Label {
   final String text;
   final double x;
   final double y;
 
-  /// -1 text ends at the anchor, 0 centred on it, 1 starts at it.
+  /// -1 text ends at the anchor, 0 centred on it, 1 starts at it. Landmarks
+  /// work this out as they are painted; road names keep what they are given.
   final int align;
-  const _Label(this.text, this.x, this.y, this.align);
+
+  /// Height to float the name at. A landmark sits on its building's roof; at
+  /// ground level the dot appears at the base of the block, which reads as
+  /// the gap beside it.
+  final double z;
+
+  const _Label(this.text, this.x, this.y, this.align, [this.z = 0]);
 }
 
 /// Screen placement of the diorama for a given card width.
@@ -402,10 +643,28 @@ class _Frame {
   final double width;
   final double height;
 
-  const _Frame(this.scale, this.origin, this.width, this.height);
+  /// How far the block is turned on its stand, in radians. Everything is
+  /// rotated in plan before the isometric projection, so walls stay upright
+  /// and the far sides of buildings come into view as it turns.
+  final double turn;
 
-  factory _Frame.fit(double width) {
-    const h = _kTileHalf;
+  const _Frame(this.scale, this.origin, this.width, this.height, this.turn);
+
+  /// Plan coordinates turned on the stand.
+  Offset spin(double x, double y) {
+    if (turn == 0) return Offset(x, y);
+    final c = math.cos(turn), s = math.sin(turn);
+    return Offset(x * c - y * s, x * s + y * c);
+  }
+
+  /// [zoom] draws the block larger than a fit to [width] would: the canvas
+  /// grows with it and is seen through a window of [width], so the map comes
+  /// closer without the labels drawn over it changing size.
+  factory _Frame.fit(double width, {double turn = 0, double zoom = 1}) {
+    // The tile is square, so a turned tile reaches its own diagonal. Sizing
+    // to that keeps the corners on screen at every angle instead of the
+    // layout jumping as it turns.
+    const h = _kTileHalf * math.sqrt2;
     final tallest = _kBlocks.fold<double>(
       _kVenueHeight,
       (m, b) => math.max(m, b.height),
@@ -420,13 +679,14 @@ class _Frame {
     const maxY = h * _k + _slab * _zScale;
 
     const pad = 3.0;
-    final s = width / (maxX - minX + 2 * pad);
+    final s = width * zoom / (maxX - minX + 2 * pad);
     final height = (maxY - minY + 2 * pad) * s;
     return _Frame(
       s,
       Offset((-minX + pad) * s, (-minY + pad) * s),
-      width,
+      width * zoom,
       height,
+      turn,
     );
   }
 
@@ -435,10 +695,13 @@ class _Frame {
     return (c.dx + c.dy) * _k * 0.5 - _kVenueHeight * _zScale;
   }
 
-  Offset project(double x, double y, [double z = 0]) => Offset(
-    origin.dx + (y - x) * _k * scale,
-    origin.dy + ((x + y) * _k * 0.5 - z * _zScale) * scale,
-  );
+  Offset project(double x, double y, [double z = 0]) {
+    final p = spin(x, y);
+    return Offset(
+      origin.dx + (p.dy - p.dx) * _k * scale,
+      origin.dy + ((p.dx + p.dy) * _k * 0.5 - z * _zScale) * scale,
+    );
+  }
 
   /// Whether a tap lands on the venue building, walls or roof.
   bool hitsVenue(Offset point) {
@@ -450,6 +713,12 @@ class _Frame {
         ..add(project(x, y, _kVenueHeight));
     }
     return (Path()..addPolygon(_hull(outline), true)).contains(point);
+  }
+
+  /// The middle of the venue's roof on screen: what the map frames itself on.
+  Offset venueRoof() {
+    final c = _centroid(_kVenueFootprint);
+    return project(c.dx, c.dy, _kVenueHeight);
   }
 
   /// Where the label's bottom edge sits: above the roof, at the top of the stem.
@@ -574,10 +843,22 @@ class _VenueMapPainter extends CustomPainter {
   final _MapPalette palette;
   final double progress;
 
+  /// How many place names to draw. They are listed in order of how useful
+  /// they are for giving directions, so a small card can take the first few
+  /// and still name what people steer by.
+  final int landmarkCount;
+
+  /// Whether to write the street names on the map. The card does not: it is
+  /// too close in for them to fit, and the line under it already says New
+  /// Road, on the corner of Pragati Marg.
+  final bool roadNames;
+
   _VenueMapPainter({
     required this.frame,
     required this.palette,
     required this.progress,
+    required this.landmarkCount,
+    required this.roadNames,
   });
 
   // Camera and light directions on the ground plane.
@@ -595,6 +876,7 @@ class _VenueMapPainter extends CustomPainter {
     canvas.clipPath(ground);
     canvas.drawPath(ground, Paint()..color = palette.ground);
     _paintRoads(canvas);
+    _paintGroundAreas(canvas);
     _paintVenueGlow(canvas);
     _paintShadows(canvas);
     canvas.restore();
@@ -667,6 +949,44 @@ class _VenueMapPainter extends CustomPainter {
   }
 
   // Ground layer -------------------------------------------------------------
+
+  /// The parking apron: asphalt with bays marked out, laid on the ground so
+  /// the buildings either side stand over its edges.
+  void _paintGroundAreas(Canvas canvas) {
+    for (final g in _kGroundAreas) {
+      final pts = [
+        for (var i = 0; i < g.pts.length; i += 2)
+          frame.project(g.pts[i], g.pts[i + 1]),
+      ];
+      final path = Path()..addPolygon(pts, true);
+
+      canvas.drawPath(path, Paint()..color = palette.road);
+      canvas.drawPath(
+        path,
+        Paint()
+          ..color = palette.kerb
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2 * frame.scale,
+      );
+
+      // Bays down the long side, so it reads as parking rather than a yard.
+      final xs = [for (var i = 0; i < g.pts.length; i += 2) g.pts[i]];
+      final ys = [for (var i = 1; i < g.pts.length; i += 2) g.pts[i]];
+      final x0 = xs.reduce(math.min), x1 = xs.reduce(math.max);
+      final y0 = ys.reduce(math.min), y1 = ys.reduce(math.max);
+      final bay = Paint()
+        ..color = palette.laneDash
+        ..strokeWidth = 1.1 * frame.scale
+        ..strokeCap = StrokeCap.round;
+      for (var y = y0 + 2.6; y < y1 - 0.5; y += 2.6) {
+        canvas.drawLine(
+          frame.project(x0 + 0.6, y),
+          frame.project(x1 - 0.6, y),
+          bay,
+        );
+      }
+    }
+  }
 
   void _paintRoads(Canvas canvas) {
     final kerb = Paint()..color = palette.kerb;
@@ -838,7 +1158,7 @@ class _VenueMapPainter extends CustomPainter {
   }
 
   double _depth(List<double> pts) {
-    final c = _centroid(pts);
+    final c = frame.spin(_centroid(pts).dx, _centroid(pts).dy);
     return c.dx + c.dy;
   }
 
@@ -850,18 +1170,22 @@ class _VenueMapPainter extends CustomPainter {
       final a = Offset(pts[i * 2], pts[i * 2 + 1]);
       final j = (i + 1) % n;
       final b = Offset(pts[j * 2], pts[j * 2 + 1]);
-      final e = b - a;
+      // Which walls face the camera depends on how far the block is turned,
+      // so the edge is measured after the turn. The corners themselves stay
+      // in plan coordinates for projecting.
+      final e = frame.spin(b.dx, b.dy) - frame.spin(a.dx, a.dy);
       if (e.distance == 0) continue;
       final normal = Offset(e.dy, -e.dx) / e.distance;
       if (normal.dx * _camera.dx + normal.dy * _camera.dy > 0.001) {
         walls.add((a: a, b: b, normal: normal));
       }
     }
-    walls.sort((w1, w2) {
-      final d1 = (w1.a.dx + w1.b.dx + w1.a.dy + w1.b.dy);
-      final d2 = (w2.a.dx + w2.b.dx + w2.a.dy + w2.b.dy);
-      return d1.compareTo(d2);
-    });
+    double depth(Offset p, Offset q) {
+      final a = frame.spin(p.dx, p.dy), b = frame.spin(q.dx, q.dy);
+      return a.dx + a.dy + b.dx + b.dy;
+    }
+
+    walls.sort((w1, w2) => depth(w1.a, w1.b).compareTo(depth(w2.a, w2.b)));
     return walls;
   }
 
@@ -1056,7 +1380,7 @@ class _VenueMapPainter extends CustomPainter {
   void _paintLabels(Canvas canvas) {
     final t = ((progress - 0.5) / 0.5).clamp(0.0, 1.0);
     if (t == 0) return;
-    for (final l in _kRoadLabels) {
+    for (final l in roadNames ? _kRoadLabels : const <_Label>[]) {
       _text(
         canvas,
         l.text,
@@ -1066,24 +1390,30 @@ class _VenueMapPainter extends CustomPainter {
         align: l.align,
       );
     }
-    for (final l in _kLandmarks) {
-      final p = frame.project(l.x, l.y);
+    // Which side a name reads on is decided here rather than baked into the
+    // data, because the block turns: a name set leftward for the default view
+    // ends up written across its neighbour once the map is rotated. Text
+    // always runs toward the middle of the tile, so it stays over the map and
+    // points back at its own dot.
+    final centre = frame.project(0, 0);
+    for (final l in _kLandmarks.take(landmarkCount)) {
+      final p = frame.project(l.x, l.y, l.z);
       canvas.drawCircle(
         p,
         2.2,
         Paint()..color = palette.label.withValues(alpha: t),
       );
-      // Side-set names clear the dot sideways; centred names sit under it.
-      final offset = l.align == 0
-          ? const Offset(0, 10)
-          : Offset(6.0 * l.align, 0);
+      final align = p.dx > centre.dx ? -1 : 1;
       _text(
         canvas,
         l.text,
-        p + offset,
+        p + Offset(6.0 * align, 0),
         t,
         weight: FontWeight.w500,
-        align: l.align,
+        align: align,
+        // Big enough to read on a card at arm's length; the sheet is closer
+        // to the eye and carries six of them, so it sets them smaller.
+        size: landmarkCount > 2 ? 12 : 14,
       );
     }
   }
@@ -1095,12 +1425,13 @@ class _VenueMapPainter extends CustomPainter {
     double opacity, {
     required FontWeight weight,
     int align = 0,
+    double size = 10,
   }) {
     TextPainter build(Paint? stroke, Color? fill) => TextPainter(
       text: TextSpan(
         text: text,
         style: GoogleFonts.dmSans(
-          fontSize: 10,
+          fontSize: size,
           fontWeight: weight,
           letterSpacing: 0.2,
           foreground: stroke,
@@ -1131,7 +1462,7 @@ class _VenueMapPainter extends CustomPainter {
 
   /// True north, since the grid is rotated to square up the streets.
   void _paintCompass(Canvas canvas, Size size) {
-    final r = math.pi * _kGridRotationDeg / 180;
+    final r = math.pi * _kGridRotationDeg / 180 - frame.turn;
     final north = Offset(-math.sin(r), math.cos(r)); // (0, 1) in grid space
     final screen = Offset(
       (north.dy - north.dx) * math.sqrt1_2,
@@ -1195,7 +1526,10 @@ class _VenueMapPainter extends CustomPainter {
   bool shouldRepaint(_VenueMapPainter old) =>
       old.progress != progress ||
       old.palette != palette ||
-      old.frame.width != frame.width;
+      old.frame.width != frame.width ||
+      old.frame.turn != frame.turn ||
+      old.landmarkCount != landmarkCount ||
+      old.roadNames != roadNames;
 }
 
 /// Andrew's monotone chain.

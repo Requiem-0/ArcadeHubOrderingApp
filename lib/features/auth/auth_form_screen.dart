@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/utils/app_toast.dart';
 import '../../core/brandkit/app_breakpoints.dart';
 import '../../core/brandkit/app_colors.dart';
 import '../../core/brandkit/app_text_styles.dart';
@@ -72,12 +73,7 @@ class _AuthFormScreenState extends ConsumerState<AuthFormScreen> {
     // Validation
     for (final f in widget.fields) {
       if ((values[f.key] ?? '').isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Please enter ${f.label.toLowerCase()}'),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        AppToast.showWarning(context, 'Please enter ${f.label.toLowerCase()}');
         return;
       }
     }
@@ -118,12 +114,7 @@ class _AuthFormScreenState extends ConsumerState<AuthFormScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(successMsg),
-            backgroundColor: AppColors.success,
-          ),
-        );
+        AppToast.showSuccess(context, successMsg);
         context.go(widget.nextRoute);
       }
     } catch (e) {
@@ -140,12 +131,7 @@ class _AuthFormScreenState extends ConsumerState<AuthFormScreen> {
             msg = e.message;
           }
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(msg),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        AppToast.showError(context, msg);
       }
     } finally {
       if (mounted) {
